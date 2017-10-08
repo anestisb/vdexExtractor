@@ -12,10 +12,11 @@ information is available
 * Clone this repository
 * Install Android NDK if you want to cross-compile for Android devices
 * Invoke `make.sh` bash script with desired build target
-  * `$ ./make.sh` - default system compiler
-  * `$ ./make.sh gcc` - prefer gcc
-  * `$ ./make.sh clang` - prefer clang
-  * `$ ./make.sh cross-android` - cross-compile for Android with NDK
+  * `$ ./make.sh` - if CC not defined from env use gcc by default
+  * `$ ./make.sh gcc` - compile with gcc
+  * `$ ./make.sh clang` - compile with clang
+  * `$ ./make.sh cross-android` - cross-compile (armeabi-v7a, arm64-v8a, x86 &
+  x86_64) for Android with NDK
 * Executables are copied under the `bin` directory
 
 

@@ -50,7 +50,7 @@ optimized bytecode you can use the oatdump patch that is available
 
 ## Changelog
 
-* __0.1.0__ - 8 September 2017
+* __0.1.0__ - 8 October 2017
   * Initial release
 
 

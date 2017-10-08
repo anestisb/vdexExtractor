@@ -2,4 +2,3 @@ src/*.o
 src/vdexExtractor
 obj
 libs
-bin/*

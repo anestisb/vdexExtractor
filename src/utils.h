@@ -31,4 +31,6 @@ uint8_t* utils_mapFileToRead(char*, off_t*, int*);
 
 bool utils_writeToFd(int, const uint8_t*, off_t);
 
+void utils_hexDump(char*, const uint8_t*, int);
+
 #endif

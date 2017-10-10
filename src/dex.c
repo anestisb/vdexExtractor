@@ -2,9 +2,10 @@
 #include "log.h"
 #include "utils.h"
 #include "dex.h"
+#include "dex_instruction.h"
 
-static uint8_t *quickening_info_ptr;
-static uint8_t *quickening_info_end;
+static const uint8_t *quickening_info_ptr;
+static const uint8_t *quickening_info_end;
 
 static uint16_t *code_ptr;
 static uint16_t *code_end;
@@ -17,8 +18,6 @@ static void initCodeIterator(uint16_t *pCode, uint32_t codeSize)
   dex_pc = 0;
 }
 
-/* Under development */
-#if 0
 static bool isCodeIteratorDone()
 {
   return code_ptr >= code_end;
@@ -26,11 +25,10 @@ static bool isCodeIteratorDone()
 
 static void codeIteratorAdvance()
 {
-  size_t instruction_size = *Instruction::At(code_ptr_).SizeInCodeUnits();
-  code_ptr_ += instruction_size;
-  dex_pc_ += instruction_size;
+  size_t instruction_size = dexInstr_SizeInCodeUnits(code_ptr);
+  code_ptr += instruction_size;
+  dex_pc += instruction_size;
 }
-#endif
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader)
 {
@@ -38,9 +36,11 @@ bool dex_isValidDexMagic(const dexHeader *pDexHeader)
     if (((memcmp(pDexHeader->magic.dex,  DEX_MAGIC, 3) != 0)    && // Check if DEX
          (memcmp(pDexHeader->magic.dex, ODEX_MAGIC, 3) != 0))   || // Check if ODEX
         (memcmp(pDexHeader->magic.nl,   "\n",      1) != 0)     || // Check for newline
-        ((memcmp(pDexHeader->magic.ver, API_LE_13, 3) != 0) &&     // Check for API SDK <= 13
-         (memcmp(pDexHeader->magic.ver, API_GE_14, 3) != 0) &&     // Check for API SDK >= 14
-         (memcmp(pDexHeader->magic.ver, API_GE_22, 3) != 0))    || // Check for API SDK >= 22
+        ((memcmp(pDexHeader->magic.ver, API_LE_13, 3) != 0) &&     // Check for API <= 13
+         (memcmp(pDexHeader->magic.ver, API_GE_14, 3) != 0) &&     // Check for API >= 14
+         (memcmp(pDexHeader->magic.ver, API_GE_22, 3) != 0) &&     // Check for API >= 22
+         (memcmp(pDexHeader->magic.ver, API_26,    3) != 0) &&     // Check for API == 26
+         (memcmp(pDexHeader->magic.ver, API_GT_26, 3) != 0))    || // Check for API > 26
         (memcmp(pDexHeader->magic.zero, "\0",      1) != 0)) {     // Check for zero
 
         return false;
@@ -59,7 +59,7 @@ void dex_repairDexCRC(const uint8_t *buf, off_t fileSz)
 }
 
 bool dex_DexcompileDriver(dexCode *pDexCode,
-                          uint8_t *quickening_data_start,
+                          const uint8_t *quickening_data_start,
                           uint32_t quickening_data_size,
                           bool decompile_return_instruction)
 {
@@ -70,6 +70,52 @@ bool dex_DexcompileDriver(dexCode *pDexCode,
   quickening_info_ptr = quickening_data_start;
   quickening_info_end = quickening_data_start + quickening_data_size;
   initCodeIterator(pDexCode->insns, pDexCode->insns_size);
+
+  while (isCodeIteratorDone() == false) {
+
+    switch(dexInstr_getOpcode(code_ptr)) {
+      case RETURN_VOID_NO_BARRIER:
+        LOGMSG(l_INFO, "RETURN_VOID_NO_BARRIER");
+      case NOP:
+        LOGMSG(l_INFO, "NOP");
+      case IGET_QUICK:
+        LOGMSG(l_INFO, "IGET_QUICK");
+      case IGET_WIDE_QUICK:
+        LOGMSG(l_INFO, "IGET_WIDE_QUICK");
+      case IGET_OBJECT_QUICK:
+        LOGMSG(l_INFO, "IGET_OBJECT_QUICK");
+      case IGET_BOOLEAN_QUICK:
+        LOGMSG(l_INFO, "IGET_BOOLEAN_QUICK");
+      case IGET_BYTE_QUICK:
+        LOGMSG(l_INFO, "IGET_BYTE_QUICK");
+      case IGET_CHAR_QUICK:
+        LOGMSG(l_INFO, "IGET_CHAR_QUICK");
+      case IGET_SHORT_QUICK:
+        LOGMSG(l_INFO, "IGET_SHORT_QUICK");
+      case IPUT_QUICK:
+        LOGMSG(l_INFO, "IPUT_QUICK");
+      case IPUT_BOOLEAN_QUICK:
+        LOGMSG(l_INFO, "IPUT_BOOLEAN_QUICK");
+      case IPUT_BYTE_QUICK:
+        LOGMSG(l_INFO, "IPUT_BYTE_QUICK");
+      case IPUT_CHAR_QUICK:
+        LOGMSG(l_INFO, "IPUT_CHAR_QUICK");
+      case IPUT_SHORT_QUICK:
+        LOGMSG(l_INFO, "IPUT_SHORT_QUICK");
+      case IPUT_WIDE_QUICK:
+        LOGMSG(l_INFO, "IPUT_WIDE_QUICK");
+      case IPUT_OBJECT_QUICK:
+        LOGMSG(l_INFO, "IPUT_OBJECT_QUICK");
+      case INVOKE_VIRTUAL_QUICK:
+        LOGMSG(l_INFO, "INVOKE_VIRTUAL_QUICK");
+      case INVOKE_VIRTUAL_RANGE_QUICK:
+        LOGMSG(l_INFO, "INVOKE_VIRTUAL_RANGE_QUICK");
+      default:
+        break;
+    }
+
+    codeIteratorAdvance();
+  }
 
   if (quickening_info_ptr != quickening_info_end) {
     if (quickening_data_start == quickening_info_ptr) {

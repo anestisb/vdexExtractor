@@ -21,6 +21,7 @@
 */
 
 #ifndef _DEX_H_
+#define _DEX_H_
 
 #include <zlib.h>
 #include "sha1.h"
@@ -39,6 +40,8 @@ typedef int64_t   s8;
 #define API_LE_13  "035"
 #define API_GE_14  "036"
 #define API_GE_22  "037"
+#define API_26     "038"
+#define API_GT_26  "039"
 #define SHA1Len    SHA1HashSize
 
 typedef struct __attribute__((packed)) {
@@ -234,7 +237,8 @@ void dex_repairDexCRC(const uint8_t*, off_t);
 /*
  * TODO: Describe me
  */
-bool dex_DexcompileDriver(dexCode*, uint8_t*, uint32_t, bool);
+bool dex_DexcompileDriver(dexCode*, const uint8_t*, uint32_t, bool);
+
 /*
  * Reads an unsigned LEB128 (Little-Endian Base 128) value, updating the
  * given pointer to point just past the end of the read value. This function

@@ -79,64 +79,6 @@ static void formatName(char *outBuf,
   }
 }
 
-/* Under development */
-#if 0
-static bool Unquicken(const uint8_t *dexFileBuf,
-                      uint8_t *QuickInfoData,
-                      uint32_t QuickInfoDataSize)
-{
-  uint8_t* quickening_info_ptr = QuickInfoData;
-  uint8_t* quickening_info_end = QuickInfoData + QuickInfoDataSize;
-  const dexHeader *pDexHeader = (dexHeader*)dexFileBuf;
-  if (QuickInfoDataSize == 0) {
-    // Nothing to revert
-    return true;
-  }
-
-  // For each class
-  dexClassDef *dexClassDefs = (dexClassDef*)(dexFileBuf + pDexHeader->classDefsOff);
-  for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
-    const dexClassData *pClassData;
-    if (dexClassDefs[i].classDataOff == 0) {
-      continue;
-    } else {
-      pClassData = (dexClassData*)(dexFileBuf + dexClassDefs[i].classDataOff);
-    }
-
-    // For each direct method
-    const dexMethod *dexDirectMethods = pClassData->directMethods;
-    for (uint32_t j = 0; j < pClassData->header.directMethodsSize; ++j) {
-
-      // Skip empty methods
-      if (dexDirectMethods[j].codeOff == 0) {
-        continue;
-      }
-
-      // Get method code offset and revert quickened instructions
-      dexCode *pDexCode = (dexCode*)(dexFileBuf + dexDirectMethods[j].codeOff);
-
-      // For quickening info blob the first 4bytes are the inner blobs size
-      uint32_t quickening_size = *quickening_info_ptr;
-      quickening_info_ptr += sizeof(uint32_t);
-      if (dex_DexcompileDriver(pDexCode, quickening_info_ptr, quickening_size, false) == false) {
-        LOGMSG(l_ERROR, "Failed to decompile DEX file");
-        return false;
-      }
-      quickening_info_ptr += quickening_size;
-    }
-
-    // For each virtual method
-  }
-
-  if (quickening_info_ptr != quickening_info_end) {
-    LOGMSG(l_ERROR, "Failed to process all outer quickening info");
-    return false;
-  }
-
-  return true;
-}
-#endif
-
 int main(int argc, char **argv)
 {
   int c;
@@ -219,11 +161,22 @@ int main(int argc, char **argv)
     const vdexHeader *pVdexHeader = (const vdexHeader*)buf;
 
     /* Validate VDEX magic header */
-    if (!vdex_isValidVDex(pVdexHeader)) {
+    if (!vdex_isValidVdex(buf)) {
       LOGMSG(l_WARN, "Invalid vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
       continue;
+    }
+
+    if (unquicken) {
+      LOGMSG(l_WARN, "Vdex unquickening backend is under development");
+      // if(vdex_Unquicken(buf) == false) {
+      //   LOGMSG(l_ERROR, "Failed to unquicken dex files - skipping '%s'",
+      //          pFiles.files[f]);
+      //   munmap(buf, fileSz);
+      //   close(srcfd);
+      //   continue;
+      // }
     }
 
     const uint8_t *current_data = NULL;
@@ -235,11 +188,6 @@ int main(int argc, char **argv)
         continue;
       }
       dexHeader *pDexHeader = (dexHeader*)current_data;
-
-      /* Unquicken (Under development) */
-      if (unquicken) {
-        LOGMSG(l_WARN, "Vdex unquickening backend is under development");
-      }
 
       /* Repair CRC */
       dex_repairDexCRC(current_data, pDexHeader->fileSize);

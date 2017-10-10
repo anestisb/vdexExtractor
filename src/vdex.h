@@ -54,9 +54,9 @@ typedef struct __attribute__((packed)) {
   dexFile *pDexFiles;
 } vdexFile;
 
-bool vdex_isMagicValid(const vdexHeader*);
-bool vdex_isVersionValid(const vdexHeader*);
-bool vdex_isValidVDex(const vdexHeader*);
+bool vdex_isMagicValid(const uint8_t*);
+bool vdex_isVersionValid(const uint8_t*);
+bool vdex_isValidVdex(const uint8_t*);
 bool vdex_hasDexSection(const uint8_t*);
 size_t vdex_GetSizeOfChecksumsSection(const uint8_t*);
 const uint8_t* vdex_DexBegin(const uint8_t*);
@@ -67,5 +67,6 @@ const uint8_t* vdex_GetVerifierDepsData(const uint8_t*);
 uint32_t vdex_GetVerifierDepsDataSize(const uint8_t*);
 const uint8_t* vdex_GetQuickeningInfo(const uint8_t*);
 uint32_t vdex_GetQuickeningInfoSize(const uint8_t*);
+bool vdex_Unquicken(const uint8_t*);
 
 #endif

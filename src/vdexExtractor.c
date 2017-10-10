@@ -23,6 +23,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <libgen.h>
 
 #include "common.h"
 #include "log.h"
@@ -226,7 +227,8 @@ int main(int argc, char **argv)
   LOGMSG(l_INFO, "%u out of %u VDEX files have been processed",
          processedVdexCnt, pFiles.fileCnt);
   LOGMSG(l_INFO, "%u DEX files have been extracted in total", processedDexCnt);
-  LOGMSG(l_INFO, "Extracted DEX files available in '%s'", pFiles.inputFile);
+  LOGMSG(l_INFO, "Extracted DEX files available in '%s'",
+         outputDir ? outputDir : dirname(pFiles.inputFile));
 
   return EXIT_SUCCESS;
 }

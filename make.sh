@@ -55,7 +55,7 @@ function build()
   }
 
   CC=$compiler make -C src || {
-    echo "[-] clang build failed"
+    echo "[-] build failed"
     exit 1
   }
 }

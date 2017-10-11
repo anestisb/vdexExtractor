@@ -149,36 +149,68 @@ bool vdex_Unquicken(const uint8_t *cursor)
     }
 
     // For each class
-    LOGMSG(l_DEBUG, "[%zu] number of classes: %zu", dex_file_idx, pDexHeader->classDefsSize);
-    dexClassDef *dexClassDefs = (dexClassDef*)(dexFileBuf + pDexHeader->classDefsOff);
-
-    utils_hexDump("dexClassDefs", (uint8_t*)dexClassDefs, 16);
+    LOGMSG(l_DEBUG, "[%zu] number of classes: %zu", dex_file_idx,
+           pDexHeader->classDefsSize);
+    dexClassDef *dexClassDefs =
+        (dexClassDef*)(dexFileBuf + pDexHeader->classDefsOff);
 
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
-      LOGMSG(l_DEBUG, "[%zu] class #%zu: class_data_off=%zu", dex_file_idx, i,
-             dexClassDefs[i].classDataOff);
+      LOGMSG(l_DEBUG, "[%zu] class #%zu: class_data_off=%"PRIu32, dex_file_idx,
+             i, dexClassDefs[i].classDataOff);
 
-      const dexClassData *pClassData;
+      const uint8_t *pClassData;
       if (dexClassDefs[i].classDataOff == 0) {
         continue;
       } else {
-        pClassData = (dexClassData*)(dexFileBuf + dexClassDefs[i].classDataOff);
+        pClassData = dexFileBuf + dexClassDefs[i].classDataOff;
       }
 
-      LOGMSG(l_DEBUG, "[%zu] class #%zu: direct methods=%zu",
-             dex_file_idx, i, pClassData->header.directMethodsSize);
+      dexClassDataHeader pDexClassDataHeader;
+      memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
+      dex_readClassDataHeader(pClassData, &pDexClassDataHeader);
+
+      LOGMSG(l_DEBUG, "[%zu] class #%zu: static_fields=%"PRIu32", "
+             "instance_fields=%"PRIu32", direct_methods=%"PRIu32", "
+             "virtual_methods=%"PRIu32, dex_file_idx, i,
+             pDexClassDataHeader.staticFieldsSize,
+             pDexClassDataHeader.instanceFieldsSize,
+             pDexClassDataHeader.directMethodsSize,
+             pDexClassDataHeader.virtualMethodsSize);
+
+      // cursor for currently processed class data item
+      // we skip encoded header to find first encoded static field
+      const uint8_t *curClassDataCursor = pClassData + sizeof(uint32_t);
+
+      // Skip static fields
+      for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
+        dexField pDexField;
+        memset(&pDexField, 0, sizeof(dexField));
+        dex_readClassDataField(curClassDataCursor, &pDexField);
+        curClassDataCursor += sizeof(uint32_t);
+      }
+
+      // Skip instance fields
+      for (uint32_t j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
+        dexField pDexField;
+        memset(&pDexField, 0, sizeof(dexField));
+        dex_readClassDataField(curClassDataCursor, &pDexField);
+        curClassDataCursor += sizeof(uint32_t);
+      }
 
       // For each direct method
-      const dexMethod *dexDirectMethods = pClassData->directMethods;
-      for (uint32_t j = 0; j < pClassData->header.directMethodsSize; ++j) {
+      for (uint32_t j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
+        dexMethod pDexMethod;
+        memset(&pDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
+        curClassDataCursor += sizeof(uint32_t);
 
         // Skip empty methods
-        if (dexDirectMethods[j].codeOff == 0) {
+        if (pDexMethod.codeOff == 0) {
           continue;
         }
 
         // Get method code offset and revert quickened instructions
-        dexCode *pDexCode = (dexCode*)(dexFileBuf + dexDirectMethods[j].codeOff);
+        dexCode *pDexCode = (dexCode*)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *quickening_info_ptr;
@@ -193,16 +225,19 @@ bool vdex_Unquicken(const uint8_t *cursor)
       }
 
       // For each virtual method
-      const dexMethod *dexVirtualMethods = pClassData->virtualMethods;
-      for (uint32_t j = 0; j < pClassData->header.virtualMethodsSize; ++j) {
+      for (uint32_t j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
+        dexMethod pDexMethod;
+        memset(&pDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
+        curClassDataCursor += sizeof(uint32_t);
 
         // Skip empty methods
-        if (dexVirtualMethods[j].codeOff == 0) {
+        if (pDexMethod.codeOff == 0) {
           continue;
         }
 
         // Get method code offset and revert quickened instructions
-        dexCode *pDexCode = (dexCode*)(dexFileBuf + dexVirtualMethods[j].codeOff);
+        dexCode *pDexCode = (dexCode*)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *quickening_info_ptr;

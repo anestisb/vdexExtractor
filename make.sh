@@ -32,16 +32,26 @@ function build_cross_android()
     fi
   fi
 
+  local ndk_extra_args=""
+  if [ "$DEBUG_BUILD" = true ]; then
+    ndk_extra_args+="V=1 NDK_DEBUG=1 APP_OPTIM=debug"
+  fi
+
   "$NDK/ndk-build" clean
-  "$NDK/ndk-build" || {
+  "$NDK/ndk-build" $ndk_extra_args || {
     echo "[-] android build failed"
     exit 1
   }
 
+  local baseDir=libs
+  if [ "$DEBUG_BUILD" = true ]; then
+    baseDir=obj/local
+  fi
+
   find libs -mindepth 1 -maxdepth 1 -type d | while read -r cpuBaseDir
   do
     cpu=$(basename "$cpuBaseDir")
-    cp libs/"$cpu"/"$MODULE_NAME" bin/"$MODULE_NAME"-"$cpu"
+    cp "$baseDir/$cpu/$MODULE_NAME" "bin/$MODULE_NAME-$cpu"
   done
 }
 
@@ -61,7 +71,7 @@ function build()
     exit 1
   }
 
-  CC=$compiler make -C src || {
+  CC=$compiler DEBUG=$DEBUG_BUILD make -C src || {
     echo "[-] build failed"
     exit 1
   }
@@ -101,6 +111,12 @@ if [ $# -eq 0 ]; then
   target=""
 else
   target="$1"
+fi
+
+if [[ -z ${DEBUG+x} || $DEBUG != true ]]; then
+  DEBUG_BUILD=false
+else
+  DEBUG_BUILD=true
 fi
 
 case "$target" in

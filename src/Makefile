@@ -18,11 +18,17 @@
 
 # Default to gcc
 CC ?= gcc
+DEBUG ?= false
 
 TARGET  = vdexExtractor
 CFLAGS  += -c -std=c11 -D_GNU_SOURCE \
            -Wall -Wextra -Werror
 LDFLAGS += -lm -lz
+
+ifeq ($(DEBUG),true)
+  CFLAGS += -g -ggdb
+  LDFLAGS += -g -ggdb
+endif
 
 .PHONY: default all clean
 

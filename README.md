@@ -18,6 +18,7 @@ information is available
   * `$ ./make.sh cross-android` - cross-compile (armeabi-v7a, arm64-v8a, x86 &
   x86_64) for Android with NDK
 * Executables are copied under the `bin` directory
+* For debug builds use `$ DEBUG=true ./make.sh`
 
 
 ## Usage

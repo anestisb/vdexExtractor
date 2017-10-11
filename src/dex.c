@@ -131,41 +131,41 @@ bool dex_DexcompileDriver(dexCode *pDexCode,
 
     switch(dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
-        LOGMSG(l_INFO, "RETURN_VOID_NO_BARRIER");
+        LOGMSG(l_DEBUG, "RETURN_VOID_NO_BARRIER");
       case NOP:
-        LOGMSG(l_INFO, "NOP");
+        LOGMSG(l_DEBUG, "NOP");
       case IGET_QUICK:
-        LOGMSG(l_INFO, "IGET_QUICK");
+        LOGMSG(l_DEBUG, "IGET_QUICK");
       case IGET_WIDE_QUICK:
-        LOGMSG(l_INFO, "IGET_WIDE_QUICK");
+        LOGMSG(l_DEBUG, "IGET_WIDE_QUICK");
       case IGET_OBJECT_QUICK:
-        LOGMSG(l_INFO, "IGET_OBJECT_QUICK");
+        LOGMSG(l_DEBUG, "IGET_OBJECT_QUICK");
       case IGET_BOOLEAN_QUICK:
-        LOGMSG(l_INFO, "IGET_BOOLEAN_QUICK");
+        LOGMSG(l_DEBUG, "IGET_BOOLEAN_QUICK");
       case IGET_BYTE_QUICK:
-        LOGMSG(l_INFO, "IGET_BYTE_QUICK");
+        LOGMSG(l_DEBUG, "IGET_BYTE_QUICK");
       case IGET_CHAR_QUICK:
-        LOGMSG(l_INFO, "IGET_CHAR_QUICK");
+        LOGMSG(l_DEBUG, "IGET_CHAR_QUICK");
       case IGET_SHORT_QUICK:
-        LOGMSG(l_INFO, "IGET_SHORT_QUICK");
+        LOGMSG(l_DEBUG, "IGET_SHORT_QUICK");
       case IPUT_QUICK:
-        LOGMSG(l_INFO, "IPUT_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_QUICK");
       case IPUT_BOOLEAN_QUICK:
-        LOGMSG(l_INFO, "IPUT_BOOLEAN_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_BOOLEAN_QUICK");
       case IPUT_BYTE_QUICK:
-        LOGMSG(l_INFO, "IPUT_BYTE_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_BYTE_QUICK");
       case IPUT_CHAR_QUICK:
-        LOGMSG(l_INFO, "IPUT_CHAR_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_CHAR_QUICK");
       case IPUT_SHORT_QUICK:
-        LOGMSG(l_INFO, "IPUT_SHORT_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_SHORT_QUICK");
       case IPUT_WIDE_QUICK:
-        LOGMSG(l_INFO, "IPUT_WIDE_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_WIDE_QUICK");
       case IPUT_OBJECT_QUICK:
-        LOGMSG(l_INFO, "IPUT_OBJECT_QUICK");
+        LOGMSG(l_DEBUG, "IPUT_OBJECT_QUICK");
       case INVOKE_VIRTUAL_QUICK:
-        LOGMSG(l_INFO, "INVOKE_VIRTUAL_QUICK");
+        LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_QUICK");
       case INVOKE_VIRTUAL_RANGE_QUICK:
-        LOGMSG(l_INFO, "INVOKE_VIRTUAL_RANGE_QUICK");
+        LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_RANGE_QUICK");
       default:
         break;
     }
@@ -175,7 +175,8 @@ bool dex_DexcompileDriver(dexCode *pDexCode,
 
   if (quickening_info_ptr != quickening_info_end) {
     if (quickening_data_start == quickening_info_ptr) {
-      LOGMSG(l_ERROR, "Failed to use any value in quickening info, potentially due to duplicate methods.");
+      LOGMSG(l_ERROR, "Failed to use any value in quickening info, potentially"
+             "due to duplicate methods.");
     } else {
       LOGMSG(l_ERROR, "Failed to use all values in quickening info.");
       return false;

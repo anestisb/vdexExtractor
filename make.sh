@@ -48,6 +48,13 @@ function build_cross_android()
 function build()
 {
   local compiler="$1"
+  if [[ "$compiler" == "" ]]; then
+    if [[ "$CC" == "" ]]; then
+      compiler="gcc"
+    else
+      compiler="$CC"
+    fi
+  fi
 
   make clean -C src || {
     echo "[-] make clean failed"
@@ -97,7 +104,7 @@ else
 fi
 
 case "$target" in
-  "") build "gcc";;
+  "") build "";;
   "gcc") build "gcc";;
   "clang") build "clang";;
   "cross-android") build_cross_android;;

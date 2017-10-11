@@ -49,7 +49,7 @@ function build()
 {
   local compiler="$1"
   if [[ "$compiler" == "" ]]; then
-    if [[ "$CC" == "" ]]; then
+    if [[ -z ${CC+x} || "$CC" == "" ]]; then
       compiler="gcc"
     else
       compiler="$CC"

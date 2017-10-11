@@ -158,16 +158,18 @@ bool vdex_Unquicken(const uint8_t *cursor)
       LOGMSG(l_DEBUG, "[%zu] class #%zu: class_data_off=%"PRIu32, dex_file_idx,
              i, dexClassDefs[i].classDataOff);
 
-      const uint8_t *pClassData;
+      // cursor for currently processed class data item
+      // we skip encoded header to find first encoded static field
+      const uint8_t *curClassDataCursor;
       if (dexClassDefs[i].classDataOff == 0) {
         continue;
       } else {
-        pClassData = dexFileBuf + dexClassDefs[i].classDataOff;
+        curClassDataCursor = dexFileBuf + dexClassDefs[i].classDataOff;
       }
 
       dexClassDataHeader pDexClassDataHeader;
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
-      dex_readClassDataHeader(pClassData, &pDexClassDataHeader);
+      dex_readClassDataHeader(curClassDataCursor, &pDexClassDataHeader);
 
       LOGMSG(l_DEBUG, "[%zu] class #%zu: static_fields=%"PRIu32", "
              "instance_fields=%"PRIu32", direct_methods=%"PRIu32", "
@@ -177,16 +179,11 @@ bool vdex_Unquicken(const uint8_t *cursor)
              pDexClassDataHeader.directMethodsSize,
              pDexClassDataHeader.virtualMethodsSize);
 
-      // cursor for currently processed class data item
-      // we skip encoded header to find first encoded static field
-      const uint8_t *curClassDataCursor = pClassData + sizeof(uint32_t);
-
       // Skip static fields
       for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(curClassDataCursor, &pDexField);
-        curClassDataCursor += sizeof(uint32_t);
       }
 
       // Skip instance fields
@@ -194,7 +191,6 @@ bool vdex_Unquicken(const uint8_t *cursor)
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(curClassDataCursor, &pDexField);
-        curClassDataCursor += sizeof(uint32_t);
       }
 
       // For each direct method
@@ -202,7 +198,6 @@ bool vdex_Unquicken(const uint8_t *cursor)
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
-        curClassDataCursor += sizeof(uint32_t);
 
         // Skip empty methods
         if (pDexMethod.codeOff == 0) {
@@ -229,9 +224,8 @@ bool vdex_Unquicken(const uint8_t *cursor)
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
-        curClassDataCursor += sizeof(uint32_t);
 
-        // Skip empty methods
+        // Skip native or abstract methods
         if (pDexMethod.codeOff == 0) {
           continue;
         }

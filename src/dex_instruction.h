@@ -159,7 +159,7 @@ Code dexInstr_getOpcode(uint16_t *code_ptr) {
   return (*code_ptr & 0xFF);
 }
 
-size_t dexInstr_SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr)
+uint32_t dexInstr_SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr)
 {
   // Handle special NOP encoded variable length sequences.
   switch (*code_ptr) {
@@ -184,7 +184,7 @@ size_t dexInstr_SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr)
 }
 
 // Returns the size (in 2 byte code units) of this instruction.
-size_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr)
+uint32_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr)
 {
   int result = kInstructionSizeInCodeUnits[dexInstr_getOpcode(code_ptr)];
   if (result < 0) {

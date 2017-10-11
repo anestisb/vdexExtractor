@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     }
 
     const uint8_t *current_data = NULL;
-    size_t offset = 0;
+    uint32_t offset = 0;
     for (size_t i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
       current_data = vdex_GetNextDexFileData(buf, &offset);
       if (current_data == NULL) {

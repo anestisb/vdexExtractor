@@ -29,7 +29,7 @@ bool vdex_hasDexSection(const uint8_t *cursor)
   return pVdexHeader->dex_size_ != 0;
 }
 
-size_t vdex_GetSizeOfChecksumsSection(const uint8_t *cursor)
+uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *cursor)
 {
   const vdexHeader *pVdexHeader = (const vdexHeader*)cursor;
   return sizeof(VdexChecksum) * pVdexHeader->number_of_dex_files_;
@@ -46,7 +46,7 @@ const uint8_t* vdex_DexEnd(const uint8_t *cursor)
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
-const uint8_t* vdex_GetNextDexFileData(const uint8_t *cursor, size_t *offset)
+const uint8_t* vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset)
 {
   if (*offset == 0) {
     if (vdex_hasDexSection(cursor)) {
@@ -125,7 +125,7 @@ bool vdex_Unquicken(const uint8_t *cursor)
     vdex_GetQuickeningInfoSize(cursor);
 
   const uint8_t *dexFileBuf = NULL;
-  size_t offset = 0;
+  uint32_t offset = 0;
 
   // For each dex file
   for (size_t dex_file_idx = 0;

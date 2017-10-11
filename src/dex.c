@@ -25,7 +25,7 @@ static bool isCodeIteratorDone()
 
 static void codeIteratorAdvance()
 {
-  size_t instruction_size = dexInstr_SizeInCodeUnits(code_ptr);
+  uint32_t instruction_size = dexInstr_SizeInCodeUnits(code_ptr);
   code_ptr += instruction_size;
   dex_pc += instruction_size;
 }

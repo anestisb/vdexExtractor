@@ -249,3 +249,28 @@ int32_t dex_readSLeb128(const uint8_t** data)
   *data = ptr;
   return result;
 }
+
+void dex_readClassDataHeader(const uint8_t *cursor,
+                             dexClassDataHeader *pDexClassDataHeader)
+{
+  const uint8_t *ptr_pos = cursor;
+  pDexClassDataHeader->staticFieldsSize = dex_readULeb128(&ptr_pos);
+  pDexClassDataHeader->instanceFieldsSize = dex_readULeb128(&ptr_pos);
+  pDexClassDataHeader->directMethodsSize = dex_readULeb128(&ptr_pos);
+  pDexClassDataHeader->virtualMethodsSize = dex_readULeb128(&ptr_pos);
+}
+
+void dex_readClassDataField(const uint8_t *cursor, dexField *pDexField)
+{
+  const uint8_t *ptr_pos = cursor;
+  pDexField->fieldIdx = dex_readULeb128(&ptr_pos);
+  pDexField->accessFlags = dex_readULeb128(&ptr_pos);
+}
+
+void dex_readClassDataMethod(const uint8_t *cursor, dexMethod *pDexMethod)
+{
+  const uint8_t *ptr_pos = cursor;
+  pDexMethod->methodIdx = dex_readULeb128(&ptr_pos);
+  pDexMethod->accessFlags = dex_readULeb128(&ptr_pos);
+  pDexMethod->codeOff = dex_readULeb128(&ptr_pos);
+}

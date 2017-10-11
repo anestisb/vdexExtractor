@@ -216,14 +216,6 @@ typedef struct __attribute__((packed)) {
     u4 accessFlags;
 } dexField;
 
-typedef struct __attribute__((packed)) {
-    dexClassDataHeader header;
-    dexField           *staticFields;
-    dexField           *instanceFields;
-    dexMethod          *directMethods;
-    dexMethod          *virtualMethods;
-} dexClassData;
-
 /*
  * Verify if valid DEX file magic number
  */
@@ -258,5 +250,19 @@ uint32_t dex_readULeb128(const u1**);
  */
 int32_t dex_readSLeb128(const uint8_t** data);
 
+/*
+ * Read Leb128 class data header
+ */
+void dex_readClassDataHeader(const uint8_t*, dexClassDataHeader*);
+
+/*
+ * Read a Leb128 class data field item
+ */
+void dex_readClassDataField(const uint8_t*, dexField*);
+
+/*
+ * Read a Leb128 class data method item
+ */
+void dex_readClassDataMethod(const uint8_t*, dexMethod*);
 
 #endif

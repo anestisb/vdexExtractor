@@ -156,7 +156,8 @@ static int const kInstructionSizeInCodeUnits[] = {
 };
 
 Code dexInstr_getOpcode(uint16_t *code_ptr) {
-  return (*code_ptr & 0xFF);
+  uint16_t inst_data = code_ptr[0];
+  return (inst_data & 0xFF);
 }
 
 uint32_t dexInstr_SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr)

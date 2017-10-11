@@ -253,16 +253,16 @@ int32_t dex_readSLeb128(const uint8_t** data);
 /*
  * Read Leb128 class data header
  */
-void dex_readClassDataHeader(const uint8_t*, dexClassDataHeader*);
+void dex_readClassDataHeader(const uint8_t**, dexClassDataHeader*);
 
 /*
  * Read a Leb128 class data field item
  */
-void dex_readClassDataField(const uint8_t*, dexField*);
+void dex_readClassDataField(const uint8_t**, dexField*);
 
 /*
  * Read a Leb128 class data method item
  */
-void dex_readClassDataMethod(const uint8_t*, dexMethod*);
+void dex_readClassDataMethod(const uint8_t**, dexMethod*);
 
 #endif

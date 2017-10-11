@@ -251,24 +251,24 @@ int32_t dex_readSLeb128(const uint8_t** data)
   return result;
 }
 
-void dex_readClassDataHeader(const uint8_t *cursor,
+void dex_readClassDataHeader(const uint8_t **cursor,
                              dexClassDataHeader *pDexClassDataHeader)
 {
-  pDexClassDataHeader->staticFieldsSize = dex_readULeb128(&cursor);
-  pDexClassDataHeader->instanceFieldsSize = dex_readULeb128(&cursor);
-  pDexClassDataHeader->directMethodsSize = dex_readULeb128(&cursor);
-  pDexClassDataHeader->virtualMethodsSize = dex_readULeb128(&cursor);
+  pDexClassDataHeader->staticFieldsSize = dex_readULeb128(cursor);
+  pDexClassDataHeader->instanceFieldsSize = dex_readULeb128(cursor);
+  pDexClassDataHeader->directMethodsSize = dex_readULeb128(cursor);
+  pDexClassDataHeader->virtualMethodsSize = dex_readULeb128(cursor);
 }
 
-void dex_readClassDataField(const uint8_t *cursor, dexField *pDexField)
+void dex_readClassDataField(const uint8_t **cursor, dexField *pDexField)
 {
-  pDexField->fieldIdx = dex_readULeb128(&cursor);
-  pDexField->accessFlags = dex_readULeb128(&cursor);
+  pDexField->fieldIdx = dex_readULeb128(cursor);
+  pDexField->accessFlags = dex_readULeb128(cursor);
 }
 
-void dex_readClassDataMethod(const uint8_t *cursor, dexMethod *pDexMethod)
+void dex_readClassDataMethod(const uint8_t **cursor, dexMethod *pDexMethod)
 {
-  pDexMethod->methodIdx = dex_readULeb128(&cursor);
-  pDexMethod->accessFlags = dex_readULeb128(&cursor);
-  pDexMethod->codeOff = dex_readULeb128(&cursor);
+  pDexMethod->methodIdx = dex_readULeb128(cursor);
+  pDexMethod->accessFlags = dex_readULeb128(cursor);
+  pDexMethod->codeOff = dex_readULeb128(cursor);
 }

@@ -159,7 +159,6 @@ bool vdex_Unquicken(const uint8_t *cursor)
              i, dexClassDefs[i].classDataOff);
 
       // cursor for currently processed class data item
-      // we skip encoded header to find first encoded static field
       const uint8_t *curClassDataCursor;
       if (dexClassDefs[i].classDataOff == 0) {
         continue;
@@ -169,7 +168,7 @@ bool vdex_Unquicken(const uint8_t *cursor)
 
       dexClassDataHeader pDexClassDataHeader;
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
-      dex_readClassDataHeader(curClassDataCursor, &pDexClassDataHeader);
+      dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
 
       LOGMSG(l_DEBUG, "[%zu] class #%"PRIu32": static_fields=%"PRIu32", "
              "instance_fields=%"PRIu32", direct_methods=%"PRIu32", "
@@ -183,21 +182,21 @@ bool vdex_Unquicken(const uint8_t *cursor)
       for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
-        dex_readClassDataField(curClassDataCursor, &pDexField);
+        dex_readClassDataField(&curClassDataCursor, &pDexField);
       }
 
       // Skip instance fields
       for (uint32_t j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
-        dex_readClassDataField(curClassDataCursor, &pDexField);
+        dex_readClassDataField(&curClassDataCursor, &pDexField);
       }
 
       // For each direct method
       for (uint32_t j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
+        dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
 
         // Skip empty methods
         if (pDexMethod.codeOff == 0) {
@@ -223,7 +222,7 @@ bool vdex_Unquicken(const uint8_t *cursor)
       for (uint32_t j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(curClassDataCursor, &pDexMethod);
+        dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
 
         // Skip native or abstract methods
         if (pDexMethod.codeOff == 0) {

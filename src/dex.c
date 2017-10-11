@@ -176,7 +176,7 @@ bool dex_DexcompileDriver(dexCode *pDexCode,
   if (quickening_info_ptr != quickening_info_end) {
     if (quickening_data_start == quickening_info_ptr) {
       LOGMSG(l_ERROR, "Failed to use any value in quickening info, potentially"
-             "due to duplicate methods.");
+             " due to duplicate methods.");
     } else {
       LOGMSG(l_ERROR, "Failed to use all values in quickening info.");
       return false;

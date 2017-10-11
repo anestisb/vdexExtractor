@@ -149,13 +149,13 @@ bool vdex_Unquicken(const uint8_t *cursor)
     }
 
     // For each class
-    LOGMSG(l_DEBUG, "[%zu] number of classes: %zu", dex_file_idx,
+    LOGMSG(l_DEBUG, "[%zu] number of classes: %"PRIu32, dex_file_idx,
            pDexHeader->classDefsSize);
     dexClassDef *dexClassDefs =
         (dexClassDef*)(dexFileBuf + pDexHeader->classDefsOff);
 
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
-      LOGMSG(l_DEBUG, "[%zu] class #%zu: class_data_off=%"PRIu32, dex_file_idx,
+      LOGMSG(l_DEBUG, "[%zu] class #%"PRIu32": class_data_off=%"PRIu32, dex_file_idx,
              i, dexClassDefs[i].classDataOff);
 
       // cursor for currently processed class data item
@@ -171,7 +171,7 @@ bool vdex_Unquicken(const uint8_t *cursor)
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
       dex_readClassDataHeader(curClassDataCursor, &pDexClassDataHeader);
 
-      LOGMSG(l_DEBUG, "[%zu] class #%zu: static_fields=%"PRIu32", "
+      LOGMSG(l_DEBUG, "[%zu] class #%"PRIu32": static_fields=%"PRIu32", "
              "instance_fields=%"PRIu32", direct_methods=%"PRIu32", "
              "virtual_methods=%"PRIu32, dex_file_idx, i,
              pDexClassDataHeader.staticFieldsSize,

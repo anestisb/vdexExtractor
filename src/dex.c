@@ -32,20 +32,21 @@ static void codeIteratorAdvance()
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader)
 {
-    /* Validate DEX magic number */
-    if (((memcmp(pDexHeader->magic.dex,  DEX_MAGIC, 3) != 0)    && // Check if DEX
-         (memcmp(pDexHeader->magic.dex, ODEX_MAGIC, 3) != 0))   || // Check if ODEX
-        (memcmp(pDexHeader->magic.nl,   "\n",      1) != 0)     || // Check for newline
-        ((memcmp(pDexHeader->magic.ver, API_LE_13, 3) != 0) &&     // Check for API <= 13
-         (memcmp(pDexHeader->magic.ver, API_GE_14, 3) != 0) &&     // Check for API >= 14
-         (memcmp(pDexHeader->magic.ver, API_GE_22, 3) != 0) &&     // Check for API >= 22
-         (memcmp(pDexHeader->magic.ver, API_26,    3) != 0) &&     // Check for API == 26
-         (memcmp(pDexHeader->magic.ver, API_GT_26, 3) != 0))    || // Check for API > 26
-        (memcmp(pDexHeader->magic.zero, "\0",      1) != 0)) {     // Check for zero
+  /* Validate DEX magic number */
+  if (((memcmp(pDexHeader->magic.dex,  DEX_MAGIC, 3) != 0)    && // Check if DEX
+       (memcmp(pDexHeader->magic.dex, ODEX_MAGIC, 3) != 0))   || // Check if ODEX
+      (memcmp(pDexHeader->magic.nl,   "\n",      1) != 0)     || // Check for newline
+      ((memcmp(pDexHeader->magic.ver, API_LE_13, 3) != 0) &&     // Check for API <= 13
+       (memcmp(pDexHeader->magic.ver, API_GE_14, 3) != 0) &&     // Check for API >= 14
+       (memcmp(pDexHeader->magic.ver, API_GE_22, 3) != 0) &&     // Check for API >= 22
+       (memcmp(pDexHeader->magic.ver, API_26,    3) != 0) &&     // Check for API == 26
+       (memcmp(pDexHeader->magic.ver, API_GT_26, 3) != 0))    || // Check for API > 26
+      (memcmp(pDexHeader->magic.zero, "\0",      1) != 0)) {     // Check for zero
 
-        return false;
-    }
-    else return true;
+      return false;
+  } else {
+    return true;
+  }
 }
 
 void dex_dumpHeaderInfo(const dexHeader *pDexHeader)

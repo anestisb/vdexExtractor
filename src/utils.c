@@ -230,3 +230,19 @@ void utils_hexDump(char *desc, const uint8_t *addr, int len)
     // And print the final ASCII bit.
     printf ("  %s\n", buff);
 }
+
+char* util_bin2hex(const unsigned char *str, const size_t strLen)
+{
+  char *result = (char*) malloc(strLen * 2 + 1);
+  size_t i, j;
+  int b = 0;
+
+  for (i = j = 0; i < strLen; i++) {
+    b = str[i] >> 4;
+    result[j++] = (char) (87 + b + (((b - 10) >> 31) & -39));
+    b = str[i] & 0xf;
+    result[j++] = (char) (87 + b + (((b - 10) >> 31) & -39));
+  }
+  result[j] = '\0';
+  return result;
+}

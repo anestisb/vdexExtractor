@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <string.h>
+#include <inttypes.h>
 
 #define PROG_NAME    "vdexExtractor"
 #define PROG_VERSION "0.1.0"

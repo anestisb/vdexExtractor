@@ -138,9 +138,10 @@ bool vdex_Unquicken(const uint8_t *cursor)
       continue;
     }
 
-    dexHeader *pDexHeader = (dexHeader*)dexFileBuf;
+    const dexHeader *pDexHeader = (const dexHeader*)dexFileBuf;
 
     // Check if valid dex file
+    dex_dumpHeaderInfo(pDexHeader);
     if (!dex_isValidDexMagic(pDexHeader)) {
       LOGMSG(l_ERROR, "Failed to unquicken 'classes%zu.dex' - skipping",
              dex_file_idx);

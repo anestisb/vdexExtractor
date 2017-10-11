@@ -230,6 +230,11 @@ typedef struct __attribute__((packed)) {
 bool dex_isValidDexMagic(const dexHeader*);
 
 /*
+ * Debug print dex header info
+ */
+void dex_dumpHeaderInfo(const dexHeader*);
+
+/*
  * Repair DEX file CRC
  */
 void dex_repairDexCRC(const uint8_t*, off_t);

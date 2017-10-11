@@ -48,6 +48,61 @@ bool dex_isValidDexMagic(const dexHeader *pDexHeader)
     else return true;
 }
 
+void dex_dumpHeaderInfo(const dexHeader *pDexHeader)
+{
+  char *sigHex = util_bin2hex(pDexHeader->signature, SHA1Len);
+
+  LOGMSG(l_DEBUG, "------ Dex Header Info ------");
+  LOGMSG(l_DEBUG, "\tmagic        : %.3s-%.3s", pDexHeader->magic.dex,
+         pDexHeader->magic.ver);
+  LOGMSG(l_DEBUG, "\tchecksum     : %"PRIx32" (%"PRIu32")",
+         pDexHeader->checksum, pDexHeader->checksum);
+  LOGMSG(l_DEBUG, "\tsignature    : %s", sigHex);
+  LOGMSG(l_DEBUG, "\tfileSize     : %"PRIx32" (%"PRIu32")",
+         pDexHeader->fileSize, pDexHeader->fileSize);
+  LOGMSG(l_DEBUG, "\theaderSize   : %"PRIx32" (%"PRIu32")",
+         pDexHeader->headerSize, pDexHeader->headerSize);
+  LOGMSG(l_DEBUG, "\tendianTag    : %"PRIx32" (%"PRIu32")",
+         pDexHeader->endianTag, pDexHeader->endianTag);
+  LOGMSG(l_DEBUG, "\tlinkSize     : %"PRIx32" (%"PRIu32")",
+         pDexHeader->linkSize, pDexHeader->linkSize);
+  LOGMSG(l_DEBUG, "\tlinkOff      : %"PRIx32" (%"PRIu32")",
+         pDexHeader->linkOff, pDexHeader->linkOff);
+  LOGMSG(l_DEBUG, "\tmapOff       : %"PRIx32" (%"PRIu32")",
+         pDexHeader->mapOff, pDexHeader->mapOff);
+  LOGMSG(l_DEBUG, "\tstringIdsSize: %"PRIx32" (%"PRIu32")",
+         pDexHeader->stringIdsSize, pDexHeader->stringIdsSize);
+  LOGMSG(l_DEBUG, "\tstringIdsOff : %"PRIx32" (%"PRIu32")",
+         pDexHeader->stringIdsOff, pDexHeader->stringIdsOff);
+  LOGMSG(l_DEBUG, "\ttypeIdsSize  : %"PRIx32" (%"PRIu32")",
+         pDexHeader->typeIdsSize, pDexHeader->typeIdsSize);
+  LOGMSG(l_DEBUG, "\ttypeIdsOff   : %"PRIx32" (%"PRIu32")",
+         pDexHeader->typeIdsOff, pDexHeader->typeIdsOff);
+  LOGMSG(l_DEBUG, "\tprotoIdsSize : %"PRIx32" (%"PRIu32")",
+         pDexHeader->protoIdsSize, pDexHeader->protoIdsSize);
+  LOGMSG(l_DEBUG, "\tprotoIdsOff  : %"PRIx32" (%"PRIu32")",
+         pDexHeader->protoIdsOff, pDexHeader->protoIdsOff);
+  LOGMSG(l_DEBUG, "\tfieldIdsSize : %"PRIx32" (%"PRIu32")",
+         pDexHeader->fieldIdsSize, pDexHeader->fieldIdsSize);
+  LOGMSG(l_DEBUG, "\tfieldIdsOff  : %"PRIx32" (%"PRIu32")",
+         pDexHeader->fieldIdsOff, pDexHeader->fieldIdsOff);
+  LOGMSG(l_DEBUG, "\tmethodIdsSize: %"PRIx32" (%"PRIu32")",
+         pDexHeader->methodIdsSize, pDexHeader->methodIdsSize);
+  LOGMSG(l_DEBUG, "\tmethodIdsOff : %"PRIx32" (%"PRIu32")",
+         pDexHeader->methodIdsOff, pDexHeader->methodIdsOff);
+  LOGMSG(l_DEBUG, "\tclassDefsSize: %"PRIx32" (%"PRIu32")",
+         pDexHeader->classDefsSize, pDexHeader->classDefsSize);
+  LOGMSG(l_DEBUG, "\tclassDefsOff : %"PRIx32" (%"PRIu32")",
+         pDexHeader->classDefsOff, pDexHeader->classDefsOff);
+  LOGMSG(l_DEBUG, "\tdataSize     : %"PRIx32" (%"PRIu32")",
+         pDexHeader->dataSize, pDexHeader->dataSize);
+  LOGMSG(l_DEBUG, "\tdataOff      : %"PRIx32" (%"PRIu32")", pDexHeader->dataOff,
+         pDexHeader->dataOff);
+  LOGMSG(l_DEBUG, "-----------------------------");
+
+  free(sigHex);
+}
+
 void dex_repairDexCRC(const uint8_t *buf, off_t fileSz)
 {
     /* Repair DEX CRC */

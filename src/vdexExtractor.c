@@ -188,6 +188,12 @@ int main(int argc, char **argv) {
       }
       dexHeader *pDexHeader = (dexHeader *)current_data;
 
+      /* If unquicken DEX files have already been verified */
+      if (unquicken == false && dex_isValidDexMagic(pDexHeader) == false) {
+        LOGMSG(l_ERROR, "Invalid dex file'classes%zu.dex' - skipping", i);
+        continue;
+      }
+
       /* Repair CRC */
       dex_repairDexCRC(current_data, pDexHeader->fileSize);
 

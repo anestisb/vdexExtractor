@@ -92,6 +92,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         break;
       case IGET_OBJECT_QUICK:
         LOGMSG(l_DEBUG, "IGET_OBJECT_QUICK");
+        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_OBJECT);
         break;
       case IGET_BOOLEAN_QUICK:
         LOGMSG(l_DEBUG, "IGET_BOOLEAN_QUICK");

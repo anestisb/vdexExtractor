@@ -146,21 +146,18 @@ typedef enum {
   kVerifyRegBCallSite = 0x1000000
 } VerifyFlag;
 
+// clang-format off
 static int const kInstructionSizeInCodeUnits[] = {
-#define INSTRUCTION_SIZE(opcode, c, p, format, i, a, v)                 \
-  (((opcode) == NOP)                                                    \
-       ? -1                                                             \
-       : (((format) >= k10x) && ((format) <= k10t))                     \
-             ? 1                                                        \
-             : (((format) >= k20t) && ((format) <= k22c))               \
-                   ? 2                                                  \
-                   : (((format) >= k32x) && ((format) <= k3rc))         \
-                         ? 3                                            \
-                         : (((format) >= k45cc) && ((format) <= k4rcc)) \
-                               ? 4                                      \
-                               : ((format) == k51l) ? 5 : -1),
+#define INSTRUCTION_SIZE(opcode, c, p, format, i, a, v) \
+    (((opcode) == NOP) ? -1 : \
+     (((format) >= k10x) && ((format) <= k10t)) ?  1 : \
+     (((format) >= k20t) && ((format) <= k22c)) ?  2 : \
+     (((format) >= k32x) && ((format) <= k3rc)) ?  3 : \
+     (((format) >= k45cc) && ((format) <= k4rcc)) ? 4 : \
+      ((format) == k51l) ?  5 : -1),
   DEX_INSTRUCTION_LIST(INSTRUCTION_SIZE)
 };
+// clang-format on
 
 // Get instruction' opcode
 Code dexInstr_getOpcode(uint16_t *);

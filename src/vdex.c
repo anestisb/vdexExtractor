@@ -1,4 +1,5 @@
 #include "vdex.h"
+#include "dex_decompiler.h"
 #include "log.h"
 #include "utils.h"
 
@@ -198,8 +199,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dex_DexcompileDriver(pDexCode, quickening_info_ptr,
-                                  quickening_size, true)) {
+        if (!dexDecompiler_decompile(pDexCode, quickening_info_ptr,
+                                     quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile DEX file");
           return false;
         }
@@ -223,8 +224,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dex_DexcompileDriver(pDexCode, quickening_info_ptr,
-                                  quickening_size, true)) {
+        if (!dexDecompiler_decompile(pDexCode, quickening_info_ptr,
+                                     quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile DEX file");
           return false;
         }

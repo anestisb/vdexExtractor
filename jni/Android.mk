@@ -22,12 +22,14 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE    := vdexExtractor
 SRC             := ../src
-LOCAL_SRC_FILES := $(SRC)/vdexExtractor.c \
-                   $(SRC)/log.c \
+LOCAL_SRC_FILES := $(SRC)/log.c \
                    $(SRC)/utils.c \
                    $(SRC)/sha1.c \
                    $(SRC)/dex.c \
-                   $(SRC)/vdex.c
+                   $(SRC)/dex_instruction.c \
+                   $(SRC)/dex_decompiler.c \
+                   $(SRC)/vdex.c \
+                   $(SRC)/vdexExtractor.c
 LOCAL_CFLAGS    += -c -std=c11 -D_GNU_SOURCE \
                    -Wall -Wextra -Werror
 LOCAL_LDFLAGS   += -lm -lz

@@ -231,11 +231,6 @@ void dex_dumpHeaderInfo(const dexHeader *);
 void dex_repairDexCRC(const uint8_t *, off_t);
 
 /*
- * TODO: Describe me
- */
-bool dex_DexcompileDriver(dexCode *, const uint8_t *, uint32_t, bool);
-
-/*
  * Reads an unsigned LEB128 (Little-Endian Base 128) value, updating the
  * given pointer to point just past the end of the read value. This function
  * tolerates non-zero high-order bits in the fifth encoded byte.

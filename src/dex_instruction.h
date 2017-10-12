@@ -23,8 +23,8 @@
 #ifndef _DEX_INSTRUCTION_H_
 #define _DEX_INSTRUCTION_H_
 
+#include "common.h"
 #include "dex_instruction_list.h"
-#include "log.h"
 
 typedef enum {
   kPackedSwitchSignature = 0x0100,
@@ -162,42 +162,10 @@ static int const kInstructionSizeInCodeUnits[] = {
   DEX_INSTRUCTION_LIST(INSTRUCTION_SIZE)
 };
 
-Code dexInstr_getOpcode(uint16_t *code_ptr) {
-  uint16_t inst_data = code_ptr[0];
-  return (inst_data & 0xFF);
-}
-
-uint32_t dexInstr_SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
-  // Handle special NOP encoded variable length sequences.
-  switch (*code_ptr) {
-    case kPackedSwitchSignature:
-      return (4 + code_ptr[1] * 2);
-    case kSparseSwitchSignature:
-      return (2 + code_ptr[1] * 4);
-    case kArrayDataSignature: {
-      uint16_t element_size = code_ptr[1];
-      uint32_t length = code_ptr[2] | (((uint32_t)code_ptr[3]) << 16);
-      // The plus 1 is to round up for odd size and width.
-      return (4 + (element_size * length + 1) / 2);
-    }
-    default:
-      if ((*code_ptr & 0xFF) == 0) {
-        return 1;  // NOP.
-      } else {
-        LOGMSG(l_FATAL, "Error when decoding complex opcode");
-        exit(EXIT_FAILURE);
-      }
-  }
-}
+// Get instruction' opcode
+Code dexInstr_getOpcode(uint16_t *);
 
 // Returns the size (in 2 byte code units) of this instruction.
-uint32_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr) {
-  int result = kInstructionSizeInCodeUnits[dexInstr_getOpcode(code_ptr)];
-  if (result < 0) {
-    return dexInstr_SizeInCodeUnitsComplexOpcode(code_ptr);
-  } else {
-    return result;
-  }
-}
+uint32_t dexInstr_SizeInCodeUnits(uint16_t *);
 
 #endif

@@ -24,6 +24,7 @@
 #define _VDEX_H_
 
 #include <zlib.h>
+#include "common.h"
 #include "dex.h"
 
 static const uint8_t kVdexMagic[] = {'v', 'd', 'e', 'x'};

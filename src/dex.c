@@ -1,5 +1,4 @@
 #include "dex.h"
-#include "common.h"
 #include "dex_instruction.h"
 #include "log.h"
 #include "utils.h"

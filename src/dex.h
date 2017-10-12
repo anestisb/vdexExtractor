@@ -24,6 +24,7 @@
 #define _DEX_H_
 
 #include <zlib.h>
+#include "common.h"
 #include "sha1.h"
 
 typedef uint8_t u1;

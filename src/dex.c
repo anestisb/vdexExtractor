@@ -25,30 +25,23 @@ static void codeIteratorAdvance() {
 }
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
-  /* Validate DEX magic number */
-  if (((memcmp(pDexHeader->magic.dex, DEX_MAGIC, 3) != 0) &&    // Check if DEX
-       (memcmp(pDexHeader->magic.dex, ODEX_MAGIC, 3) != 0)) ||  // Check if ODEX
-      (memcmp(pDexHeader->magic.nl, "\n", 1) != 0) ||  // Check for newline
-      ((memcmp(pDexHeader->magic.ver, API_LE_13, 3) !=
-        0) &&  // Check for API <= 13
-       (memcmp(pDexHeader->magic.ver, API_GE_14, 3) !=
-        0) &&  // Check for API >= 14
-       (memcmp(pDexHeader->magic.ver, API_GE_22, 3) !=
-        0) &&  // Check for API >= 22
-       (memcmp(pDexHeader->magic.ver, API_26, 3) !=
-        0) &&  // Check for API == 26
-       (memcmp(pDexHeader->magic.ver, API_GT_26, 3) !=
-        0)) ||                                           // Check for API > 26
-      (memcmp(pDexHeader->magic.zero, "\0", 1) != 0)) {  // Check for zero
-
+  /* Validate magic number */
+  if (memcmp(pDexHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
     return false;
-  } else {
-    return true;
   }
+
+  /* Validate magic version */
+  for (uint32_t i = 0; i < kNumDexVersions; i++) {
+    if (memcmp(pDexHeader->magic.ver, kDexMagicVersions[i], kDexVersionLen) == 0) {
+      LOGMSG(l_DEBUG, "DEX version '%s' detected", pDexHeader->magic.ver);
+      return true;
+    }
+  }
+  return false;
 }
 
 void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
-  char *sigHex = util_bin2hex(pDexHeader->signature, SHA1Len);
+  char *sigHex = util_bin2hex(pDexHeader->signature, kSHA1Len);
 
   LOGMSG(l_DEBUG, "------ Dex Header Info ------");
   LOGMSG(l_DEBUG, "\tmagic        : %.3s-%.3s", pDexHeader->magic.dex,

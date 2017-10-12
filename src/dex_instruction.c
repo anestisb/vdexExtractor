@@ -48,6 +48,16 @@ void dexInstr_SetVRegC_22c(uint16_t *code_ptr, uint16_t val) {
   code_ptr[1] = val;
 }
 
+void dexInstr_SetVRegB_3rc(uint16_t *code_ptr, uint16_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k3rc);
+  code_ptr[1] = val;
+}
+
+void dexInstr_SetVRegB_35c(uint16_t *code_ptr, uint16_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k35c);
+  code_ptr[1] = val;
+}
+
 uint32_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr) {
   int result = kInstructionSizeInCodeUnits[dexInstr_getOpcode(code_ptr)];
   if (result < 0) {

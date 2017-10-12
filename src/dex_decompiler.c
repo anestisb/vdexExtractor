@@ -50,12 +50,25 @@ static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   dexInstr_SetVRegB_21c(insns, type_index);
 }
 
-void DecompileInstanceFieldAccess(uint16_t *insns,
-                                  uint32_t dex_pc,
-                                  Code new_opcode) {
+static void DecompileInstanceFieldAccess(uint16_t *insns,
+                                         uint32_t dex_pc,
+                                         Code new_opcode) {
   uint16_t index = GetIndexAt(dex_pc);
   dexInstr_SetOpcode(insns, new_opcode);
   dexInstr_SetVRegC_22c(insns, index);
+}
+
+static void DecompileInvokeVirtual(uint16_t *insns,
+                                   uint32_t dex_pc,
+                                   Code new_opcode,
+                                   bool is_range) {
+  uint16_t index = GetIndexAt(dex_pc);
+  dexInstr_SetOpcode(insns, new_opcode);
+  if (is_range) {
+    dexInstr_SetVRegB_3rc(insns, index);
+  } else {
+    dexInstr_SetVRegB_35c(insns, index);
+  }
 }
 
 bool dexDecompiler_decompile(dexCode *pDexCode,
@@ -140,9 +153,11 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         break;
       case INVOKE_VIRTUAL_QUICK:
         LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_QUICK");
+        DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL, false);
         break;
       case INVOKE_VIRTUAL_RANGE_QUICK:
         LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_RANGE_QUICK");
+        DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL_RANGE, true);
         break;
       default:
         break;

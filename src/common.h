@@ -34,8 +34,8 @@
 #include <unistd.h>
 #include "log.h"
 
-#define LIKELY(x)     __builtin_expect(!!(x), 1)
-#define UNLIKELY(x)   __builtin_expect(!!(x), 0)
+#define LIKELY(x) __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 typedef uint8_t u1;
 typedef uint16_t u2;
@@ -46,21 +46,20 @@ typedef int16_t s2;
 typedef int32_t s4;
 typedef int64_t s8;
 
-#define CHECK_IMPL(c1, op, c2) \
-  do { \
-    u8 v1 = (u8)(c1); \
-    u8 v2 = (u8)(c2); \
-    if (UNLIKELY(!(v1 op v2))) \
+#define CHECK_IMPL(c1, op, c2)                                \
+  do {                                                        \
+    u8 v1 = (u8)(c1);                                         \
+    u8 v2 = (u8)(c2);                                         \
+    if (UNLIKELY(!(v1 op v2)))                                \
       LOGMSG(l_FATAL, "(" #c1 ") " #op " (" #c2 ")", v1, v2); \
-  } while (false) \
-/**/
+  } while (false) /**/
 
-#define CHECK(a)       CHECK_IMPL((a), !=, 0)
+#define CHECK(a) CHECK_IMPL((a), !=, 0)
 #define CHECK_EQ(a, b) CHECK_IMPL((a), ==, (b))
 #define CHECK_NE(a, b) CHECK_IMPL((a), !=, (b))
-#define CHECK_LT(a, b) CHECK_IMPL((a), <,  (b))
+#define CHECK_LT(a, b) CHECK_IMPL((a), <, (b))
 #define CHECK_LE(a, b) CHECK_IMPL((a), <=, (b))
-#define CHECK_GT(a, b) CHECK_IMPL((a), >,  (b))
+#define CHECK_GT(a, b) CHECK_IMPL((a), >, (b))
 #define CHECK_GE(a, b) CHECK_IMPL((a), >=, (b))
 
 #define PROG_NAME "vdexExtractor"

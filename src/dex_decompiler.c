@@ -38,7 +38,7 @@ static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   if (quickening_info_ptr == quickening_info_end) {
     return;
   }
-  const uint8_t* temporary_pointer = quickening_info_ptr;
+  const uint8_t *temporary_pointer = quickening_info_ptr;
   uint32_t quickened_pc = dex_readULeb128(&temporary_pointer);
   if (quickened_pc != dex_pc) {
     return;

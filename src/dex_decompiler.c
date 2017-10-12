@@ -50,6 +50,14 @@ static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   dexInstr_SetVRegB_21c(insns, type_index);
 }
 
+void DecompileInstanceFieldAccess(uint16_t *insns,
+                                  uint32_t dex_pc,
+                                  Code new_opcode) {
+  uint16_t index = GetIndexAt(dex_pc);
+  dexInstr_SetOpcode(insns, new_opcode);
+  dexInstr_SetVRegC_22c(insns, index);
+}
+
 bool dexDecompiler_decompile(dexCode *pDexCode,
                              const uint8_t *quickening_data_start,
                              uint32_t quickening_data_size,
@@ -76,6 +84,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         break;
       case IGET_QUICK:
         LOGMSG(l_DEBUG, "IGET_QUICK");
+        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET);
         break;
       case IGET_WIDE_QUICK:
         LOGMSG(l_DEBUG, "IGET_WIDE_QUICK");

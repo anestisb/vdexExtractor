@@ -174,6 +174,7 @@ void dexInstr_SetOpcode(uint16_t *, Code);
 // Set register functions
 void dexInstr_SetVRegA_21c(uint16_t *, uint8_t);
 void dexInstr_SetVRegB_21c(uint16_t *, uint8_t);
+void dexInstr_SetVRegC_22c(uint16_t *, uint16_t);
 
 // Returns the size (in 2 byte code units) of this instruction.
 uint32_t dexInstr_SizeInCodeUnits(uint16_t *);

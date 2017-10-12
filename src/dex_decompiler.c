@@ -88,6 +88,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         break;
       case IGET_WIDE_QUICK:
         LOGMSG(l_DEBUG, "IGET_WIDE_QUICK");
+        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_WIDE);
         break;
       case IGET_OBJECT_QUICK:
         LOGMSG(l_DEBUG, "IGET_OBJECT_QUICK");

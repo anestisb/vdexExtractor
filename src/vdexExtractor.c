@@ -109,6 +109,7 @@ int main(int argc, char **argv) {
         break;
       case 'o':
         outputDir = optarg;
+        break;
       case 'u':
         unquicken = true;
         break;

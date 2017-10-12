@@ -1,5 +1,4 @@
 #include "dex_decompiler.h"
-#include "log.h"
 #include "utils.h"
 
 static const uint8_t *quickening_info_ptr;

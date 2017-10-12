@@ -1,5 +1,4 @@
 #include "dex_instruction.h"
-#include "log.h"
 
 static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
   // Handle special NOP encoded variable length sequences.

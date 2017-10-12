@@ -1,6 +1,5 @@
 #include "vdex.h"
 #include "dex_decompiler.h"
-#include "log.h"
 #include "utils.h"
 
 /*

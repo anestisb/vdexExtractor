@@ -26,8 +26,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "common.h"
-#include "log.h"
 #include "utils.h"
 
 static bool utils_readdir(infiles_t *pFiles) {

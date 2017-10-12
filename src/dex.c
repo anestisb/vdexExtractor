@@ -1,5 +1,4 @@
 #include "dex.h"
-#include "log.h"
 #include "utils.h"
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {

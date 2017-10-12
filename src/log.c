@@ -100,4 +100,8 @@ void log_msg(log_level_t dl,
 
   printf("\n");
   fflush(stdout);
+
+  if (dl == l_FATAL) {
+    exit(EXIT_FAILURE);
+  }
 }

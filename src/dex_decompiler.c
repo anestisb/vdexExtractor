@@ -66,6 +66,9 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         LOGMSG(l_DEBUG, "RETURN_VOID_NO_BARRIER");
+        if (decompile_return_instruction) {
+          dexInstr_SetOpcode(code_ptr, RETURN_VOID);
+        }
         break;
       case NOP:
         LOGMSG(l_DEBUG, "NOP");

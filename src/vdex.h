@@ -26,8 +26,8 @@
 #include <zlib.h>
 #include "dex.h"
 
-static const uint8_t kVdexMagic[] = { 'v', 'd', 'e', 'x' };
-static const uint8_t kVdexVersion[] = { '0', '0', '6', '\0' };
+static const uint8_t kVdexMagic[] = {'v', 'd', 'e', 'x'};
+static const uint8_t kVdexVersion[] = {'0', '0', '6', '\0'};
 
 typedef uint32_t VdexChecksum;
 
@@ -54,19 +54,19 @@ typedef struct __attribute__((packed)) {
   dexFile *pDexFiles;
 } vdexFile;
 
-bool vdex_isMagicValid(const uint8_t*);
-bool vdex_isVersionValid(const uint8_t*);
-bool vdex_isValidVdex(const uint8_t*);
-bool vdex_hasDexSection(const uint8_t*);
-uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t*);
-const uint8_t* vdex_DexBegin(const uint8_t*);
-const uint8_t* vdex_DexEnd(const uint8_t*);
-const uint8_t* vdex_GetNextDexFileData(const uint8_t*, uint32_t*);
-uint32_t vdex_GetLocationChecksum(const uint8_t*, uint32_t);
-const uint8_t* vdex_GetVerifierDepsData(const uint8_t*);
-uint32_t vdex_GetVerifierDepsDataSize(const uint8_t*);
-const uint8_t* vdex_GetQuickeningInfo(const uint8_t*);
-uint32_t vdex_GetQuickeningInfoSize(const uint8_t*);
-bool vdex_Unquicken(const uint8_t*);
+bool vdex_isMagicValid(const uint8_t *);
+bool vdex_isVersionValid(const uint8_t *);
+bool vdex_isValidVdex(const uint8_t *);
+bool vdex_hasDexSection(const uint8_t *);
+uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *);
+const uint8_t *vdex_DexBegin(const uint8_t *);
+const uint8_t *vdex_DexEnd(const uint8_t *);
+const uint8_t *vdex_GetNextDexFileData(const uint8_t *, uint32_t *);
+uint32_t vdex_GetLocationChecksum(const uint8_t *, uint32_t);
+const uint8_t *vdex_GetVerifierDepsData(const uint8_t *);
+uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *);
+const uint8_t *vdex_GetQuickeningInfo(const uint8_t *);
+uint32_t vdex_GetQuickeningInfoSize(const uint8_t *);
+bool vdex_Unquicken(const uint8_t *);
 
 #endif

@@ -20,10 +20,10 @@
 
 */
 
-#include <sys/mman.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <libgen.h>
+#include <sys/mman.h>
 
 #include "common.h"
 #include "log.h"
@@ -34,23 +34,27 @@
 static int logLevel = l_INFO;
 
 /* Help page */
-static void usage(bool exit_success)
-{
-  printf("%s",
-    "  " AB "-i,  --input=<path>" AC "  : input dir (1 max depth) or single file\n"
-    "  " AB "-o,  --output=<path>" AC " : output path (default is same as input)\n"
-    "  " AB "-u,  --unquicken" AC "     : unquicken bytecode (under development)\n"
-    "  " AB "-h,  --help" AC "          : this help\n"
-    "  " AB "-v,  --debug=LEVEL" AC "   : "
-    "debug level (0 - FATAL ... 4 - DEBUG), default: '" AB "3" AC "' (INFO)\n"
-  );
+static void usage(bool exit_success) {
+  printf("%s", "  " AB "-i,  --input=<path>" AC
+               "  : input dir (1 max depth) or single file\n"
+               "  " AB "-o,  --output=<path>" AC
+               " : output path (default is same as input)\n"
+               "  " AB "-u,  --unquicken" AC
+               "     : unquicken bytecode (under development)\n"
+               "  " AB "-h,  --help" AC
+               "          : this help\n"
+               "  " AB "-v,  --debug=LEVEL" AC
+               "   : "
+               "debug level (0 - FATAL ... 4 - DEBUG), default: '" AB "3" AC
+               "' (INFO)\n");
 
-  if (exit_success) exit(EXIT_SUCCESS);
-  else exit(EXIT_FAILURE);
+  if (exit_success)
+    exit(EXIT_SUCCESS);
+  else
+    exit(EXIT_FAILURE);
 }
 
-static char *fileBasename(char const *path)
-{
+static char *fileBasename(char const *path) {
   char *s = strrchr(path, '/');
   if (!s) {
     return strdup(path);
@@ -59,17 +63,14 @@ static char *fileBasename(char const *path)
   }
 }
 
-static void formatName(char *outBuf,
-                       size_t outBufLen,
-                       char *rootPath,
-                       char *fName,
-                       size_t classId)
-{
-  char formattedName[PATH_MAX] = { 0 };
+static void formatName(char *outBuf, size_t outBufLen, char *rootPath,
+                       char *fName, size_t classId) {
+  char formattedName[PATH_MAX] = {0};
   if (classId == 0) {
     snprintf(formattedName, sizeof(formattedName), "%s_classes.dex", fName);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s_classes%zu.dex", fName, classId);
+    snprintf(formattedName, sizeof(formattedName), "%s_classes%zu.dex", fName,
+             classId);
   }
 
   if (rootPath == NULL) {
@@ -80,49 +81,45 @@ static void formatName(char *outBuf,
   }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   int c;
   char *outputDir = NULL;
   bool unquicken = false;
 
   /* Default values */
   infiles_t pFiles = {
-    .inputFile = NULL,
-    .files = NULL,
-    .fileCnt = 0,
+      .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
 
-  printf("\t\t"AB PROG_NAME" ver. "PROG_VERSION"\n\n"PROG_AUTHORS AC "\n\n");
+  printf("\t\t" AB PROG_NAME " ver. " PROG_VERSION "\n\n" PROG_AUTHORS AC
+         "\n\n");
   if (argc < 1) usage(true);
 
-  struct option longopts[] = {
-    {"input",     required_argument, 0, 'i'},
-    {"output",    required_argument, 0, 'o'},
-    {"unquicken", no_argument,       0, 'u'},
-    {"help",      no_argument,       0, 'h'},
-    {"debug",     required_argument, 0, 'v'},
-    {0,           0,                 0, 0  }
-  };
+  struct option longopts[] = {{"input", required_argument, 0, 'i'},
+                              {"output", required_argument, 0, 'o'},
+                              {"unquicken", no_argument, 0, 'u'},
+                              {"help", no_argument, 0, 'h'},
+                              {"debug", required_argument, 0, 'v'},
+                              {0, 0, 0, 0}};
 
-  while (( c = getopt_long(argc, argv, "i:o:uhv:", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:uhv:", longopts, NULL)) != -1) {
     switch (c) {
-    case 'i':
-      pFiles.inputFile = optarg;
-      break;
-    case 'o':
-      outputDir = optarg;
-    case 'u':
-      unquicken = true;
-      break;
-    case 'h':
-      usage(true);
-      break;
-    case 'v':
-      logLevel = atoi(optarg);
-      break;
-    default:
-      break;
+      case 'i':
+        pFiles.inputFile = optarg;
+        break;
+      case 'o':
+        outputDir = optarg;
+      case 'u':
+        unquicken = true;
+        break;
+      case 'h':
+        usage(true);
+        break;
+      case 'v':
+        logLevel = atoi(optarg);
+        break;
+      default:
+        break;
     }
   }
 
@@ -159,7 +156,7 @@ int main(int argc, char **argv)
       continue;
     }
 
-    const vdexHeader *pVdexHeader = (const vdexHeader*)buf;
+    const vdexHeader *pVdexHeader = (const vdexHeader *)buf;
 
     /* Validate VDEX magic header */
     if (!vdex_isValidVdex(buf)) {
@@ -188,12 +185,12 @@ int main(int argc, char **argv)
         LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", i);
         continue;
       }
-      dexHeader *pDexHeader = (dexHeader*)current_data;
+      dexHeader *pDexHeader = (dexHeader *)current_data;
 
       /* Repair CRC */
       dex_repairDexCRC(current_data, pDexHeader->fileSize);
 
-      char outFile[PATH_MAX] = { 0 };
+      char outFile[PATH_MAX] = {0};
       formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i);
 
       /* Write DEX file */

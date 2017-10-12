@@ -23,30 +23,31 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
+#include <errno.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <limits.h>
-#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
+#include <unistd.h>
 
-#define PROG_NAME    "vdexExtractor"
+#define PROG_NAME "vdexExtractor"
 #define PROG_VERSION "0.1.0"
-#define PROG_AUTHORS "    Anestis Bechtsoudis <anestis@census-labs.com>\n"\
-                     "  Copyright 2017 by CENSUS S.A. All Rights Reserved."
+#define PROG_AUTHORS                                    \
+  "    Anestis Bechtsoudis <anestis@census-labs.com>\n" \
+  "  Copyright 2017 by CENSUS S.A. All Rights Reserved."
 
-#define AB         ANSI_BOLD
-#define AC         ANSI_CLEAR
-#define ANSI_BOLD  "\033[1m"
+#define AB ANSI_BOLD
+#define AC ANSI_CLEAR
+#define ANSI_BOLD "\033[1m"
 #define ANSI_CLEAR "\033[0m"
 
 typedef struct {
-    char *inputFile;
-    char **files;
-    size_t fileCnt;
+  char *inputFile;
+  char **files;
+  size_t fileCnt;
 } infiles_t;
 
 #endif

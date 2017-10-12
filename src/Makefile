@@ -50,3 +50,6 @@ $(TARGET): $(OBJECTS)
 clean:
 	-rm -f *.o
 	-rm -f $(TARGET)
+
+format:
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 2}" -i -sort-includes *.c *.h

@@ -52,4 +52,6 @@ clean:
 	-rm -f $(TARGET)
 
 format:
-	clang-format -style="{BasedOnStyle: Google, IndentWidth: 2}" -i -sort-includes *.c *.h
+	clang-format -style="{BasedOnStyle: Google, \
+    IndentWidth: 2, Cpp11BracedListStyle: false, \
+    BinPackParameters: false }" -i -sort-includes *.c *.h

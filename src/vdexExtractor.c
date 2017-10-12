@@ -63,9 +63,12 @@ static char *fileBasename(char const *path) {
   }
 }
 
-static void formatName(char *outBuf, size_t outBufLen, char *rootPath,
-                       char *fName, size_t classId) {
-  char formattedName[PATH_MAX] = {0};
+static void formatName(char *outBuf,
+                       size_t outBufLen,
+                       char *rootPath,
+                       char *fName,
+                       size_t classId) {
+  char formattedName[PATH_MAX] = { 0 };
   if (classId == 0) {
     snprintf(formattedName, sizeof(formattedName), "%s_classes.dex", fName);
   } else {
@@ -88,19 +91,19 @@ int main(int argc, char **argv) {
 
   /* Default values */
   infiles_t pFiles = {
-      .inputFile = NULL, .files = NULL, .fileCnt = 0,
+    .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
 
   printf("\t\t" AB PROG_NAME " ver. " PROG_VERSION "\n\n" PROG_AUTHORS AC
          "\n\n");
   if (argc < 1) usage(true);
 
-  struct option longopts[] = {{"input", required_argument, 0, 'i'},
-                              {"output", required_argument, 0, 'o'},
-                              {"unquicken", no_argument, 0, 'u'},
-                              {"help", no_argument, 0, 'h'},
-                              {"debug", required_argument, 0, 'v'},
-                              {0, 0, 0, 0}};
+  struct option longopts[] = { { "input", required_argument, 0, 'i' },
+                               { "output", required_argument, 0, 'o' },
+                               { "unquicken", no_argument, 0, 'u' },
+                               { "help", no_argument, 0, 'h' },
+                               { "debug", required_argument, 0, 'v' },
+                               { 0, 0, 0, 0 } };
 
   while ((c = getopt_long(argc, argv, "i:o:uhv:", longopts, NULL)) != -1) {
     switch (c) {
@@ -197,7 +200,7 @@ int main(int argc, char **argv) {
       /* Repair CRC */
       dex_repairDexCRC(current_data, pDexHeader->fileSize);
 
-      char outFile[PATH_MAX] = {0};
+      char outFile[PATH_MAX] = { 0 };
       formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i);
 
       /* Write DEX file */

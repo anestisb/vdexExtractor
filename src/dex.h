@@ -37,18 +37,18 @@ typedef int32_t s4;
 typedef int64_t s8;
 
 #define kNumDexVersions 4
-#define kDexVersionLen  4
-#define kSHA1Len        SHA1HashSize
+#define kDexVersionLen 4
+#define kSHA1Len SHA1HashSize
 
-static const uint8_t kDexMagic[] = {'d', 'e', 'x', '\n'};
+static const uint8_t kDexMagic[] = { 'd', 'e', 'x', '\n' };
 static const uint8_t kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {
-    {'0', '3', '5', '\0'},
-    // Dex version 036 skipped
-    {'0', '3', '7', '\0'},
-    // Dex version 038: Android "O".
-    {'0', '3', '8', '\0'},
-    // Dex verion 039: Beyond Android "O".
-    {'0', '3', '9', '\0'},
+  { '0', '3', '5', '\0' },
+  // Dex version 036 skipped
+  { '0', '3', '7', '\0' },
+  // Dex version 038: Android "O".
+  { '0', '3', '8', '\0' },
+  // Dex verion 039: Beyond Android "O".
+  { '0', '3', '9', '\0' },
 };
 
 typedef struct __attribute__((packed)) {

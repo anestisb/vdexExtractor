@@ -44,16 +44,21 @@ __attribute__((constructor)) void log_init(void) {
 
 void log_setMinLevel(log_level_t dl) { log_minLevel = dl; }
 
-void log_msg(log_level_t dl, bool perr, const char *file, const char *func,
-             int line, const char *fmt, ...) {
+void log_msg(log_level_t dl,
+             bool perr,
+             const char *file,
+             const char *func,
+             int line,
+             const char *fmt,
+             ...) {
   struct {
     char *descr;
     char *prefix;
-  } logLevels[] = {{"[FATAL]", "\033[1;31m"},
-                   {"[ERROR]", "\033[1;35m"},
-                   {"[WARNING]", "\033[1;34m"},
-                   {"[INFO]", "\033[1m"},
-                   {"[DEBUG]", "\033[0;37m"}};
+  } logLevels[] = { { "[FATAL]", "\033[1;31m" },
+                    { "[ERROR]", "\033[1;35m" },
+                    { "[WARNING]", "\033[1;34m" },
+                    { "[INFO]", "\033[1m" },
+                    { "[DEBUG]", "\033[0;37m" } };
 
   char strerr[512];
   if (perr) {

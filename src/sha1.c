@@ -146,7 +146,8 @@ int SHA1Result(SHA1Context *context, uint8_t Message_Digest[SHA1HashSize]) {
  *      sha Error Code.
  *
  */
-int SHA1Input(SHA1Context *context, const uint8_t *message_array,
+int SHA1Input(SHA1Context *context,
+              const uint8_t *message_array,
               unsigned length) {
   if (!length) {
     return shaSuccess;
@@ -210,8 +211,9 @@ int SHA1Input(SHA1Context *context, const uint8_t *message_array,
  *
  */
 void SHA1ProcessMessageBlock(SHA1Context *context) {
-  const uint32_t K[] = {/* Constants defined in SHA-1   */
-                        0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6};
+  const uint32_t K[] = { /* Constants defined in SHA-1   */
+                         0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6
+  };
   int t;                  /* Loop counter                */
   uint32_t temp;          /* Temporary word value        */
   uint32_t W[80];         /* Word sequence               */

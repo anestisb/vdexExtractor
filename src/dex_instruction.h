@@ -159,7 +159,8 @@ static int const kInstructionSizeInCodeUnits[] = {
                          : (((format) >= k45cc) && ((format) <= k4rcc)) \
                                ? 4                                      \
                                : ((format) == k51l) ? 5 : -1),
-    DEX_INSTRUCTION_LIST(INSTRUCTION_SIZE)};
+  DEX_INSTRUCTION_LIST(INSTRUCTION_SIZE)
+};
 
 Code dexInstr_getOpcode(uint16_t *code_ptr) {
   uint16_t inst_data = code_ptr[0];

@@ -27,8 +27,8 @@
 #include "common.h"
 #include "dex.h"
 
-static const uint8_t kVdexMagic[] = {'v', 'd', 'e', 'x'};
-static const uint8_t kVdexVersion[] = {'0', '0', '6', '\0'};
+static const uint8_t kVdexMagic[] = { 'v', 'd', 'e', 'x' };
+static const uint8_t kVdexVersion[] = { '0', '0', '6', '\0' };
 
 typedef uint32_t VdexChecksum;
 

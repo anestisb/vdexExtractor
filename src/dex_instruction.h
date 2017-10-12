@@ -147,6 +147,12 @@ typedef enum {
 } VerifyFlag;
 
 // clang-format off
+
+static Format const kInstructionFormats[] = {
+#define INSTRUCTION_FORMAT(o, c, p, format, i, a, v) format,
+  DEX_INSTRUCTION_LIST(INSTRUCTION_FORMAT)
+};
+
 static int const kInstructionSizeInCodeUnits[] = {
 #define INSTRUCTION_SIZE(opcode, c, p, format, i, a, v) \
     (((opcode) == NOP) ? -1 : \
@@ -159,8 +165,15 @@ static int const kInstructionSizeInCodeUnits[] = {
 };
 // clang-format on
 
-// Get instruction' opcode
+// Get instruction's opcode
 Code dexInstr_getOpcode(uint16_t *);
+
+// Set opcode for instruction
+void dexInstr_SetOpcode(uint16_t *, Code);
+
+// Set register functions
+void dexInstr_SetVRegA_21c(uint16_t *, uint8_t);
+void dexInstr_SetVRegB_21c(uint16_t *, uint8_t);
 
 // Returns the size (in 2 byte code units) of this instruction.
 uint32_t dexInstr_SizeInCodeUnits(uint16_t *);

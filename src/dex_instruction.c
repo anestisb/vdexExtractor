@@ -28,6 +28,21 @@ Code dexInstr_getOpcode(uint16_t *code_ptr) {
   return (inst_data & 0xFF);
 }
 
+void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
+  CHECK_LT(opcode, 256u);
+  code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;
+}
+
+void dexInstr_SetVRegA_21c(uint16_t *code_ptr, uint8_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
+  code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
+}
+
+void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint8_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
+  code_ptr[1] = val;
+}
+
 uint32_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr) {
   int result = kInstructionSizeInCodeUnits[dexInstr_getOpcode(code_ptr)];
   if (result < 0) {

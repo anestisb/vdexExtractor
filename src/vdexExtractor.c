@@ -68,11 +68,17 @@ static void formatName(char *outBuf,
                        char *rootPath,
                        char *fName,
                        size_t classId) {
+
+  // Trim Vdex extension and replace with Apk
+  char *fileExt = rindex(fName, '.');
+  if (fileExt) {
+    *fileExt = '\0';
+  }
   char formattedName[PATH_MAX] = { 0 };
   if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%s_classes.dex", fName);
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.dex", fName);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s_classes%zu.dex", fName,
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex", fName,
              classId);
   }
 

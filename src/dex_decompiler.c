@@ -78,15 +78,15 @@ static void DecompileInvokeVirtual(uint16_t *insns,
 
 bool dexDecompiler_decompile(dexCode *pDexCode,
                              uint32_t startCodeOff,
-                             const uint8_t *quickening_data_start,
-                             uint32_t quickening_data_size,
+                             const uint8_t *quickening_info,
+                             uint32_t quickening_size,
                              bool decompile_return_instruction) {
-  if (quickening_data_size == 0 && !decompile_return_instruction) {
+  if (quickening_size == 0 && !decompile_return_instruction) {
     return true;
   }
 
-  quickening_info_ptr = quickening_data_start;
-  quickening_info_end = quickening_data_start + quickening_data_size;
+  quickening_info_ptr = quickening_info;
+  quickening_info_end = quickening_info + quickening_size;
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
@@ -175,12 +175,15 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
   }
 
   if (quickening_info_ptr != quickening_info_end) {
-    if (quickening_data_start == quickening_info_ptr) {
+    if (quickening_info_ptr == quickening_info_end) {
       LOGMSG(l_ERROR,
              "Failed to use any value in quickening info, potentially"
              " due to duplicate methods.");
     } else {
-      LOGMSG(l_ERROR, "Failed to use all values in quickening info.");
+      LOGMSG(l_ERROR,
+             "Failed to use all values in quickening info, '%zx' items not "
+             "processed",
+             quickening_info_end - quickening_info_ptr);
       return false;
     }
   }

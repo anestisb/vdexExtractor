@@ -46,12 +46,11 @@ typedef int16_t s2;
 typedef int32_t s4;
 typedef int64_t s8;
 
-#define CHECK_IMPL(c1, op, c2)                                \
-  do {                                                        \
-    u8 v1 = (u8)(c1);                                         \
-    u8 v2 = (u8)(c2);                                         \
-    if (UNLIKELY(!(v1 op v2)))                                \
-      LOGMSG(l_FATAL, "(" #c1 ") " #op " (" #c2 ")", v1, v2); \
+#define CHECK_IMPL(c1, op, c2)                                                         \
+  do {                                                                                 \
+    u8 v1 = (u8)(c1);                                                                  \
+    u8 v2 = (u8)(c2);                                                                  \
+    if (UNLIKELY(!(v1 op v2))) LOGMSG(l_FATAL, "(" #c1 ") " #op " (" #c2 ")", v1, v2); \
   } while (false) /**/
 
 #define CHECK(a) CHECK_IMPL((a), !=, 0)

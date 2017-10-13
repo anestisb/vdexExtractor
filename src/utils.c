@@ -69,8 +69,7 @@ static bool utils_readdir(infiles_t *pFiles) {
       continue;
     }
 
-    if (!(pFiles->files =
-              realloc(pFiles->files, sizeof(char *) * (count + 1)))) {
+    if (!(pFiles->files = realloc(pFiles->files, sizeof(char *) * (count + 1)))) {
       LOGMSG_P(l_ERROR, "Couldn't allocate memory");
       closedir(dir);
       return false;
@@ -89,8 +88,7 @@ static bool utils_readdir(infiles_t *pFiles) {
 
   closedir(dir);
   if (count == 0) {
-    LOGMSG(l_ERROR, "Directory '%s' doesn't contain any regular files",
-           pFiles->inputFile);
+    LOGMSG(l_ERROR, "Directory '%s' doesn't contain any regular files", pFiles->inputFile);
     return false;
   }
 
@@ -112,8 +110,7 @@ bool utils_init(infiles_t *pFiles) {
 
   struct stat st;
   if (stat(pFiles->inputFile, &st) == -1) {
-    LOGMSG_P(l_ERROR, "Couldn't stat the input file/dir '%s'",
-             pFiles->inputFile);
+    LOGMSG_P(l_ERROR, "Couldn't stat the input file/dir '%s'", pFiles->inputFile);
     return false;
   }
 
@@ -122,8 +119,7 @@ bool utils_init(infiles_t *pFiles) {
   }
 
   if (!S_ISREG(st.st_mode)) {
-    LOGMSG(l_ERROR, "'%s' is not a regular file, nor a directory",
-           pFiles->inputFile);
+    LOGMSG(l_ERROR, "'%s' is not a regular file, nor a directory", pFiles->inputFile);
     return false;
   }
 
@@ -161,8 +157,7 @@ uint8_t *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
   }
 
   uint8_t *buf;
-  if ((buf = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, *fd,
-                  0)) == MAP_FAILED) {
+  if ((buf = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, *fd, 0)) == MAP_FAILED) {
     LOGMSG_P(l_WARN, "Couldn't mmap() the '%s' file", fileName);
     close(*fd);
     return NULL;

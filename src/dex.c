@@ -22,51 +22,50 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
   char *sigHex = util_bin2hex(pDexHeader->signature, kSHA1Len);
 
   LOGMSG(l_VDEBUG, "------ Dex Header Info ------");
-  LOGMSG(l_VDEBUG, "magic        : %.3s-%.3s", pDexHeader->magic.dex,
-         pDexHeader->magic.ver);
-  LOGMSG(l_VDEBUG, "checksum     : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->checksum, pDexHeader->checksum);
+  LOGMSG(l_VDEBUG, "magic        : %.3s-%.3s", pDexHeader->magic.dex, pDexHeader->magic.ver);
+  LOGMSG(l_VDEBUG, "checksum     : %" PRIx32 " (%" PRIu32 ")", pDexHeader->checksum,
+         pDexHeader->checksum);
   LOGMSG(l_VDEBUG, "signature    : %s", sigHex);
-  LOGMSG(l_VDEBUG, "fileSize     : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->fileSize, pDexHeader->fileSize);
-  LOGMSG(l_VDEBUG, "headerSize   : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->headerSize, pDexHeader->headerSize);
-  LOGMSG(l_VDEBUG, "endianTag    : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->endianTag, pDexHeader->endianTag);
-  LOGMSG(l_VDEBUG, "linkSize     : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->linkSize, pDexHeader->linkSize);
-  LOGMSG(l_VDEBUG, "linkOff      : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->linkOff, pDexHeader->linkOff);
-  LOGMSG(l_VDEBUG, "mapOff       : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->mapOff, pDexHeader->mapOff);
-  LOGMSG(l_VDEBUG, "stringIdsSize: %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->stringIdsSize, pDexHeader->stringIdsSize);
-  LOGMSG(l_VDEBUG, "stringIdsOff : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->stringIdsOff, pDexHeader->stringIdsOff);
-  LOGMSG(l_VDEBUG, "typeIdsSize  : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->typeIdsSize, pDexHeader->typeIdsSize);
-  LOGMSG(l_VDEBUG, "typeIdsOff   : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->typeIdsOff, pDexHeader->typeIdsOff);
-  LOGMSG(l_VDEBUG, "protoIdsSize : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->protoIdsSize, pDexHeader->protoIdsSize);
-  LOGMSG(l_VDEBUG, "protoIdsOff  : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->protoIdsOff, pDexHeader->protoIdsOff);
-  LOGMSG(l_VDEBUG, "fieldIdsSize : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->fieldIdsSize, pDexHeader->fieldIdsSize);
-  LOGMSG(l_VDEBUG, "fieldIdsOff  : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->fieldIdsOff, pDexHeader->fieldIdsOff);
-  LOGMSG(l_VDEBUG, "methodIdsSize: %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->methodIdsSize, pDexHeader->methodIdsSize);
-  LOGMSG(l_VDEBUG, "methodIdsOff : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->methodIdsOff, pDexHeader->methodIdsOff);
-  LOGMSG(l_VDEBUG, "classDefsSize: %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->classDefsSize, pDexHeader->classDefsSize);
-  LOGMSG(l_VDEBUG, "classDefsOff : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->classDefsOff, pDexHeader->classDefsOff);
-  LOGMSG(l_VDEBUG, "dataSize     : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->dataSize, pDexHeader->dataSize);
-  LOGMSG(l_VDEBUG, "dataOff      : %" PRIx32 " (%" PRIu32 ")",
-         pDexHeader->dataOff, pDexHeader->dataOff);
+  LOGMSG(l_VDEBUG, "fileSize     : %" PRIx32 " (%" PRIu32 ")", pDexHeader->fileSize,
+         pDexHeader->fileSize);
+  LOGMSG(l_VDEBUG, "headerSize   : %" PRIx32 " (%" PRIu32 ")", pDexHeader->headerSize,
+         pDexHeader->headerSize);
+  LOGMSG(l_VDEBUG, "endianTag    : %" PRIx32 " (%" PRIu32 ")", pDexHeader->endianTag,
+         pDexHeader->endianTag);
+  LOGMSG(l_VDEBUG, "linkSize     : %" PRIx32 " (%" PRIu32 ")", pDexHeader->linkSize,
+         pDexHeader->linkSize);
+  LOGMSG(l_VDEBUG, "linkOff      : %" PRIx32 " (%" PRIu32 ")", pDexHeader->linkOff,
+         pDexHeader->linkOff);
+  LOGMSG(l_VDEBUG, "mapOff       : %" PRIx32 " (%" PRIu32 ")", pDexHeader->mapOff,
+         pDexHeader->mapOff);
+  LOGMSG(l_VDEBUG, "stringIdsSize: %" PRIx32 " (%" PRIu32 ")", pDexHeader->stringIdsSize,
+         pDexHeader->stringIdsSize);
+  LOGMSG(l_VDEBUG, "stringIdsOff : %" PRIx32 " (%" PRIu32 ")", pDexHeader->stringIdsOff,
+         pDexHeader->stringIdsOff);
+  LOGMSG(l_VDEBUG, "typeIdsSize  : %" PRIx32 " (%" PRIu32 ")", pDexHeader->typeIdsSize,
+         pDexHeader->typeIdsSize);
+  LOGMSG(l_VDEBUG, "typeIdsOff   : %" PRIx32 " (%" PRIu32 ")", pDexHeader->typeIdsOff,
+         pDexHeader->typeIdsOff);
+  LOGMSG(l_VDEBUG, "protoIdsSize : %" PRIx32 " (%" PRIu32 ")", pDexHeader->protoIdsSize,
+         pDexHeader->protoIdsSize);
+  LOGMSG(l_VDEBUG, "protoIdsOff  : %" PRIx32 " (%" PRIu32 ")", pDexHeader->protoIdsOff,
+         pDexHeader->protoIdsOff);
+  LOGMSG(l_VDEBUG, "fieldIdsSize : %" PRIx32 " (%" PRIu32 ")", pDexHeader->fieldIdsSize,
+         pDexHeader->fieldIdsSize);
+  LOGMSG(l_VDEBUG, "fieldIdsOff  : %" PRIx32 " (%" PRIu32 ")", pDexHeader->fieldIdsOff,
+         pDexHeader->fieldIdsOff);
+  LOGMSG(l_VDEBUG, "methodIdsSize: %" PRIx32 " (%" PRIu32 ")", pDexHeader->methodIdsSize,
+         pDexHeader->methodIdsSize);
+  LOGMSG(l_VDEBUG, "methodIdsOff : %" PRIx32 " (%" PRIu32 ")", pDexHeader->methodIdsOff,
+         pDexHeader->methodIdsOff);
+  LOGMSG(l_VDEBUG, "classDefsSize: %" PRIx32 " (%" PRIu32 ")", pDexHeader->classDefsSize,
+         pDexHeader->classDefsSize);
+  LOGMSG(l_VDEBUG, "classDefsOff : %" PRIx32 " (%" PRIu32 ")", pDexHeader->classDefsOff,
+         pDexHeader->classDefsOff);
+  LOGMSG(l_VDEBUG, "dataSize     : %" PRIx32 " (%" PRIu32 ")", pDexHeader->dataSize,
+         pDexHeader->dataSize);
+  LOGMSG(l_VDEBUG, "dataOff      : %" PRIx32 " (%" PRIu32 ")", pDexHeader->dataOff,
+         pDexHeader->dataOff);
   LOGMSG(l_VDEBUG, "-----------------------------");
 
   free(sigHex);
@@ -148,8 +147,7 @@ int32_t dex_readSLeb128(const uint8_t **data) {
   return result;
 }
 
-void dex_readClassDataHeader(const uint8_t **cursor,
-                             dexClassDataHeader *pDexClassDataHeader) {
+void dex_readClassDataHeader(const uint8_t **cursor, dexClassDataHeader *pDexClassDataHeader) {
   pDexClassDataHeader->staticFieldsSize = dex_readULeb128(cursor);
   pDexClassDataHeader->instanceFieldsSize = dex_readULeb128(cursor);
   pDexClassDataHeader->directMethodsSize = dex_readULeb128(cursor);

@@ -47,8 +47,7 @@ static void usage(bool exit_success) {
                "          : this help\n"
                "  " AB "-v,  --debug=LEVEL" AC
                "   : "
-               "debug level (0 - FATAL ... 5 - VDEBUG), default: '" AB "3" AC
-               "' (INFO)\n");
+               "debug level (0 - FATAL ... 5 - VDEBUG), default: '" AB "3" AC "' (INFO)\n");
 
   if (exit_success)
     exit(EXIT_SUCCESS);
@@ -65,11 +64,8 @@ static char *fileBasename(char const *path) {
   }
 }
 
-static void formatName(char *outBuf,
-                       size_t outBufLen,
-                       char *rootPath,
-                       char *fName,
-                       size_t classId) {
+static void formatName(
+    char *outBuf, size_t outBufLen, char *rootPath, char *fName, size_t classId) {
   // Trim Vdex extension and replace with Apk
   char *fileExt = rindex(fName, '.');
   if (fileExt) {
@@ -79,8 +75,7 @@ static void formatName(char *outBuf,
   if (classId == 0) {
     snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.dex", fName);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex",
-             fName, classId);
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex", fName, classId);
   }
 
   if (rootPath == NULL) {
@@ -102,8 +97,7 @@ int main(int argc, char **argv) {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
 
-  printf("\t\t" AB PROG_NAME " ver. " PROG_VERSION "\n\n" PROG_AUTHORS AC
-         "\n\n");
+  printf("\t\t" AB PROG_NAME " ver. " PROG_VERSION "\n\n" PROG_AUTHORS AC "\n\n");
   if (argc < 1) usage(true);
 
   struct option longopts[] = { { "input", required_argument, 0, 'i' },
@@ -161,8 +155,7 @@ int main(int argc, char **argv) {
     /* mmap file */
     buf = utils_mapFileToRead(pFiles.files[f], &fileSz, &srcfd);
     if (buf == NULL) {
-      LOGMSG(l_ERROR, "open & map failed for R/O mode. Skipping '%s'",
-             pFiles.files[f]);
+      LOGMSG(l_ERROR, "open & map failed for R/O mode. Skipping '%s'", pFiles.files[f]);
       continue;
     }
 
@@ -224,16 +217,14 @@ int main(int argc, char **argv) {
       int dstfd = -1;
       dstfd = open(outFile, fileFlags, 0644);
       if (dstfd == -1) {
-        LOGMSG_P(l_ERROR,
-                 "Couldn't create output file '%s' - skipping 'classes%zu.dex'",
-                 outFile, i);
+        LOGMSG_P(l_ERROR, "Couldn't create output file '%s' - skipping 'classes%zu.dex'", outFile,
+                 i);
         continue;
       }
 
       if (!utils_writeToFd(dstfd, current_data, pDexHeader->fileSize)) {
         close(dstfd);
-        LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'",
-               outFile, i);
+        LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'", outFile, i);
         continue;
       }
 
@@ -249,8 +240,7 @@ int main(int argc, char **argv) {
     close(srcfd);
   }
 
-  LOGMSG(l_INFO, "%u out of %u Vdex files have been processed",
-         processedVdexCnt, pFiles.fileCnt);
+  LOGMSG(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
   LOGMSG(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   LOGMSG(l_INFO, "Extracted Dex files available in '%s'",
          outputDir ? outputDir : dirname(pFiles.inputFile));

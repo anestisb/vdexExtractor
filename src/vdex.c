@@ -12,8 +12,7 @@ bool vdex_isMagicValid(const uint8_t *cursor) {
 
 bool vdex_isVersionValid(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  return (memcmp(pVdexHeader->version_, kVdexVersion, sizeof(kVdexVersion)) ==
-          0);
+  return (memcmp(pVdexHeader->version_, kVdexVersion, sizeof(kVdexVersion)) == 0);
 }
 
 bool vdex_isValidVdex(const uint8_t *cursor) {
@@ -39,8 +38,7 @@ const uint8_t *vdex_DexEnd(const uint8_t *cursor) {
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
-const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor,
-                                       uint32_t *offset) {
+const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) {
   if (*offset == 0) {
     if (vdex_hasDexSection(cursor)) {
       const uint8_t *dexBuf = vdex_DexBegin(cursor);
@@ -116,12 +114,10 @@ bool vdex_Unquicken(const uint8_t *cursor) {
   uint32_t offset = 0;
 
   // For each dex file
-  for (size_t dex_file_idx = 0;
-       dex_file_idx < pVdexHeader->number_of_dex_files_; ++dex_file_idx) {
+  for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->number_of_dex_files_; ++dex_file_idx) {
     dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
-      LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping",
-             dex_file_idx);
+      LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", dex_file_idx);
       continue;
     }
 
@@ -130,16 +126,13 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     // Check if valid dex file
     dex_dumpHeaderInfo(pDexHeader);
     if (!dex_isValidDexMagic(pDexHeader)) {
-      LOGMSG(l_ERROR, "Failed to unquicken 'classes%zu.dex' - skipping",
-             dex_file_idx);
+      LOGMSG(l_ERROR, "Failed to unquicken 'classes%zu.dex' - skipping", dex_file_idx);
       continue;
     }
 
     // For each class
-    LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx,
-           pDexHeader->classDefsSize);
-    dexClassDef *dexClassDefs =
-        (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
+    LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
+    dexClassDef *dexClassDefs = (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
 
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
       LOGMSG(l_VDEBUG, "\tclass #%" PRIu32 ": class_data_off=%" PRIu32, i,
@@ -159,10 +152,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
       LOGMSG(l_VDEBUG, "\t\tstatic_fields=%" PRIu32 ", instance_fields=%" PRIu32
                        ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
-             i, pDexClassDataHeader.staticFieldsSize,
-             pDexClassDataHeader.instanceFieldsSize,
-             pDexClassDataHeader.directMethodsSize,
-             pDexClassDataHeader.virtualMethodsSize);
+             i, pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
+             pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
 
       // Skip static fields
       for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
@@ -183,8 +174,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "\t\t\tdirect_method #%" PRIu32 ": codeOff=%" PRIx32,
-               j, pDexMethod.codeOff);
+        LOGMSG(l_VDEBUG, "\t\t\tdirect_method #%" PRIu32 ": codeOff=%" PRIx32, j,
+               pDexMethod.codeOff);
 
         // Skip empty methods
         if (pDexMethod.codeOff == 0) {
@@ -197,9 +188,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(
-                pDexCode, dex_getFirstInstrOff(&pDexMethod),
-                quickening_info_ptr, quickening_size, true)) {
+        if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
+                                     quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile DEX file");
           return false;
         }
@@ -211,8 +201,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "\t\t\tvirtual_method #%" PRIu32 ": codeOff=%" PRIx32,
-               j, pDexMethod.codeOff);
+        LOGMSG(l_VDEBUG, "\t\t\tvirtual_method #%" PRIu32 ": codeOff=%" PRIx32, j,
+               pDexMethod.codeOff);
 
         // Skip native or abstract methods
         if (pDexMethod.codeOff == 0) {
@@ -225,9 +215,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(
-                pDexCode, dex_getFirstInstrOff(&pDexMethod),
-                quickening_info_ptr, quickening_size, true)) {
+        if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
+                                     quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile DEX file");
           return false;
         }
@@ -238,8 +227,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     // If unquicken was successful original checksum should verify
     uint32_t curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
     if (curChecksum != pDexHeader->checksum) {
-      LOGMSG(l_ERROR, "Unexpected checksum (%" PRIx32 " vs %" PRIx32
-                      ") - failed to unquicken DEX file",
+      LOGMSG(l_ERROR,
+             "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken DEX file",
              curChecksum, pDexHeader->checksum);
       return false;
     }

@@ -9,9 +9,7 @@ static uint16_t *code_end;
 static uint32_t dex_pc;
 static uint32_t cur_code_off;
 
-static void initCodeIterator(uint16_t *pCode,
-                             uint32_t codeSize,
-                             uint32_t startCodeOff) {
+static void initCodeIterator(uint16_t *pCode, uint32_t codeSize, uint32_t startCodeOff) {
   code_ptr = pCode;
   code_end = pCode + codeSize;
   dex_pc = 0;
@@ -56,9 +54,7 @@ static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   dexInstr_SetVRegB_21c(insns, type_index);
 }
 
-static void DecompileInstanceFieldAccess(uint16_t *insns,
-                                         uint32_t dex_pc,
-                                         Code new_opcode) {
+static void DecompileInstanceFieldAccess(uint16_t *insns, uint32_t dex_pc, Code new_opcode) {
   uint16_t index = GetIndexAt(dex_pc);
   dexInstr_SetOpcode(insns, new_opcode);
   dexInstr_SetVRegC_22c(insns, index);
@@ -92,8 +88,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
-    LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off,
-           dexInst_getOpcodeStr(code_ptr));
+    LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         if (decompile_return_instruction) {
@@ -161,12 +156,9 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
   if (quickening_info_ptr != quickening_info_end) {
     if (quickening_info_ptr == quickening_info_end) {
       LOGMSG(l_ERROR,
-             "Failed to use any value in quickening info, potentially"
-             " due to duplicate methods.");
+             "Failed to use any value in quickening info, potentially due to duplicate methods.");
     } else {
-      LOGMSG(l_ERROR,
-             "Failed to use all values in quickening info, '%zx' items not "
-             "processed",
+      LOGMSG(l_ERROR, "Failed to use all values in quickening info, '%zx' items not processed",
              quickening_info_end - quickening_info_ptr);
       return false;
     }

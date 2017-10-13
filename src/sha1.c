@@ -34,8 +34,7 @@
 /*
  *  Define the SHA1 circular left shift macro
  */
-#define SHA1CircularShift(bits, word) \
-  (((word) << (bits)) | ((word) >> (32 - (bits))))
+#define SHA1CircularShift(bits, word) (((word) << (bits)) | ((word) >> (32 - (bits))))
 
 /* Local Function Prototyptes */
 void SHA1PadMessage(SHA1Context *);
@@ -119,8 +118,7 @@ int SHA1Result(SHA1Context *context, uint8_t Message_Digest[SHA1HashSize]) {
   }
 
   for (i = 0; i < SHA1HashSize; ++i) {
-    Message_Digest[i] =
-        context->Intermediate_Hash[i >> 2] >> 8 * (3 - (i & 0x03));
+    Message_Digest[i] = context->Intermediate_Hash[i >> 2] >> 8 * (3 - (i & 0x03));
   }
 
   return shaSuccess;
@@ -146,9 +144,7 @@ int SHA1Result(SHA1Context *context, uint8_t Message_Digest[SHA1HashSize]) {
  *      sha Error Code.
  *
  */
-int SHA1Input(SHA1Context *context,
-              const uint8_t *message_array,
-              unsigned length) {
+int SHA1Input(SHA1Context *context, const uint8_t *message_array, unsigned length) {
   if (!length) {
     return shaSuccess;
   }
@@ -167,8 +163,7 @@ int SHA1Input(SHA1Context *context,
     return context->Corrupted;
   }
   while (length-- && !context->Corrupted) {
-    context->Message_Block[context->Message_Block_Index++] =
-        (*message_array & 0xFF);
+    context->Message_Block[context->Message_Block_Index++] = (*message_array & 0xFF);
 
     context->Length_Low += 8;
     if (context->Length_Low == 0) {
@@ -259,8 +254,7 @@ void SHA1ProcessMessageBlock(SHA1Context *context) {
   }
 
   for (t = 40; t < 60; t++) {
-    temp = SHA1CircularShift(5, A) + ((B & C) | (B & D) | (C & D)) + E + W[t] +
-           K[2];
+    temp = SHA1CircularShift(5, A) + ((B & C) | (B & D) | (C & D)) + E + W[t] + K[2];
     E = D;
     D = C;
     C = SHA1CircularShift(30, B);

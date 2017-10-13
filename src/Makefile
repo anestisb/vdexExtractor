@@ -54,4 +54,4 @@ clean:
 format:
 	clang-format -style="{BasedOnStyle: Google, \
     IndentWidth: 2, Cpp11BracedListStyle: false, \
-    BinPackParameters: false }" -i -sort-includes *.c *.h
+    BinPackParameters: false, ColumnLimit: 100}" -i -sort-includes *.c *.h

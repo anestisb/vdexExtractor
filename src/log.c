@@ -56,9 +56,10 @@ void log_msg(log_level_t dl,
     char *prefix;
   } logLevels[] = { { "[FATAL]", "\033[1;31m" },
                     { "[ERROR]", "\033[1;35m" },
-                    { "[WARNING]", "\033[1;34m" },
+                    { "[WARNING]", "\033[1;33m" },
                     { "[INFO]", "\033[1m" },
-                    { "[DEBUG]", "\033[0;37m" } };
+                    { "[DEBUG]", "\033[0;37m" },
+                    { "[VDEBUG]", "\033[0;36m"}};
 
   char strerr[512];
   if (perr) {
@@ -77,7 +78,7 @@ void log_msg(log_level_t dl,
     printf("%s", logLevels[dl].prefix);
   }
 
-  if (log_minLevel >= l_DEBUG || !log_isStdioTTY) {
+  if (dl != l_VDEBUG && (log_minLevel >= l_DEBUG || !log_isStdioTTY)) {
     printf("%s [%d] %d/%02d/%02d %02d:%02d:%02d (%s:%s %d) ",
            logLevels[dl].descr, getpid(), tm.tm_year + 1900, tm.tm_mon + 1,
            tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, file, func, line);

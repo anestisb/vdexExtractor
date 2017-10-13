@@ -23,7 +23,14 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-typedef enum { l_FATAL = 0, l_ERROR, l_WARN, l_INFO, l_DEBUG } log_level_t;
+typedef enum {
+  l_FATAL = 0,
+  l_ERROR,
+  l_WARN,
+  l_INFO,
+  l_DEBUG,
+  l_VDEBUG
+} log_level_t;
 
 extern void log_setMinLevel(log_level_t dl);
 

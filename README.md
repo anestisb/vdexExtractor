@@ -34,7 +34,7 @@ $ bin/vdexExtractor -h
   -o,  --output=<path> : output path (default is same as input)
   -u,  --unquicken     : unquicken bytecode (under development)
   -h,  --help          : this help
-  -v,  --debug=LEVEL   : debug level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
+  -v,  --debug=LEVEL   : debug level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
 
 

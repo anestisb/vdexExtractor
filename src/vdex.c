@@ -120,7 +120,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
        dex_file_idx < pVdexHeader->number_of_dex_files_; ++dex_file_idx) {
     dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
-      LOGMSG(l_ERROR, "Failed to unquicken 'classes%zu.dex' - skipping",
+      LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping",
              dex_file_idx);
       continue;
     }
@@ -136,14 +136,14 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     }
 
     // For each class
-    LOGMSG(l_DEBUG, "[%zu] number of classes: %" PRIu32, dex_file_idx,
+    LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx,
            pDexHeader->classDefsSize);
     dexClassDef *dexClassDefs =
         (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
 
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
-      LOGMSG(l_DEBUG, "[%zu] class #%" PRIu32 ": class_data_off=%" PRIu32,
-             dex_file_idx, i, dexClassDefs[i].classDataOff);
+      LOGMSG(l_VDEBUG, "  class #%" PRIu32 ": class_data_off=%" PRIu32,
+             i, dexClassDefs[i].classDataOff);
 
       // cursor for currently processed class data item
       const uint8_t *curClassDataCursor;
@@ -157,12 +157,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
       dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
 
-      LOGMSG(l_DEBUG, "[%zu] class #%" PRIu32 ": static_fields=%" PRIu32
-                      ", "
-                      "instance_fields=%" PRIu32 ", direct_methods=%" PRIu32
-                      ", "
-                      "virtual_methods=%" PRIu32,
-             dex_file_idx, i, pDexClassDataHeader.staticFieldsSize,
+      LOGMSG(l_VDEBUG, "    static_fields=%" PRIu32 ", instance_fields=%" PRIu32 ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
+             i, pDexClassDataHeader.staticFieldsSize,
              pDexClassDataHeader.instanceFieldsSize,
              pDexClassDataHeader.directMethodsSize,
              pDexClassDataHeader.virtualMethodsSize);
@@ -186,6 +182,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
+        LOGMSG(l_VDEBUG, "      direct_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
 
         // Skip empty methods
         if (pDexMethod.codeOff == 0) {
@@ -211,6 +208,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
+        LOGMSG(l_VDEBUG, "      virtual_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
 
         // Skip native or abstract methods
         if (pDexMethod.codeOff == 0) {

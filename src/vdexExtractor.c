@@ -45,7 +45,7 @@ static void usage(bool exit_success) {
                "          : this help\n"
                "  " AB "-v,  --debug=LEVEL" AC
                "   : "
-               "debug level (0 - FATAL ... 4 - DEBUG), default: '" AB "3" AC
+               "debug level (0 - FATAL ... 5 - VDEBUG), default: '" AB "3" AC
                "' (INFO)\n");
 
   if (exit_success)

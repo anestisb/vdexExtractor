@@ -170,12 +170,72 @@ static int const kInstructionSizeInCodeUnits[] = {
 };
 // clang-format on
 
-// Get instruction's opcode
+// Instruction opcode functions
 Code dexInstr_getOpcode(uint16_t *);
 const char *dexInst_getOpcodeStr(uint16_t *);
-
-// Set opcode for instruction
 void dexInstr_SetOpcode(uint16_t *, Code);
+
+// Get register functions
+int32_t dexInstr_getVRegA(uint16_t *);
+int8_t dexInstr_getVRegA_10t(uint16_t *);
+uint8_t dexInstr_getVRegA_10x(uint16_t *);
+uint8_t dexInstr_getVRegA_11n(uint16_t *);
+uint8_t dexInstr_getVRegA_11x(uint16_t *);
+uint8_t dexInstr_getVRegA_12x(uint16_t *);
+int16_t dexInstr_getVRegA_20t(uint16_t *);
+uint8_t dexInstr_getVRegA_21c(uint16_t *);
+uint8_t dexInstr_getVRegA_21h(uint16_t *);
+uint8_t dexInstr_getVRegA_21s(uint16_t *);
+uint8_t dexInstr_getVRegA_21t(uint16_t *);
+uint8_t dexInstr_getVRegA_22b(uint16_t *);
+uint8_t dexInstr_getVRegA_22c(uint16_t *);
+uint8_t dexInstr_getVRegA_22s(uint16_t *);
+uint8_t dexInstr_getVRegA_22t(uint16_t *);
+uint8_t dexInstr_getVRegA_22x(uint16_t *);
+uint8_t dexInstr_getVRegA_23x(uint16_t *);
+int32_t dexInstr_getVRegA_30t(uint16_t *);
+uint8_t dexInstr_getVRegA_31c(uint16_t *);
+uint8_t dexInstr_getVRegA_31i(uint16_t *);
+uint8_t dexInstr_getVRegA_31t(uint16_t *);
+uint16_t dexInstr_getVRegA_32x(uint16_t *);
+uint8_t dexInstr_getVRegA_35c(uint16_t *);
+uint8_t dexInstr_getVRegA_3rc(uint16_t *);
+uint8_t dexInstr_getVRegA_51l(uint16_t *);
+uint8_t dexInstr_getVRegA_45cc(uint16_t *);
+uint8_t dexInstr_getVRegA_4rcc(uint16_t *);
+int32_t dexInstr_getVRegB(uint16_t *);
+uint64_t dexInstr_getWideVRegB(uint16_t *);
+int8_t dexInstr_getVRegB_11n(uint16_t *);
+uint8_t dexInstr_getVRegB_12x(uint16_t *);
+uint16_t dexInstr_getVRegB_21c(uint16_t *);
+uint16_t dexInstr_getVRegB_21h(uint16_t *);
+int16_t dexInstr_getVRegB_21s(uint16_t *);
+int16_t dexInstr_getVRegB_21t(uint16_t *);
+uint8_t dexInstr_getVRegB_22b(uint16_t *);
+uint8_t dexInstr_getVRegB_22c(uint16_t *);
+uint8_t dexInstr_getVRegB_22s(uint16_t *);
+uint8_t dexInstr_getVRegB_22t(uint16_t *);
+uint16_t dexInstr_getVRegB_22x(uint16_t *);
+uint8_t dexInstr_getVRegB_23x(uint16_t *);
+uint32_t dexInstr_getVRegB_31c(uint16_t *);
+int32_t dexInstr_getVRegB_31i(uint16_t *);
+int32_t dexInstr_getVRegB_31t(uint16_t *);
+uint16_t dexInstr_getVRegB_32x(uint16_t *);
+uint16_t dexInstr_getVRegB_35c(uint16_t *);
+uint16_t dexInstr_getVRegB_3rc(uint16_t *);
+uint16_t dexInstr_getVRegB_45cc(uint16_t *);
+uint16_t dexInstr_getVRegB_4rcc(uint16_t *);
+uint64_t dexInstr_getVRegB_51l(uint16_t *);
+int32_t dexInstr_getVRegC(uint16_t *);
+int8_t dexInstr_getVRegC_22b(uint16_t *);
+uint16_t dexInstr_getVRegC_22c(uint16_t *);
+int16_t dexInstr_getVRegC_22s(uint16_t *);
+int16_t dexInstr_getVRegC_22t(uint16_t *);
+uint8_t dexInstr_getVRegC_23x(uint16_t *);
+uint8_t dexInstr_getVRegC_35c(uint16_t *);
+uint16_t dexInstr_getVRegC_3rc(uint16_t *);
+uint8_t dexInstr_getVRegC_45cc(uint16_t *);
+uint16_t dexInstr_getVRegC_4rcc(uint16_t *);
 
 // Set register functions
 void dexInstr_SetVRegA_10x(uint16_t *, uint8_t);

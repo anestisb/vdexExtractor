@@ -1,4 +1,4 @@
-# VDEX Extractor
+# Vdex Extractor
 
 Command line tool to decompile and extract Android Dex bytecode from Vdex files that are generated
 along with OAT files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format

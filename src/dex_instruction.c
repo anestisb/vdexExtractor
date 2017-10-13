@@ -37,19 +37,9 @@ void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
   code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;
 }
 
-void dexInstr_SetVRegA_21c(uint16_t *code_ptr, uint8_t val) {
-  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
+void dexInstr_SetVRegA_10x(uint16_t *code_ptr, uint8_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k10x);
   code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
-}
-
-void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint8_t val) {
-  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
-  code_ptr[1] = val;
-}
-
-void dexInstr_SetVRegC_22c(uint16_t *code_ptr, uint16_t val) {
-  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k22c);
-  code_ptr[1] = val;
 }
 
 void dexInstr_SetVRegB_3rc(uint16_t *code_ptr, uint16_t val) {
@@ -59,6 +49,21 @@ void dexInstr_SetVRegB_3rc(uint16_t *code_ptr, uint16_t val) {
 
 void dexInstr_SetVRegB_35c(uint16_t *code_ptr, uint16_t val) {
   CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k35c);
+  code_ptr[1] = val;
+}
+
+void dexInstr_SetVRegC_22c(uint16_t *code_ptr, uint16_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k22c);
+  code_ptr[1] = val;
+}
+
+void dexInstr_SetVRegA_21c(uint16_t *code_ptr, uint8_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
+  code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
+}
+
+void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint8_t val) {
+  CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
   code_ptr[1] = val;
 }
 

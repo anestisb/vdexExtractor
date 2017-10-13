@@ -39,8 +39,10 @@ static void usage(bool exit_success) {
                "  : input dir (1 max depth) or single file\n"
                "  " AB "-o,  --output=<path>" AC
                " : output path (default is same as input)\n"
+               "  " AB "-f,  --file-override" AC
+               " : allow output file override if already exists\n"
                "  " AB "-u,  --unquicken" AC
-               "     : unquicken bytecode (under development)\n"
+               "     : unquicken bytecode (beta)\n"
                "  " AB "-h,  --help" AC
                "          : this help\n"
                "  " AB "-v,  --debug=LEVEL" AC
@@ -94,6 +96,7 @@ int main(int argc, char **argv) {
   int c;
   char *outputDir = NULL;
   bool unquicken = false;
+  bool fileOverride = false;
 
   /* Default values */
   infiles_t pFiles = {
@@ -106,18 +109,22 @@ int main(int argc, char **argv) {
 
   struct option longopts[] = { { "input", required_argument, 0, 'i' },
                                { "output", required_argument, 0, 'o' },
+                               { "file-override", no_argument, 0, 'f' },
                                { "unquicken", no_argument, 0, 'u' },
                                { "help", no_argument, 0, 'h' },
                                { "debug", required_argument, 0, 'v' },
                                { 0, 0, 0, 0 } };
 
-  while ((c = getopt_long(argc, argv, "i:o:uhv:", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fuhv:", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
         break;
       case 'o':
         outputDir = optarg;
+        break;
+      case 'f':
+        fileOverride = true;
         break;
       case 'u':
         unquicken = true;
@@ -210,8 +217,12 @@ int main(int argc, char **argv) {
       formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i);
 
       /* Write DEX file */
+      int fileFlags = O_CREAT | O_RDWR;
+      if (fileOverride == false) {
+        fileFlags |= O_EXCL;
+      }
       int dstfd = -1;
-      dstfd = open(outFile, O_CREAT | O_EXCL | O_RDWR, 0644);
+      dstfd = open(outFile, fileFlags, 0644);
       if (dstfd == -1) {
         LOGMSG_P(l_ERROR,
                  "Couldn't create output file '%s' - skipping 'classes%zu.dex'",

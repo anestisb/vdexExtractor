@@ -24,7 +24,7 @@ static void codeIteratorAdvance() {
   uint32_t instruction_size = dexInstr_SizeInCodeUnits(code_ptr);
   code_ptr += instruction_size;
   dex_pc += instruction_size;
-  cur_code_off += instruction_size;
+  cur_code_off += instruction_size * sizeof(uint16_t);
 }
 
 static uint16_t GetIndexAt(uint32_t dex_pc) {

@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
 
       /* If unquicken DEX files have already been verified */
       if (unquicken == false && dex_isValidDexMagic(pDexHeader) == false) {
-        LOGMSG(l_ERROR, "Invalid dex file'classes%zu.dex' - skipping", i);
+        LOGMSG(l_ERROR, "Invalid dex file 'classes%zu.dex' - skipping", i);
         continue;
       }
 
@@ -207,15 +207,16 @@ int main(int argc, char **argv) {
       int dstfd = -1;
       dstfd = open(outFile, O_CREAT | O_EXCL | O_RDWR, 0644);
       if (dstfd == -1) {
-        LOGMSG_P(l_ERROR, "Couldn't create output file '%s' in input directory",
-                 outFile);
-        LOGMSG(l_WARN, "Skipping 'classes%zu.dex'", i);
+        LOGMSG_P(l_ERROR,
+                 "Couldn't create output file '%s' - skipping 'classes%zu.dex'",
+                 outFile, i);
         continue;
       }
 
       if (!utils_writeToFd(dstfd, current_data, pDexHeader->fileSize)) {
         close(dstfd);
-        LOGMSG(l_WARN, "Skipping 'classes%zu.dex'", i);
+        LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'",
+               outFile, i);
         continue;
       }
 

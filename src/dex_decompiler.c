@@ -92,71 +92,71 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         }
         break;
       case NOP:
-        LOGMSG(l_DEBUG, "NOP");
+        LOGMSG(l_VDEBUG, "NOP");
         DecompileNop(code_ptr, dex_pc);
         break;
       case IGET_QUICK:
-        LOGMSG(l_DEBUG, "IGET_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET);
         break;
       case IGET_WIDE_QUICK:
-        LOGMSG(l_DEBUG, "IGET_WIDE_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_WIDE_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_WIDE);
         break;
       case IGET_OBJECT_QUICK:
-        LOGMSG(l_DEBUG, "IGET_OBJECT_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_OBJECT_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_OBJECT);
         break;
       case IGET_BOOLEAN_QUICK:
-        LOGMSG(l_DEBUG, "IGET_BOOLEAN_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_BOOLEAN_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_BOOLEAN);
         break;
       case IGET_BYTE_QUICK:
-        LOGMSG(l_DEBUG, "IGET_BYTE_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_BYTE_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_BYTE);
         break;
       case IGET_CHAR_QUICK:
-        LOGMSG(l_DEBUG, "IGET_CHAR_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_CHAR_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_CHAR);
         break;
       case IGET_SHORT_QUICK:
-        LOGMSG(l_DEBUG, "IGET_SHORT_QUICK");
+        LOGMSG(l_VDEBUG, "IGET_SHORT_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_SHORT);
         break;
       case IPUT_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT);
         break;
       case IPUT_BOOLEAN_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_BOOLEAN_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_BOOLEAN_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_BOOLEAN);
         break;
       case IPUT_BYTE_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_BYTE_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_BYTE_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_BYTE);
         break;
       case IPUT_CHAR_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_CHAR_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_CHAR_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_CHAR);
         break;
       case IPUT_SHORT_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_SHORT_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_SHORT_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_SHORT);
         break;
       case IPUT_WIDE_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_WIDE_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_WIDE_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_WIDE);
         break;
       case IPUT_OBJECT_QUICK:
-        LOGMSG(l_DEBUG, "IPUT_OBJECT_QUICK");
+        LOGMSG(l_VDEBUG, "IPUT_OBJECT_QUICK");
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_OBJECT);
         break;
       case INVOKE_VIRTUAL_QUICK:
-        LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_QUICK");
+        LOGMSG(l_VDEBUG, "INVOKE_VIRTUAL_QUICK");
         DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL, false);
         break;
       case INVOKE_VIRTUAL_RANGE_QUICK:
-        LOGMSG(l_DEBUG, "INVOKE_VIRTUAL_RANGE_QUICK");
+        LOGMSG(l_VDEBUG, "INVOKE_VIRTUAL_RANGE_QUICK");
         DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL_RANGE, true);
         break;
       default:

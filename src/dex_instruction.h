@@ -175,7 +175,8 @@ Code dexInstr_getOpcode(uint16_t *);
 const char *dexInst_getOpcodeStr(uint16_t *);
 void dexInstr_SetOpcode(uint16_t *, Code);
 
-// Get register functions
+// VRegA
+bool dexInstr_HasVRegA(uint16_t *);
 int32_t dexInstr_getVRegA(uint16_t *);
 int8_t dexInstr_getVRegA_10t(uint16_t *);
 uint8_t dexInstr_getVRegA_10x(uint16_t *);
@@ -203,6 +204,9 @@ uint8_t dexInstr_getVRegA_3rc(uint16_t *);
 uint8_t dexInstr_getVRegA_51l(uint16_t *);
 uint8_t dexInstr_getVRegA_45cc(uint16_t *);
 uint8_t dexInstr_getVRegA_4rcc(uint16_t *);
+
+// VRegB
+bool dexInstr_HasVRegB(uint16_t *);
 int32_t dexInstr_getVRegB(uint16_t *);
 uint64_t dexInstr_getWideVRegB(uint16_t *);
 int8_t dexInstr_getVRegB_11n(uint16_t *);
@@ -226,6 +230,9 @@ uint16_t dexInstr_getVRegB_3rc(uint16_t *);
 uint16_t dexInstr_getVRegB_45cc(uint16_t *);
 uint16_t dexInstr_getVRegB_4rcc(uint16_t *);
 uint64_t dexInstr_getVRegB_51l(uint16_t *);
+
+// VRegC
+bool dexInstr_HasVRegC(uint16_t *);
 int32_t dexInstr_getVRegC(uint16_t *);
 int8_t dexInstr_getVRegC_22b(uint16_t *);
 uint16_t dexInstr_getVRegC_22c(uint16_t *);

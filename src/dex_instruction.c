@@ -49,6 +49,65 @@ void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
   code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;
 }
 
+bool dexInstr_HasVRegA(uint16_t *code_ptr) {
+  switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
+    case k10t:
+      return true;
+    case k10x:
+      return true;
+    case k11n:
+      return true;
+    case k11x:
+      return true;
+    case k12x:
+      return true;
+    case k20t:
+      return true;
+    case k21c:
+      return true;
+    case k21h:
+      return true;
+    case k21s:
+      return true;
+    case k21t:
+      return true;
+    case k22b:
+      return true;
+    case k22c:
+      return true;
+    case k22s:
+      return true;
+    case k22t:
+      return true;
+    case k22x:
+      return true;
+    case k23x:
+      return true;
+    case k30t:
+      return true;
+    case k31c:
+      return true;
+    case k31i:
+      return true;
+    case k31t:
+      return true;
+    case k32x:
+      return true;
+    case k35c:
+      return true;
+    case k3rc:
+      return true;
+    case k45cc:
+      return true;
+    case k4rcc:
+      return true;
+    case k51l:
+      return true;
+    default:
+      return false;
+  }
+}
+
 int32_t dexInstr_getVRegA(uint16_t *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k10t:
@@ -240,6 +299,55 @@ uint8_t dexInstr_getVRegA_4rcc(uint16_t *code_ptr) {
   return InstAA(code_ptr, code_ptr[0]);
 }
 
+bool dexInstr_HasVRegB(uint16_t *code_ptr) {
+  switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
+    case k11n:
+      return true;
+    case k12x:
+      return true;
+    case k21c:
+      return true;
+    case k21h:
+      return true;
+    case k21s:
+      return true;
+    case k21t:
+      return true;
+    case k22b:
+      return true;
+    case k22c:
+      return true;
+    case k22s:
+      return true;
+    case k22t:
+      return true;
+    case k22x:
+      return true;
+    case k23x:
+      return true;
+    case k31c:
+      return true;
+    case k31i:
+      return true;
+    case k31t:
+      return true;
+    case k32x:
+      return true;
+    case k35c:
+      return true;
+    case k3rc:
+      return true;
+    case k45cc:
+      return true;
+    case k4rcc:
+      return true;
+    case k51l:
+      return true;
+    default:
+      return false;
+  }
+}
+
 int32_t dexInstr_getVRegB(uint16_t *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k11n:
@@ -398,6 +506,31 @@ uint64_t dexInstr_getVRegB_51l(uint16_t *code_ptr) {
   uint64_t vB_wide = (code_ptr[1] | ((uint32_t)code_ptr[2] << 16)) |
                      ((uint64_t)(code_ptr[3] | ((uint32_t)code_ptr[4] << 16)) << 32);
   return vB_wide;
+}
+
+bool dexInstr_HasVRegC(uint16_t *code_ptr) {
+  switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
+    case k22b:
+      return true;
+    case k22c:
+      return true;
+    case k22s:
+      return true;
+    case k22t:
+      return true;
+    case k23x:
+      return true;
+    case k35c:
+      return true;
+    case k3rc:
+      return true;
+    case k45cc:
+      return true;
+    case k4rcc:
+      return true;
+    default:
+      return false;
+  }
 }
 
 int32_t dexInstr_getVRegC(uint16_t *code_ptr) {

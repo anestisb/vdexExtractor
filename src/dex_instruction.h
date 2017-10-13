@@ -148,6 +148,11 @@ typedef enum {
 
 // clang-format off
 
+static const char* const kInstructionNames[] = {
+#define INSTRUCTION_NAME(o, c, pname, f, i, a, v) pname,
+  DEX_INSTRUCTION_LIST(INSTRUCTION_NAME)
+};
+
 static Format const kInstructionFormats[] = {
 #define INSTRUCTION_FORMAT(o, c, p, format, i, a, v) format,
   DEX_INSTRUCTION_LIST(INSTRUCTION_FORMAT)
@@ -167,6 +172,7 @@ static int const kInstructionSizeInCodeUnits[] = {
 
 // Get instruction's opcode
 Code dexInstr_getOpcode(uint16_t *);
+const char *dexInst_getOpcodeStr(uint16_t *);
 
 // Set opcode for instruction
 void dexInstr_SetOpcode(uint16_t *, Code);

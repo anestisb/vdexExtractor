@@ -28,6 +28,10 @@ Code dexInstr_getOpcode(uint16_t *code_ptr) {
   return (inst_data & 0xFF);
 }
 
+const char *dexInst_getOpcodeStr(uint16_t *code_ptr) {
+  return kInstructionNames[dexInstr_getOpcode(code_ptr)];
+}
+
 void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
   CHECK_LT(opcode, 256u);
   code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;

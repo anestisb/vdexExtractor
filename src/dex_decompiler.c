@@ -90,6 +90,8 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
+    LOGMSG(l_VDEBUG, "decompiling instr at %" PRIx32 "(%s)", cur_code_off,
+           dexInst_getOpcodeStr(code_ptr));
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         LOGMSG(l_DEBUG, "RETURN_VOID_NO_BARRIER");

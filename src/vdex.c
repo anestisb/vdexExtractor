@@ -195,7 +195,6 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        utils_hexDump("quickening_info_ptr", quickening_info_ptr, 16);
         uint32_t quickening_size = *(uint32_t*)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(

@@ -238,10 +238,10 @@ int main(int argc, char **argv) {
     close(srcfd);
   }
 
-  LOGMSG(l_INFO, "%u out of %u VDEX files have been processed",
+  LOGMSG(l_INFO, "%u out of %u Vdex files have been processed",
          processedVdexCnt, pFiles.fileCnt);
-  LOGMSG(l_INFO, "%u DEX files have been extracted in total", processedDexCnt);
-  LOGMSG(l_INFO, "Extracted DEX files available in '%s'",
+  LOGMSG(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
+  LOGMSG(l_INFO, "Extracted Dex files available in '%s'",
          outputDir ? outputDir : dirname(pFiles.inputFile));
 
   return EXIT_SUCCESS;

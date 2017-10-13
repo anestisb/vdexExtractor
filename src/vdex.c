@@ -81,7 +81,7 @@ uint32_t vdex_GetLocationChecksum(const uint8_t *cursor, uint32_t fileIdx) {
 
 const uint8_t *vdex_GetVerifierDepsData(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  return cursor + pVdexHeader->dex_size_;
+  return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
 uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *cursor) {
@@ -91,7 +91,7 @@ uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *cursor) {
 
 const uint8_t *vdex_GetQuickeningInfo(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  return cursor + pVdexHeader->dex_size_ + pVdexHeader->verifier_deps_size_;
+  return vdex_GetVerifierDepsData(cursor) + pVdexHeader->verifier_deps_size_;
 }
 
 uint32_t vdex_GetQuickeningInfoSize(const uint8_t *cursor) {

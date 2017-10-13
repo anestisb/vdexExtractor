@@ -231,6 +231,13 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         quickening_info_ptr += quickening_size;
       }
     }
+
+    // If unquicken was successful original checksum should verify
+    if (dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize) !=
+        pDexHeader->checksum) {
+      LOGMSG(l_ERROR, "Unexpected checksum - failed to unquicken DEX file");
+      return false;
+    }
   }
 
   if (quickening_info_ptr != quickening_info_end) {

@@ -72,12 +72,16 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
   free(sigHex);
 }
 
-void dex_repairDexCRC(const uint8_t *buf, off_t fileSz) {
-  /* Repair DEX CRC */
+uint32_t dex_computeDexCRC(const uint8_t *buf, off_t fileSz) {
   uint32_t adler_checksum = adler32(0L, Z_NULL, 0);
   const uint8_t non_sum = sizeof(dexMagic) + sizeof(uint32_t);
   const uint8_t *non_sum_ptr = buf + non_sum;
   adler_checksum = adler32(adler_checksum, non_sum_ptr, fileSz - non_sum);
+  return adler_checksum;
+}
+
+void dex_repairDexCRC(const uint8_t *buf, off_t fileSz) {
+  uint32_t adler_checksum = dex_computeDexCRC(buf, fileSz);
   memcpy((void *)buf + sizeof(dexMagic), &adler_checksum, sizeof(uint32_t));
 }
 

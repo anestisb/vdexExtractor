@@ -217,6 +217,11 @@ bool dex_isValidDexMagic(const dexHeader *);
 void dex_dumpHeaderInfo(const dexHeader *);
 
 /*
+ * Compute DEX file CRC
+ */
+uint32_t dex_computeDexCRC(const uint8_t *, off_t);
+
+/*
  * Repair DEX file CRC
  */
 void dex_repairDexCRC(const uint8_t *, off_t);

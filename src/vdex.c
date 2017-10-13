@@ -142,7 +142,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
 
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
-      LOGMSG(l_VDEBUG, "  class #%" PRIu32 ": class_data_off=%" PRIu32, i,
+      LOGMSG(l_VDEBUG, "\tclass #%" PRIu32 ": class_data_off=%" PRIu32, i,
              dexClassDefs[i].classDataOff);
 
       // cursor for currently processed class data item
@@ -157,7 +157,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
       dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
 
-      LOGMSG(l_VDEBUG, "    static_fields=%" PRIu32 ", instance_fields=%" PRIu32
+      LOGMSG(l_VDEBUG, "\t\tstatic_fields=%" PRIu32 ", instance_fields=%" PRIu32
                        ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
              i, pDexClassDataHeader.staticFieldsSize,
              pDexClassDataHeader.instanceFieldsSize,
@@ -183,7 +183,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "      direct_method #%" PRIu32 ": codeOff=%" PRIx32,
+        LOGMSG(l_VDEBUG, "\t\t\tdirect_method #%" PRIu32 ": codeOff=%" PRIx32,
                j, pDexMethod.codeOff);
 
         // Skip empty methods
@@ -195,7 +195,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *quickening_info_ptr;
+        utils_hexDump("quickening_info_ptr", quickening_info_ptr, 16);
+        uint32_t quickening_size = *(uint32_t*)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(
                 pDexCode, dex_getFirstInstrOff(&pDexMethod),
@@ -211,7 +212,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "      virtual_method #%" PRIu32 ": codeOff=%" PRIx32,
+        LOGMSG(l_VDEBUG, "\t\t\tvirtual_method #%" PRIu32 ": codeOff=%" PRIx32,
                j, pDexMethod.codeOff);
 
         // Skip native or abstract methods
@@ -223,7 +224,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *quickening_info_ptr;
+        uint32_t quickening_size = *(uint32_t*)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(
                 pDexCode, dex_getFirstInstrOff(&pDexMethod),

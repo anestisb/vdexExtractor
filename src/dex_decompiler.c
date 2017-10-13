@@ -7,11 +7,13 @@ static const uint8_t *quickening_info_end;
 static uint16_t *code_ptr;
 static uint16_t *code_end;
 static uint32_t dex_pc;
+static uint32_t cur_code_off;
 
-static void initCodeIterator(uint16_t *pCode, uint32_t codeSize) {
+static void initCodeIterator(uint16_t *pCode, uint32_t codeSize, uint32_t startCodeOff) {
   code_ptr = pCode;
   code_end = pCode + codeSize;
   dex_pc = 0;
+  cur_code_off = startCodeOff;
 }
 
 static bool isCodeIteratorDone() { return code_ptr >= code_end; }
@@ -71,7 +73,7 @@ static void DecompileInvokeVirtual(uint16_t *insns,
   }
 }
 
-bool dexDecompiler_decompile(dexCode *pDexCode,
+bool dexDecompiler_decompile(dexCode *pDexCode, uint32_t startCodeOff,
                              const uint8_t *quickening_data_start,
                              uint32_t quickening_data_size,
                              bool decompile_return_instruction) {
@@ -81,7 +83,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
 
   quickening_info_ptr = quickening_data_start;
   quickening_info_end = quickening_data_start + quickening_data_size;
-  initCodeIterator(pDexCode->insns, pDexCode->insns_size);
+  initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
     switch (dexInstr_getOpcode(code_ptr)) {

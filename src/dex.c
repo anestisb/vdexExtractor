@@ -166,3 +166,8 @@ void dex_readClassDataMethod(const uint8_t **cursor, dexMethod *pDexMethod) {
   pDexMethod->accessFlags = dex_readULeb128(cursor);
   pDexMethod->codeOff = dex_readULeb128(cursor);
 }
+
+uint32_t dex_getFirstInstrOff(const dexMethod *pDexMethod) {
+  // The first instruction is the last member of the dexCode struct
+  return pDexMethod->codeOff + sizeof(dexCode) - sizeof(u2);
+}

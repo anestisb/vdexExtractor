@@ -255,4 +255,9 @@ void dex_readClassDataField(const uint8_t **, dexField *);
  */
 void dex_readClassDataMethod(const uint8_t **, dexMethod *);
 
+/*
+ * Get the offset of the first instruction for a given dexMethod
+ */
+uint32_t dex_getFirstInstrOff(const dexMethod *);
+
 #endif

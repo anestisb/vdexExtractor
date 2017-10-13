@@ -46,6 +46,7 @@ static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   const uint8_t *temporary_pointer = quickening_info_ptr;
   uint32_t quickened_pc = dex_readULeb128(&temporary_pointer);
   if (quickened_pc != dex_pc) {
+    LOGMSG(l_FATAL, "Fatal error when decompiling NOP instruction");
     return;
   }
   uint16_t reference_index = GetIndexAt(dex_pc);

@@ -34,7 +34,7 @@ static uint16_t GetIndexAt(uint32_t dex_pc) {
   uint32_t quickened_pc = dex_readULeb128(&quickening_info_ptr);
   CHECK_LT(quickening_info_ptr, quickening_info_end);
   uint16_t index = dex_readULeb128(&quickening_info_ptr);
-  CHECK_LT(quickening_info_ptr, quickening_info_end);
+  CHECK_LE(quickening_info_ptr, quickening_info_end);
   CHECK_EQ(quickened_pc, dex_pc);
   return index;
 }

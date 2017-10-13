@@ -62,7 +62,7 @@ void dexInstr_SetVRegA_21c(uint16_t *code_ptr, uint8_t val) {
   code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
 }
 
-void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint8_t val) {
+void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint16_t val) {
   CHECK(kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k21c);
   code_ptr[1] = val;
 }

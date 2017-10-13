@@ -183,7 +183,7 @@ void dexInstr_SetVRegB_3rc(uint16_t *, uint16_t);
 void dexInstr_SetVRegB_35c(uint16_t *, uint16_t);
 void dexInstr_SetVRegC_22c(uint16_t *, uint16_t);
 void dexInstr_SetVRegA_21c(uint16_t *, uint8_t);
-void dexInstr_SetVRegB_21c(uint16_t *, uint8_t);
+void dexInstr_SetVRegB_21c(uint16_t *, uint16_t);
 
 // Returns the size (in 2 byte code units) of this instruction.
 uint32_t dexInstr_SizeInCodeUnits(uint16_t *);

@@ -1,9 +1,8 @@
 # VDEX Extractor
 
-Command line tool to extract Android DEX bytecode from VDEX files that are
-generated along with OAT files when optimizing bytecode from dex2oat ART runtime
-compiler. VDEX file format has been introduced in the Oreo (API-26) build. More
-information is available
+Command line tool to decompile and extract Android Dex bytecode from Vdex files that are generated
+along with OAT files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format
+has been introduced in the Oreo (API-26) build. More information is available
 [here](https://android-review.googlesource.com/#/c/264514/).
 
 
@@ -25,14 +24,15 @@ information is available
 
 ```
 $ bin/vdexExtractor -h
-    vdexExtractor ver. 0.1.0
+    vdexExtractor ver. 0.1.1
 
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
   -i,  --input=<path>  : input dir (1 max depth) or single file
   -o,  --output=<path> : output path (default is same as input)
-  -u,  --unquicken     : unquicken bytecode (under development)
+  -f,  --file-override : allow output file override if already exists
+  -u,  --unquicken     : unquicken bytecode (beta)
   -h,  --help          : this help
   -v,  --debug=LEVEL   : debug level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
@@ -40,18 +40,22 @@ $ bin/vdexExtractor -h
 
 ## Bytecode Unquickening
 
-The VDEX file includes all quick_info data (old vtable) required to revert the
-dex-to-dex transformations applied during bytecode optimization. The idea here
-is to create a quick standalone tool capable to revert optimized bytecode, that
-does not require building the entire libart from AOSP.
+The Vdex file includes all quick_info data (old vtable) required to revert the dex-to-dex
+transformations applied during bytecode optimization. The idea here is to create a quick standalone
+tool capable to revert optimized bytecode, that does not require building the entire libart from
+AOSP.
 
-This feature is currently under development. If you want to unquicken Oreo
-optimized bytecode you can use the oatdump patch that is available
+The Vdex fully unquicken functionality has been also implemented as part of the AOSP oatdump libart
+tool. The upstream contribution is available
+[here](https://android-review.googlesource.com/#/c/platform/art/+/505156/). If you want to use
+oatdump with Oreo release you can use the corresponding patch
 [here](https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409).
 
 
 ## Changelog
 
+* __0.1.1__ - 13 October 2017
+  * Unquicken decompiler beta release
 * __0.1.0__ - 8 October 2017
   * Initial release
 

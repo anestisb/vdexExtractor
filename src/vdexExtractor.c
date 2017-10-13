@@ -177,14 +177,12 @@ int main(int argc, char **argv) {
     }
 
     if (unquicken) {
-      LOGMSG(l_WARN, "Vdex unquickening backend is under development");
-      // if(vdex_Unquicken(buf) == false) {
-      //   LOGMSG(l_ERROR, "Failed to unquicken dex files - skipping '%s'",
-      //          pFiles.files[f]);
-      //   munmap(buf, fileSz);
-      //   close(srcfd);
-      //   continue;
-      // }
+      if (vdex_Unquicken(buf) == false) {
+        LOGMSG(l_ERROR, "Failed to unquicken dex files - skipping '%s'", pFiles.files[f]);
+        munmap(buf, fileSz);
+        close(srcfd);
+        continue;
+      }
     }
 
     const uint8_t *current_data = NULL;

@@ -70,7 +70,6 @@ static void formatName(char *outBuf,
                        char *rootPath,
                        char *fName,
                        size_t classId) {
-
   // Trim Vdex extension and replace with Apk
   char *fileExt = rindex(fName, '.');
   if (fileExt) {
@@ -80,8 +79,8 @@ static void formatName(char *outBuf,
   if (classId == 0) {
     snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.dex", fName);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex", fName,
-             classId);
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex",
+             fName, classId);
   }
 
   if (rootPath == NULL) {
@@ -136,6 +135,7 @@ int main(int argc, char **argv) {
         logLevel = atoi(optarg);
         break;
       default:
+        exit(EXIT_FAILURE);
         break;
     }
   }

@@ -195,7 +195,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *(uint32_t*)quickening_info_ptr;
+        uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(
                 pDexCode, dex_getFirstInstrOff(&pDexMethod),
@@ -223,7 +223,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *(uint32_t*)quickening_info_ptr;
+        uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(
                 pDexCode, dex_getFirstInstrOff(&pDexMethod),
@@ -236,9 +236,11 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     }
 
     // If unquicken was successful original checksum should verify
-    if (dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize) !=
-        pDexHeader->checksum) {
-      LOGMSG(l_ERROR, "Unexpected checksum - failed to unquicken DEX file");
+    uint32_t curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
+    if (curChecksum != pDexHeader->checksum) {
+      LOGMSG(l_ERROR, "Unexpected checksum (%" PRIx32 " vs %" PRIx32
+                      ") - failed to unquicken DEX file",
+             curChecksum, pDexHeader->checksum);
       return false;
     }
   }

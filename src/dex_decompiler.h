@@ -28,7 +28,7 @@
 #include "dex_instruction.h"
 
 /*
- * TODO: Describe me
+ * Dex decompiler driver function using quicken_info data
  */
 bool dexDecompiler_decompile(dexCode *, uint32_t, const uint8_t *, uint32_t, bool);
 

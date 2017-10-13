@@ -67,7 +67,7 @@ static char *fileBasename(char const *path) {
 static void formatName(
     char *outBuf, size_t outBufLen, char *rootPath, char *fName, size_t classId) {
   // Trim Vdex extension and replace with Apk
-  char *fileExt = rindex(fName, '.');
+  char *fileExt = strrchr(fName, '.');
   if (fileExt) {
     *fileExt = '\0';
   }

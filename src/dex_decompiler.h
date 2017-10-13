@@ -30,6 +30,7 @@
 /*
  * TODO: Describe me
  */
-bool dexDecompiler_decompile(dexCode *, uint32_t, const uint8_t *, uint32_t, bool);
+bool dexDecompiler_decompile(
+    dexCode *, uint32_t, const uint8_t *, uint32_t, bool);
 
 #endif

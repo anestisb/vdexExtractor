@@ -54,12 +54,11 @@ void log_msg(log_level_t dl,
   struct {
     char *descr;
     char *prefix;
-  } logLevels[] = { { "[FATAL]", "\033[1;31m" },
-                    { "[ERROR]", "\033[1;35m" },
-                    { "[WARNING]", "\033[1;33m" },
-                    { "[INFO]", "\033[1m" },
-                    { "[DEBUG]", "\033[0;37m" },
-                    { "[VDEBUG]", "\033[0;36m"}};
+  } logLevels[] = {
+    { "[FATAL]", "\033[1;31m" },   { "[ERROR]", "\033[1;35m" },
+    { "[WARNING]", "\033[1;33m" }, { "[INFO]", "\033[1m" },
+    { "[DEBUG]", "\033[0;37m" },   { "[VDEBUG]", "\033[0;36m" }
+  };
 
   char strerr[512];
   if (perr) {

@@ -9,7 +9,9 @@ static uint16_t *code_end;
 static uint32_t dex_pc;
 static uint32_t cur_code_off;
 
-static void initCodeIterator(uint16_t *pCode, uint32_t codeSize, uint32_t startCodeOff) {
+static void initCodeIterator(uint16_t *pCode,
+                             uint32_t codeSize,
+                             uint32_t startCodeOff) {
   code_ptr = pCode;
   code_end = pCode + codeSize;
   dex_pc = 0;
@@ -73,7 +75,8 @@ static void DecompileInvokeVirtual(uint16_t *insns,
   }
 }
 
-bool dexDecompiler_decompile(dexCode *pDexCode, uint32_t startCodeOff,
+bool dexDecompiler_decompile(dexCode *pDexCode,
+                             uint32_t startCodeOff,
                              const uint8_t *quickening_data_start,
                              uint32_t quickening_data_size,
                              bool decompile_return_instruction) {

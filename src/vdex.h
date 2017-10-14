@@ -27,8 +27,16 @@
 #include "common.h"
 #include "dex.h"
 
+#define kNumVdexVersions 1
+#define kVdexVersionLen 4
+
 static const uint8_t kVdexMagic[] = { 'v', 'd', 'e', 'x' };
-static const uint8_t kVdexVersion[] = { '0', '0', '6', '\0' };
+static const uint8_t kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
+  // Vdex version 006: Android "O".
+  { '0', '0', '6', '\0' },
+  // Vdex verion 010: Beyond Android "O" (current dev-master).
+  // { '0', '1', '0', '\0' },
+};
 
 typedef uint32_t VdexChecksum;
 

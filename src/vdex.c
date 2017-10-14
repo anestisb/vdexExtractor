@@ -31,7 +31,13 @@ bool vdex_isMagicValid(const uint8_t *cursor) {
 
 bool vdex_isVersionValid(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  return (memcmp(pVdexHeader->version_, kVdexVersion, sizeof(kVdexVersion)) == 0);
+  for (uint32_t i = 0; i < kNumVdexVersions; i++) {
+    if (memcmp(pVdexHeader->version_, kVdexMagicVersions[i], kVdexVersionLen) == 0) {
+      LOGMSG(l_DEBUG, "Vdex version '%s' detected", pVdexHeader->version_);
+      return true;
+    }
+  }
+  return false;
 }
 
 bool vdex_isValidVdex(const uint8_t *cursor) {

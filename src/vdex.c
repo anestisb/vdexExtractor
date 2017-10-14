@@ -156,18 +156,17 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
     // For each class
     LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
-    dexClassDef *dexClassDefs = (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
-
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
+      const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
       LOGMSG(l_VDEBUG, "\tclass #%" PRIu32 ": class_data_off=%" PRIu32, i,
-             dexClassDefs[i].classDataOff);
+             pDexClassDef->classDataOff);
 
       // Cursor for currently processed class data item
       const uint8_t *curClassDataCursor;
-      if (dexClassDefs[i].classDataOff == 0) {
+      if (pDexClassDef->classDataOff == 0) {
         continue;
       } else {
-        curClassDataCursor = dexFileBuf + dexClassDefs[i].classDataOff;
+        curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
       }
 
       dexClassDataHeader pDexClassDataHeader;

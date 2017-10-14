@@ -107,12 +107,12 @@ bool dexDecompiler_decompile(const uint8_t *dexFileBuf,
 
   quickening_info_ptr = quickening_info;
   quickening_info_end = quickening_info + quickening_size;
-  LOGMSG(l_VDEBUG, "\t\t\tquickening_size=%" PRIx32, quickening_size);
+  LOGMSG(l_VDEBUG, "   quickening_size=%" PRIx32, quickening_size);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
     bool hasCodeChange = true;
-    // LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
+    // LOGMSG(l_VDEBUG, "     %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
     dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:

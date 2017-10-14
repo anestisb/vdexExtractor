@@ -33,6 +33,7 @@
 unsigned int log_minLevel;
 bool log_isStdioTTY;
 bool inside_line;
+bool verb_debug;
 
 __attribute__((constructor)) void log_init(void) {
   log_minLevel = l_INFO;
@@ -45,6 +46,9 @@ __attribute__((constructor)) void log_init(void) {
 }
 
 void log_setMinLevel(log_level_t dl) { log_minLevel = dl; }
+void log_enableVerbDebug() { verb_debug = true; }
+void log_disableVerbDebug() { verb_debug = true; }
+bool log_isVerbDebug() { return verb_debug; }
 
 void log_msg(log_level_t dl,
              bool perr,
@@ -59,23 +63,34 @@ void log_msg(log_level_t dl,
     char *prefix;
   } logLevels[] = { { "[FATAL]", "\033[1;31m" },   { "[ERROR]", "\033[1;35m" },
                     { "[WARNING]", "\033[1;33m" }, { "[INFO]", "\033[1m" },
-                    { "[DEBUG]", "\033[0;37m" },   { "[VDEBUG]", "\033[0;36m" } };
+                    { "[DEBUG]", "\033[0;36m" },   { "", "\033[0;37m" } };
 
   char strerr[512];
   if (perr) {
     snprintf(strerr, sizeof(strerr), "%s", strerror(errno));
   }
 
-  if (dl > log_minLevel) return;
+  if (dl == l_VDEBUG) {
+    if (verb_debug == false) return;
+  } else {
+    if (dl > log_minLevel) return;
+  }
+
+  struct tm tm;
+  struct timeval tv;
+
+  gettimeofday(&tv, NULL);
+  localtime_r((const time_t *)&tv.tv_sec, &tm);
+
+  if (inside_line && !raw_print) {
+    printf("\n");
+  }
+
+  if (log_isStdioTTY) {
+    printf("%s", logLevels[dl].prefix);
+  }
 
   if (raw_print) {
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-    if (perr) {
-      printf(": %s", strerr);
-    }
     int fmtLen = strlen(fmt);
     if (fmtLen > 0 && fmt[fmtLen - 1] == '\n') {
       inside_line = false;
@@ -83,20 +98,6 @@ void log_msg(log_level_t dl,
       inside_line = true;
     }
   } else {
-    struct tm tm;
-    struct timeval tv;
-
-    gettimeofday(&tv, NULL);
-    localtime_r((const time_t *)&tv.tv_sec, &tm);
-
-    if (inside_line) {
-      printf("\n");
-    }
-
-    if (log_isStdioTTY) {
-      printf("%s", logLevels[dl].prefix);
-    }
-
     if (dl != l_VDEBUG && (log_minLevel >= l_DEBUG || !log_isStdioTTY)) {
       printf("%s [%d] %d/%02d/%02d %02d:%02d:%02d (%s:%d %s) ", logLevels[dl].descr, getpid(),
              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, file,
@@ -104,22 +105,22 @@ void log_msg(log_level_t dl,
     } else {
       printf("%s ", logLevels[dl].descr);
     }
-
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    if (perr) {
-      printf(": %s", strerr);
-    }
-
-    if (log_isStdioTTY) {
-      printf("\033[0m");
-    }
-
-    printf("\n");
   }
+
+  va_list args;
+  va_start(args, fmt);
+  vprintf(fmt, args);
+  va_end(args);
+
+  if (perr) {
+    printf(": %s", strerr);
+  }
+
+  if (log_isStdioTTY) {
+    printf("\033[0m");
+  }
+
+  if (!raw_print) printf("\n");
 
   fflush(stdout);
   if (dl == l_FATAL) {

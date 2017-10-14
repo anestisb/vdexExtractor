@@ -158,7 +158,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
-      LOGMSG(l_VDEBUG, "\tclass #%" PRIu32 ": class_data_off=%" PRIu32, i,
+      LOGMSG(l_VDEBUG, " class #%" PRIu32 ": class_data_off=%" PRIu32, i,
              pDexClassDef->classDataOff);
 
       // Cursor for currently processed class data item
@@ -173,7 +173,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
       dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
 
-      LOGMSG(l_VDEBUG, "\t\tstatic_fields=%" PRIu32 ", instance_fields=%" PRIu32
+      LOGMSG(l_VDEBUG, "  static_fields=%" PRIu32 ", instance_fields=%" PRIu32
                        ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
              i, pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
              pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
@@ -197,7 +197,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "\t\t\tdirect_method #%" PRIu32 ": codeOff=%" PRIx32, j,
+        LOGMSG(l_VDEBUG, "   direct_method #%" PRIu32 ": codeOff=%" PRIx32, j,
                pDexMethod.codeOff);
 
         // Skip empty methods
@@ -224,7 +224,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "\t\t\tvirtual_method #%" PRIu32 ": codeOff=%" PRIx32, j,
+        LOGMSG(l_VDEBUG, "   virtual_method #%" PRIu32 ": codeOff=%" PRIx32, j,
                pDexMethod.codeOff);
 
         // Skip native or abstract methods

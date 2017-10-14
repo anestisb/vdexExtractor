@@ -111,11 +111,6 @@ typedef int64_t s8;
   "    Anestis Bechtsoudis <anestis@census-labs.com>\n" \
   "  Copyright 2017 by CENSUS S.A. All Rights Reserved."
 
-#define AB ANSI_BOLD
-#define AC ANSI_CLEAR
-#define ANSI_BOLD "\033[1m"
-#define ANSI_CLEAR "\033[0m"
-
 typedef struct {
   char *inputFile;
   char **files;

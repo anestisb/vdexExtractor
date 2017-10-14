@@ -30,26 +30,23 @@
 #include "utils.h"
 #include "vdex.h"
 
+// clang-format off
 static void usage(bool exit_success) {
-  printf("%s", "  " AB "-i,  --input=<path>" AC
-               "  : input dir (1 max depth) or single file\n"
-               "  " AB "-o,  --output=<path>" AC
-               " : output path (default is same as input)\n"
-               "  " AB "-f,  --file-override" AC
-               " : allow output file override if already exists\n"
-               "  " AB "-u,  --unquicken" AC
-               "     : unquicken bytecode (beta)\n"
-               "  " AB "-h,  --help" AC
-               "          : this help\n"
-               "  " AB "-v,  --debug=LEVEL" AC
-               "   : "
-               "debug level (0 - FATAL ... 5 - VDEBUG), default: '" AB "3" AC "' (INFO)\n");
+  LOGMSG_RAW(l_INFO,"%s",
+             "  -i,  --input=<path>: input dir (1 max depth) or single file\n"
+             "  -o,  --output=<path>: output path (default is same as input)\n"
+             "  -f,  --file-override: allow output file override if already exists\n"
+             "  -u,  --unquicken    : unquicken bytecode (beta)\n"
+             "  -d,  --disassemble  : enable bytecode disassembler (beta)\n"
+             "  -h,  --help         : this help\n"
+             "  -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n");
 
   if (exit_success)
     exit(EXIT_SUCCESS);
   else
     exit(EXIT_FAILURE);
 }
+// clang-format on
 
 static char *fileBasename(char const *path) {
   char *s = strrchr(path, '/');
@@ -92,18 +89,18 @@ int main(int argc, char **argv) {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
 
-  printf("\t\t" AB PROG_NAME " ver. " PROG_VERSION "\n\n" PROG_AUTHORS AC "\n\n");
   if (argc < 1) usage(true);
 
   struct option longopts[] = { { "input", required_argument, 0, 'i' },
                                { "output", required_argument, 0, 'o' },
                                { "file-override", no_argument, 0, 'f' },
                                { "unquicken", no_argument, 0, 'u' },
+                               { "disassemble", no_argument, 0, 'd'},
                                { "help", no_argument, 0, 'h' },
                                { "debug", required_argument, 0, 'v' },
                                { 0, 0, 0, 0 } };
 
-  while ((c = getopt_long(argc, argv, "i:o:fuhv:", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fudhv:", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -116,6 +113,9 @@ int main(int argc, char **argv) {
         break;
       case 'u':
         unquicken = true;
+        break;
+      case 'd':
+        log_enableVerbDebug();
         break;
       case 'h':
         usage(true);
@@ -130,7 +130,11 @@ int main(int argc, char **argv) {
   }
 
   // Adjust log level
+  if (logLevel < 0 || logLevel >= l_MAX_LEVEL) {
+    LOGMSG(l_FATAL, "Invalid debug level '%d'", logLevel);
+  }
   log_setMinLevel(logLevel);
+  LOGMSG_RAW(l_INFO,"\t\t" PROG_NAME " ver. " PROG_VERSION "\n" PROG_AUTHORS "\n\n");
 
   // Initialize input files
   if (!utils_init(&pFiles)) {

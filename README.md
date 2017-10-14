@@ -25,16 +25,16 @@ has been introduced in the Oreo (API-26) build. More information is available
 ```
 $ bin/vdexExtractor -h
     vdexExtractor ver. 0.1.1
-
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
-  -i,  --input=<path>  : input dir (1 max depth) or single file
-  -o,  --output=<path> : output path (default is same as input)
-  -f,  --file-override : allow output file override if already exists
-  -u,  --unquicken     : unquicken bytecode (beta)
-  -h,  --help          : this help
-  -v,  --debug=LEVEL   : debug level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
+  -i,  --input=<path>: input dir (1 max depth) or single file
+  -o,  --output=<path>: output path (default is same as input)
+  -f,  --file-override: allow output file override if already exists
+  -u,  --unquicken    : unquicken bytecode (beta)
+  -d,  --disassemble  : enable bytecode disassembler (beta)
+  -h,  --help         : this help
+  -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
 
 

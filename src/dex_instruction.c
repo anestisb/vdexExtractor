@@ -71,7 +71,7 @@ void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
   code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;
 }
 
-bool dexInstr_HasVRegA(uint16_t *code_ptr) {
+bool dexInstr_hasVRegA(uint16_t *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k10t:
       return true;
@@ -321,7 +321,7 @@ uint8_t dexInstr_getVRegA_4rcc(uint16_t *code_ptr) {
   return InstAA(code_ptr, code_ptr[0]);
 }
 
-bool dexInstr_HasVRegB(uint16_t *code_ptr) {
+bool dexInstr_hasVRegB(uint16_t *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k11n:
       return true;
@@ -530,7 +530,7 @@ uint64_t dexInstr_getVRegB_51l(uint16_t *code_ptr) {
   return vB_wide;
 }
 
-bool dexInstr_HasVRegC(uint16_t *code_ptr) {
+bool dexInstr_hasVRegC(uint16_t *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k22b:
       return true;

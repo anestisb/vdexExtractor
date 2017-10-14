@@ -45,19 +45,16 @@ static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
   }
 }
 
-static uint8_t InstAA(uint16_t *code_ptr, uint16_t inst_data) {
-  CHECK_EQ(inst_data, code_ptr[0]);
-  return inst_data >> 8;
+static uint8_t InstAA(uint16_t *code_ptr) {
+  return code_ptr[0] >> 8;
 }
 
-static uint8_t InstA(uint16_t *code_ptr, uint16_t inst_data) {
-  CHECK_EQ(inst_data, code_ptr[0]);
-  return (inst_data >> 8) & 0x0f;
+static uint8_t InstA(uint16_t *code_ptr) {
+  return (code_ptr[0] >> 8) & 0x0f;
 }
 
-static uint8_t InstB(uint16_t *code_ptr, uint16_t inst_data) {
-  CHECK_EQ(inst_data, code_ptr[0]);
-  return inst_data >> 12;
+static uint8_t InstB(uint16_t *code_ptr) {
+  return code_ptr[0] >> 12;
 }
 
 Code dexInstr_getOpcode(uint16_t *code_ptr) { return (code_ptr[0] & 0xFF); }
@@ -193,27 +190,27 @@ int32_t dexInstr_getVRegA(uint16_t *code_ptr) {
 
 int8_t dexInstr_getVRegA_10t(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10t);
-  return (int8_t)InstAA(code_ptr, code_ptr[0]);
+  return (int8_t)InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_10x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10x);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_11n(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11n);
-  return InstA(code_ptr, code_ptr[0]);
+  return InstA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_11x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11x);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_12x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k12x);
-  return InstA(code_ptr, code_ptr[0]);
+  return InstA(code_ptr);
 }
 
 int16_t dexInstr_getVRegA_20t(uint16_t *code_ptr) {
@@ -223,52 +220,52 @@ int16_t dexInstr_getVRegA_20t(uint16_t *code_ptr) {
 
 uint8_t dexInstr_getVRegA_21c(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21c);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_21h(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21h);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_21s(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21s);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_21t(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21t);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_22b(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22b);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_22c(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
-  return InstA(code_ptr, code_ptr[0]);
+  return InstA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_22s(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22s);
-  return InstA(code_ptr, code_ptr[0]);
+  return InstA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_22t(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22t);
-  return InstA(code_ptr, code_ptr[0]);
+  return InstA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_22x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22x);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_23x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k23x);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 int32_t dexInstr_getVRegA_30t(uint16_t *code_ptr) {
@@ -278,17 +275,17 @@ int32_t dexInstr_getVRegA_30t(uint16_t *code_ptr) {
 
 uint8_t dexInstr_getVRegA_31c(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31c);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_31i(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31i);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_31t(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31t);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint16_t dexInstr_getVRegA_32x(uint16_t *code_ptr) {
@@ -298,27 +295,27 @@ uint16_t dexInstr_getVRegA_32x(uint16_t *code_ptr) {
 
 uint8_t dexInstr_getVRegA_35c(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k35c);
-  return InstB(code_ptr, code_ptr[0]);  // This is labeled A in the spec.
+  return InstB(code_ptr);  // This is labeled A in the spec.
 }
 
 uint8_t dexInstr_getVRegA_3rc(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k3rc);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_51l(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k51l);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 uint8_t dexInstr_getVRegA_45cc(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
-  return InstB(code_ptr, code_ptr[0]);  // This is labeled A in the spec.
+  return InstB(code_ptr);  // This is labeled A in the spec.
 }
 
 uint8_t dexInstr_getVRegA_4rcc(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
-  return InstAA(code_ptr, code_ptr[0]);
+  return InstAA(code_ptr);
 }
 
 bool dexInstr_hasVRegB(uint16_t *code_ptr) {
@@ -425,12 +422,12 @@ uint64_t dexInstr_getWideVRegB(uint16_t *code_ptr) { return dexInstr_getVRegB_51
 
 int8_t dexInstr_getVRegB_11n(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11n);
-  return (InstB(code_ptr, code_ptr[0]) << 28) >> 28;
+  return (InstB(code_ptr) << 28) >> 28;
 }
 
 uint8_t dexInstr_getVRegB_12x(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k12x);
-  return InstB(code_ptr, code_ptr[0]);
+  return InstB(code_ptr);
 }
 
 uint16_t dexInstr_getVRegB_21c(uint16_t *code_ptr) {
@@ -460,17 +457,17 @@ uint8_t dexInstr_getVRegB_22b(uint16_t *code_ptr) {
 
 uint8_t dexInstr_getVRegB_22c(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
-  return InstB(code_ptr, code_ptr[0]);
+  return InstB(code_ptr);
 }
 
 uint8_t dexInstr_getVRegB_22s(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22s);
-  return InstB(code_ptr, code_ptr[0]);
+  return InstB(code_ptr);
 }
 
 uint8_t dexInstr_getVRegB_22t(uint16_t *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22t);
-  return InstB(code_ptr, code_ptr[0]);
+  return InstB(code_ptr);
 }
 
 uint16_t dexInstr_getVRegB_22x(uint16_t *code_ptr) {

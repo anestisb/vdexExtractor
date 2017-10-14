@@ -28,12 +28,12 @@ $ bin/vdexExtractor -h
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
-  -i,  --input=<path>: input dir (1 max depth) or single file
-  -o,  --output=<path>: output path (default is same as input)
+  -i,  --input=<path> : input directory with Vdex files (1 max depth) or single Vdex file
+  -o,  --output=<path>: output path (default is same location as input Vdex file)
   -f,  --file-override: allow output file override if already exists
-  -u,  --unquicken    : unquicken bytecode decompiler (beta)
+  -u,  --unquicken    : enable unquicken bytecode decompiler (beta)
   -d,  --disassemble  : enable bytecode disassembler (beta)
-  -h,  --help         : this help
+  -h,  --help         : this help message
   -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
 
@@ -56,11 +56,12 @@ and AOSP_SRC_ROOT workspace) the oreo-release branch of the
 
 ## Changelog
 
-* __0.X.X__ - TBC
-  * Unquicken decompiler stable release
-  * Implement Dex bytecode disassembler
+* __0.2.0__ - TBC
+  * Unquicken decompiler stable release (`-u,  --unquicken `)
+  * Implement Dex bytecode disassembler (`-d,  --disassemble`)
 * __0.1.1__ - 13 October 2017
   * Unquicken decompiler beta release
+  * Allow override of output Dex files (`-f,  --file-override`)
 * __0.1.0__ - 8 October 2017
   * Initial release
 

@@ -31,14 +31,14 @@ $ bin/vdexExtractor -h
   -i,  --input=<path>: input dir (1 max depth) or single file
   -o,  --output=<path>: output path (default is same as input)
   -f,  --file-override: allow output file override if already exists
-  -u,  --unquicken    : unquicken bytecode (beta)
+  -u,  --unquicken    : unquicken bytecode decompiler (beta)
   -d,  --disassemble  : enable bytecode disassembler (beta)
   -h,  --help         : this help
   -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
 
 
-## Bytecode Unquickening
+## Bytecode Unquickening Decompiler
 
 The Vdex file includes all quick_info data (old vtable) required to revert the dex-to-dex
 transformations applied during bytecode optimization. The idea here is to create a quick standalone

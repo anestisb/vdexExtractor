@@ -31,5 +31,9 @@ uint8_t *utils_mapFileToRead(char *, off_t *, int *);
 bool utils_writeToFd(int, const uint8_t *, off_t);
 void utils_hexDump(char *, const uint8_t *, int);
 char *util_bin2hex(const unsigned char *, const size_t);
+void *util_malloc(size_t);
+void *util_calloc(size_t);
+void *util_realloc(void *, size_t);
+void *util_crealloc(void *ptr, size_t, size_t);
 
 #endif

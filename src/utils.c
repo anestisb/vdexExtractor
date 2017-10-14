@@ -231,3 +231,38 @@ char *util_bin2hex(const unsigned char *str, const size_t strLen) {
   result[j] = '\0';
   return result;
 }
+
+void *util_malloc(size_t sz) {
+  void *p = malloc(sz);
+  if (p == NULL) {
+    LOGMSG(l_FATAL, "malloc(size='%zu')", sz);
+  }
+  return p;
+}
+
+void *util_calloc(size_t sz) {
+  void *p = util_malloc(sz);
+  memset(p, '\0', sz);
+  return p;
+}
+
+void *util_realloc(void *ptr, size_t sz) {
+  void *ret = realloc(ptr, sz);
+  if (ret == NULL) {
+    LOGMSG_P(l_WARN, "realloc(%p, %zu)", ptr, sz);
+    free(ptr);
+    return NULL;
+  }
+  return ret;
+}
+
+void *util_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
+  void *ret = realloc(ptr, new_sz);
+  if (ret == NULL) {
+    LOGMSG_P(l_WARN, "realloc(%p, %zu)", ptr, new_sz);
+    free(ptr);
+    return NULL;
+  }
+  memset(ptr + old_sz, 0, new_sz - old_sz);
+  return ret;
+}

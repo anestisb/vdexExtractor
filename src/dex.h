@@ -218,4 +218,13 @@ const dexProtoId *dex_getProtoId(const dexHeader *, u2);
 const dexFieldId *dex_getFieldId(const dexHeader *, u4);
 const dexMethodId *dex_getMethodId(const dexHeader *, u4);
 const dexClassDef *dex_getClassDef(const dexHeader *, u2);
+
+// Helper methods to extract data from Dex primitive types
+const char *dex_getStringDataAndUtf16Length(const dexHeader *, const dexStringId *, u4 *);
+const char *dex_getStringDataAndUtf16LengthByIdx(const dexHeader *, u2, u4 *);
+const char *dex_getStringDataByIdx(const dexHeader *, u2);
+const char *dex_getStringByTypeIdx(const dexHeader *, u2);
+const char *dex_getMethodSignature(const dexHeader *, const dexMethodId *);
+const char *dex_getProtoSignature(const dexHeader *, const dexProtoId *);
+const dexTypeList *dex_getProtoParameters(const dexHeader *, const dexProtoId *);
 #endif

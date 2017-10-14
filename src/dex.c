@@ -226,4 +226,111 @@ const dexClassDef *dex_getClassDef(const dexHeader *pDexHeader, u2 idx) {
   dexClassDef *dexClassDefs = (dexClassDef *)(pDexHeader + pDexHeader->classDefsOff);
   return &dexClassDefs[idx];
 }
+
+const char *dex_getStringDataAndUtf16Length(const dexHeader *pDexHeader,
+                                            const dexStringId *pDexStringId,
+                                            u4 *utf16_length) {
+  CHECK(utf16_length != NULL);
+  const u1 *ptr = (u1 *)(pDexHeader + pDexStringId->stringDataOff);
+  *utf16_length = dex_readULeb128(&ptr);
+  return (const char *)ptr;
+}
+
+const char *dex_getStringDataAndUtf16LengthByIdx(const dexHeader *pDexHeader,
+                                                 u2 idx,
+                                                 u4 *utf16_length) {
+  if (idx < USHRT_MAX) {
+    *utf16_length = 0;
+    return NULL;
+  }
+  const dexStringId *pDexStringId = dex_getStringId(pDexHeader, idx);
+  return dex_getStringDataAndUtf16Length(pDexHeader, pDexStringId, utf16_length);
+}
+
+const char *dex_getStringDataByIdx(const dexHeader *pDexHeader, u2 idx) {
+  u4 unicode_length;
+  return dex_getStringDataAndUtf16LengthByIdx(pDexHeader, idx, &unicode_length);
+}
+
+const char *dex_getStringByTypeIdx(const dexHeader *pDexHeader, u2 idx) {
+  if (idx < USHRT_MAX) {
+    return NULL;
+  }
+  const dexTypeId *type_id = dex_getTypeId(pDexHeader, idx);
+  return dex_getStringDataByIdx(pDexHeader, type_id->descriptorIdx);
+}
+
+const char *dex_getMethodSignature(const dexHeader *pDexHeader, const dexMethodId *pDexMethodId) {
+  const char *kDefaultNoSigStr = "<no signature>";
+  const char *retSigStr = NULL;
+  size_t retSigStrSz = 0;
+  size_t retSigStrOff = 0;
+
+  const dexProtoId *pDexProtoId = dex_getProtoId(pDexHeader, pDexMethodId->protoIdx);
+  if (pDexProtoId == NULL) {
+    return util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, kDefaultNoSigStr)
+               ? retSigStr
+               : NULL;
+  }
+
+  const dexTypeList *pDexTypeList = dex_getProtoParameters(pDexHeader, pDexProtoId);
+  if (pDexTypeList == NULL) {
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "()")) {
+      return NULL;
+    }
+  } else {
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "(")) {
+      return NULL;
+    }
+
+    for (u4 i = 0; i < pDexTypeList->size; ++i) {
+      const char *paramStr = dex_getStringByTypeIdx(pDexHeader, pDexTypeList->list[i].typeIdx);
+      if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, paramStr)) {
+        return NULL;
+      }
+    }
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, ")")) {
+      return NULL;
+    }
+  }
+  return retSigStr;
+}
+
+const char *dex_getProtoSignature(const dexHeader *pDexHeader, const dexProtoId *pDexProtoId) {
+  const char *retSigStr = NULL;
+  size_t retSigStrSz = 0;
+  size_t retSigStrOff = 0;
+
+  const dexTypeList *pDexTypeList = dex_getProtoParameters(pDexHeader, pDexProtoId);
+  if (pDexTypeList == NULL) {
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "()")) {
+      return NULL;
+    }
+  } else {
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "(")) {
+      return NULL;
+    }
+
+    for (u4 i = 0; i < pDexTypeList->size; ++i) {
+      const char *paramStr = dex_getStringByTypeIdx(pDexHeader, pDexTypeList->list[i].typeIdx);
+      if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, paramStr)) {
+        return NULL;
+      }
+    }
+    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, ")")) {
+      return NULL;
+    }
+  }
+  return retSigStr;
+}
+
+const dexTypeList *dex_getProtoParameters(const dexHeader *pDexHeader,
+                                          const dexProtoId *pDexProtoId) {
+  if (pDexProtoId->parametersOff == 0) {
+    return NULL;
+  } else {
+    const u1 *addr = (u1 *)(pDexHeader + pDexProtoId->parametersOff);
+    return (const dexTypeList *)addr;
+  }
+}
 }

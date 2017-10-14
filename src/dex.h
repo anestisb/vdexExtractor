@@ -74,18 +74,6 @@ typedef struct __attribute__((packed)) {
   u4 dataOff;
 } dexHeader;
 
-typedef struct __attribute__((packed)) {
-  dexMagic magic;
-  u4 dexOff;
-  u4 dexSize;
-  u4 depsOff;
-  u4 depsSize;
-  u4 optOff;
-  u4 optSize;
-  u4 flags;
-  u4 checksum;
-} odexHeader;
-
 typedef struct __attribute__((packed)) { u4 stringDataOff; } dexStringId;
 
 typedef struct __attribute__((packed)) { u4 descriptorIdx; } dexTypeId;
@@ -169,23 +157,6 @@ typedef struct __attribute__((packed)) {
     int classDefOff;
   } table[1];
 } dexClassLookup;
-
-typedef struct __attribute__((packed)) {
-  odexHeader *pOdexHeader;
-  dexHeader *pDexHeader;
-  dexStringId *pDexStringIds;
-  dexTypeId *pDexTypeIds;
-  dexFieldId *pDexFieldIds;
-  dexMethodId *pDexMethodIds;
-  dexProtoId *pDexProtoIds;
-  dexClassDef *pDexClassDefs;
-  dexLinkData *pDexLinkData;
-  dexClassLookup *pclassLookup;
-  void *pregisterMapPool;
-  u1 *baseAddr;
-  int overhead;
-  // void*          auxData;
-} dexFile;
 
 typedef struct __attribute__((packed)) {
   u4 staticFieldsSize;

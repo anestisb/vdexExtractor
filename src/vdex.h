@@ -60,7 +60,7 @@ typedef struct __attribute__((packed)) {
 //
 typedef struct __attribute__((packed)) {
   vdexHeader *pVdexHeader;
-  dexFile *pDexFiles;
+  dexHeader *pDexFiles;
 } vdexFile;
 
 // Verify if valid Vdex file

@@ -25,6 +25,7 @@
 
 #include <zlib.h>
 #include "common.h"
+#include "dex_instruction.h"
 
 #define kNumDexVersions 4
 #define kDexVersionLen 4
@@ -198,6 +199,9 @@ uint32_t dex_readULeb128(const u1 **);
 // non-zero high-order bits in the fifth encoded byte.
 int32_t dex_readSLeb128(const uint8_t **);
 
+// Get the offset of the first instruction for a given dexMethod
+uint32_t dex_getFirstInstrOff(const dexMethod *);
+
 // Read Leb128 class data header
 void dex_readClassDataHeader(const uint8_t **, dexClassDataHeader *);
 
@@ -207,7 +211,11 @@ void dex_readClassDataField(const uint8_t **, dexField *);
 // Read a Leb128 class data method item
 void dex_readClassDataMethod(const uint8_t **, dexMethod *);
 
-// Get the offset of the first instruction for a given dexMethod
-uint32_t dex_getFirstInstrOff(const dexMethod *);
-
+// Methods to access Dex file primitive types
+const dexStringId *dex_getStringId(const dexHeader *, u2);
+const dexTypeId *dex_getTypeId(const dexHeader *, u2);
+const dexProtoId *dex_getProtoId(const dexHeader *, u2);
+const dexFieldId *dex_getFieldId(const dexHeader *, u4);
+const dexMethodId *dex_getMethodId(const dexHeader *, u4);
+const dexClassDef *dex_getClassDef(const dexHeader *, u2);
 #endif

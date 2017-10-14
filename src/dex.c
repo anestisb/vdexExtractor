@@ -185,7 +185,45 @@ void dex_readClassDataMethod(const uint8_t **cursor, dexMethod *pDexMethod) {
   pDexMethod->codeOff = dex_readULeb128(cursor);
 }
 
-uint32_t dex_getFirstInstrOff(const dexMethod *pDexMethod) {
-  // The first instruction is the last member of the dexCode struct
-  return pDexMethod->codeOff + sizeof(dexCode) - sizeof(u2);
+// Returns the StringId at the specified index.
+const dexStringId *dex_getStringId(const dexHeader *pDexHeader, u2 idx) {
+  CHECK_LT(idx, pDexHeader->stringIdsSize);
+  dexStringId *dexStringIds = (dexStringId *)(pDexHeader + pDexHeader->stringIdsOff);
+  return &dexStringIds[idx];
+}
+
+// Returns the dexTypeId at the specified index.
+const dexTypeId *dex_getTypeId(const dexHeader *pDexHeader, u2 idx) {
+  CHECK_LT(idx, pDexHeader->typeIdsSize);
+  dexTypeId *dexTypeIds = (dexTypeId *)(pDexHeader + pDexHeader->typeIdsOff);
+  return &dexTypeIds[idx];
+}
+
+// Returns the dexProtoId at the specified index.
+const dexProtoId *dex_getProtoId(const dexHeader *pDexHeader, u2 idx) {
+  CHECK_LT(idx, pDexHeader->protoIdsSize);
+  dexProtoId *dexProtoIds = (dexProtoId *)(pDexHeader + pDexHeader->protoIdsOff);
+  return &dexProtoIds[idx];
+}
+
+// Returns the dexFieldId at the specified index.
+const dexFieldId *dex_getFieldId(const dexHeader *pDexHeader, u4 idx) {
+  CHECK_LT(idx, pDexHeader->fieldIdsSize);
+  dexFieldId *dexFieldIds = (dexFieldId *)(pDexHeader + pDexHeader->fieldIdsOff);
+  return &dexFieldIds[idx];
+}
+
+// Returns the MethodId at the specified index.
+const dexMethodId *dex_getMethodId(const dexHeader *pDexHeader, u4 idx) {
+  CHECK_LT(idx, pDexHeader->methodIdsSize);
+  dexMethodId *dexMethodIds = (dexMethodId *)(pDexHeader + pDexHeader->methodIdsOff);
+  return &dexMethodIds[idx];
+}
+
+// Returns the ClassDef at the specified index.
+const dexClassDef *dex_getClassDef(const dexHeader *pDexHeader, u2 idx) {
+  CHECK_LT(idx, pDexHeader->classDefsSize);
+  dexClassDef *dexClassDefs = (dexClassDef *)(pDexHeader + pDexHeader->classDefsOff);
+  return &dexClassDefs[idx];
+}
 }

@@ -28,9 +28,11 @@ static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] <
 // Helper for dumpInstruction(), which builds the string
 // representation for the index in the given instruction.
 // Returns a pointer to a buffer of sufficient size.
-static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, size_t bufSize) {
+static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t bufSize) {
   // TODO: Indexing is failing for most signature types, needs more debugging
   return;
+
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
 
   static const u4 kInvalidIndex = USHRT_MAX;
   // Determine index and width of the string.
@@ -84,7 +86,7 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
       break;
     case kIndexTypeRef:
       if (index < pDexHeader->typeIdsSize) {
-        const char *tp = dex_getStringByTypeIdx(pDexHeader, index);
+        const char *tp = dex_getStringByTypeIdx(dexFileBuf, index);
         outSize = snprintf(buf, bufSize, "%s // type@%0*x", tp, width, index);
       } else {
         outSize = snprintf(buf, bufSize, "<type?> // type@%0*x", width, index);
@@ -92,7 +94,7 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
       break;
     case kIndexStringRef:
       if (index < pDexHeader->stringIdsSize) {
-        const char *st = dex_getStringDataByIdx(pDexHeader, index);
+        const char *st = dex_getStringDataByIdx(dexFileBuf, index);
         outSize = snprintf(buf, bufSize, "\"%s\" // string@%0*x", st, width, index);
       } else {
         outSize = snprintf(buf, bufSize, "<string?> // string@%0*x", width, index);
@@ -100,10 +102,10 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
       break;
     case kIndexMethodRef:
       if (index < pDexHeader->methodIdsSize) {
-        const dexMethodId *pDexMethodId = dex_getMethodId(pDexHeader, index);
-        const char *name = dex_getStringDataByIdx(pDexHeader, pDexMethodId->nameIdx);
-        const char *signature = dex_getMethodSignature(pDexHeader, pDexMethodId);
-        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexMethodId->classIdx);
+        const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, index);
+        const char *name = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
+        const char *signature = dex_getMethodSignature(dexFileBuf, pDexMethodId);
+        const char *backDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexMethodId->classIdx);
         outSize = snprintf(buf, bufSize, "%s.%s:%s // method@%0*x", backDescriptor, name, signature,
                            width, index);
       } else {
@@ -112,10 +114,10 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
       break;
     case kIndexFieldRef:
       if (index < pDexHeader->fieldIdsSize) {
-        const dexFieldId *pDexFieldId = dex_getFieldId(pDexHeader, index);
-        const char *name = dex_getStringDataByIdx(pDexHeader, pDexFieldId->nameIdx);
-        const char *typeDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexFieldId->typeIdx);
-        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexFieldId->classIdx);
+        const dexFieldId *pDexFieldId = dex_getFieldId(dexFileBuf, index);
+        const char *name = dex_getStringDataByIdx(dexFileBuf, pDexFieldId->nameIdx);
+        const char *typeDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexFieldId->typeIdx);
+        const char *backDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexFieldId->classIdx);
         outSize = snprintf(buf, bufSize, "%s.%s:%s // field@%0*x", backDescriptor, name,
                            typeDescriptor, width, index);
       } else {
@@ -132,10 +134,10 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
       const char *methodStr = "<method?>";
       const char *protoStr = "<proto?>";
       if (index < pDexHeader->methodIdsSize) {
-        const dexMethodId *pDexMethodId = dex_getMethodId(pDexHeader, index);
-        const char *name = dex_getStringDataByIdx(pDexHeader, pDexMethodId->nameIdx);
-        const char *signature = dex_getMethodSignature(pDexHeader, pDexMethodId);
-        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexMethodId->classIdx);
+        const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, index);
+        const char *name = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
+        const char *signature = dex_getMethodSignature(dexFileBuf, pDexMethodId);
+        const char *backDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexMethodId->classIdx);
 
         size_t actualMethodStrSz = strlen(backDescriptor) + strlen(name) + strlen(signature) + 3;
         char *actualMethodStr = util_calloc(actualMethodStrSz);
@@ -143,8 +145,8 @@ static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, siz
         methodStr = actualMethodStr;
       }
       if (secondary_index < pDexHeader->protoIdsSize) {
-        const dexProtoId *pDexProtoId = dex_getProtoId(pDexHeader, secondary_index);
-        protoStr = dex_getProtoSignature(pDexHeader, pDexProtoId);
+        const dexProtoId *pDexProtoId = dex_getProtoId(dexFileBuf, secondary_index);
+        protoStr = dex_getProtoSignature(dexFileBuf, pDexProtoId);
       }
       outSize = snprintf(buf, bufSize, "%s, %s // method@%0*x, proto@%0*x", methodStr, protoStr,
                          width, index, width, secondary_index);
@@ -338,94 +340,100 @@ void dex_readClassDataMethod(const u1 **cursor, dexMethod *pDexMethod) {
 }
 
 // Returns the StringId at the specified index.
-const dexStringId *dex_getStringId(const dexHeader *pDexHeader, u2 idx) {
+const dexStringId *dex_getStringId(const u1 *dexFileBuf, u2 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->stringIdsSize);
-  dexStringId *dexStringIds = (dexStringId *)(pDexHeader + pDexHeader->stringIdsOff);
+  dexStringId *dexStringIds = (dexStringId *)(dexFileBuf + pDexHeader->stringIdsOff);
   return &dexStringIds[idx];
 }
 
 // Returns the dexTypeId at the specified index.
-const dexTypeId *dex_getTypeId(const dexHeader *pDexHeader, u2 idx) {
+const dexTypeId *dex_getTypeId(const u1 *dexFileBuf, u2 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->typeIdsSize);
-  dexTypeId *dexTypeIds = (dexTypeId *)(pDexHeader + pDexHeader->typeIdsOff);
+  dexTypeId *dexTypeIds = (dexTypeId *)(dexFileBuf + pDexHeader->typeIdsOff);
   return &dexTypeIds[idx];
 }
 
 // Returns the dexProtoId at the specified index.
-const dexProtoId *dex_getProtoId(const dexHeader *pDexHeader, u2 idx) {
+const dexProtoId *dex_getProtoId(const u1 *dexFileBuf, u2 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->protoIdsSize);
-  dexProtoId *dexProtoIds = (dexProtoId *)(pDexHeader + pDexHeader->protoIdsOff);
+  dexProtoId *dexProtoIds = (dexProtoId *)(dexFileBuf + pDexHeader->protoIdsOff);
   return &dexProtoIds[idx];
 }
 
 // Returns the dexFieldId at the specified index.
-const dexFieldId *dex_getFieldId(const dexHeader *pDexHeader, u4 idx) {
+const dexFieldId *dex_getFieldId(const u1 *dexFileBuf, u4 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->fieldIdsSize);
-  dexFieldId *dexFieldIds = (dexFieldId *)(pDexHeader + pDexHeader->fieldIdsOff);
+  dexFieldId *dexFieldIds = (dexFieldId *)(dexFileBuf + pDexHeader->fieldIdsOff);
   return &dexFieldIds[idx];
 }
 
 // Returns the MethodId at the specified index.
-const dexMethodId *dex_getMethodId(const dexHeader *pDexHeader, u4 idx) {
+const dexMethodId *dex_getMethodId(const u1 *dexFileBuf, u4 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->methodIdsSize);
-  dexMethodId *dexMethodIds = (dexMethodId *)(pDexHeader + pDexHeader->methodIdsOff);
+  dexMethodId *dexMethodIds = (dexMethodId *)(dexFileBuf + pDexHeader->methodIdsOff);
   return &dexMethodIds[idx];
 }
 
 // Returns the ClassDef at the specified index.
-const dexClassDef *dex_getClassDef(const dexHeader *pDexHeader, u2 idx) {
+const dexClassDef *dex_getClassDef(const u1 *dexFileBuf, u2 idx) {
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   CHECK_LT(idx, pDexHeader->classDefsSize);
-  dexClassDef *dexClassDefs = (dexClassDef *)(pDexHeader + pDexHeader->classDefsOff);
+  dexClassDef *dexClassDefs = (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
   return &dexClassDefs[idx];
 }
 
-const char *dex_getStringDataAndUtf16Length(const dexHeader *pDexHeader,
+const char *dex_getStringDataAndUtf16Length(const u1 *dexFileBuf,
                                             const dexStringId *pDexStringId,
                                             u4 *utf16_length) {
   CHECK(utf16_length != NULL);
-  const u1 *ptr = (u1 *)(pDexHeader + pDexStringId->stringDataOff);
+  const u1 *ptr = (u1 *)(dexFileBuf + pDexStringId->stringDataOff);
   *utf16_length = dex_readULeb128(&ptr);
   return (const char *)ptr;
 }
 
-const char *dex_getStringDataAndUtf16LengthByIdx(const dexHeader *pDexHeader,
+const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf,
                                                  u2 idx,
                                                  u4 *utf16_length) {
   if (idx < USHRT_MAX) {
     *utf16_length = 0;
     return NULL;
   }
-  const dexStringId *pDexStringId = dex_getStringId(pDexHeader, idx);
-  return dex_getStringDataAndUtf16Length(pDexHeader, pDexStringId, utf16_length);
+  const dexStringId *pDexStringId = dex_getStringId(dexFileBuf, idx);
+  return dex_getStringDataAndUtf16Length(dexFileBuf, pDexStringId, utf16_length);
 }
 
-const char *dex_getStringDataByIdx(const dexHeader *pDexHeader, u2 idx) {
+const char *dex_getStringDataByIdx(const u1 *dexFileBuf, u2 idx) {
   u4 unicode_length;
-  return dex_getStringDataAndUtf16LengthByIdx(pDexHeader, idx, &unicode_length);
+  return dex_getStringDataAndUtf16LengthByIdx(dexFileBuf, idx, &unicode_length);
 }
 
-const char *dex_getStringByTypeIdx(const dexHeader *pDexHeader, u2 idx) {
+const char *dex_getStringByTypeIdx(const u1 *dexFileBuf, u2 idx) {
   if (idx < USHRT_MAX) {
     return NULL;
   }
-  const dexTypeId *type_id = dex_getTypeId(pDexHeader, idx);
-  return dex_getStringDataByIdx(pDexHeader, type_id->descriptorIdx);
+  const dexTypeId *type_id = dex_getTypeId(dexFileBuf, idx);
+  return dex_getStringDataByIdx(dexFileBuf, type_id->descriptorIdx);
 }
 
-const char *dex_getMethodSignature(const dexHeader *pDexHeader, const dexMethodId *pDexMethodId) {
+const char *dex_getMethodSignature(const u1 *dexFileBuf, const dexMethodId *pDexMethodId) {
   const char *kDefaultNoSigStr = "<no signature>";
   const char *retSigStr = NULL;
   size_t retSigStrSz = 0;
   size_t retSigStrOff = 0;
 
-  const dexProtoId *pDexProtoId = dex_getProtoId(pDexHeader, pDexMethodId->protoIdx);
+  const dexProtoId *pDexProtoId = dex_getProtoId(dexFileBuf, pDexMethodId->protoIdx);
   if (pDexProtoId == NULL) {
     return util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, kDefaultNoSigStr)
                ? retSigStr
                : NULL;
   }
 
-  const dexTypeList *pDexTypeList = dex_getProtoParameters(pDexHeader, pDexProtoId);
+  const dexTypeList *pDexTypeList = dex_getProtoParameters(dexFileBuf, pDexProtoId);
   if (pDexTypeList == NULL) {
     if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "()")) {
       return NULL;
@@ -436,7 +444,7 @@ const char *dex_getMethodSignature(const dexHeader *pDexHeader, const dexMethodI
     }
 
     for (u4 i = 0; i < pDexTypeList->size; ++i) {
-      const char *paramStr = dex_getStringByTypeIdx(pDexHeader, pDexTypeList->list[i].typeIdx);
+      const char *paramStr = dex_getStringByTypeIdx(dexFileBuf, pDexTypeList->list[i].typeIdx);
       if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, paramStr)) {
         return NULL;
       }
@@ -448,12 +456,12 @@ const char *dex_getMethodSignature(const dexHeader *pDexHeader, const dexMethodI
   return retSigStr;
 }
 
-const char *dex_getProtoSignature(const dexHeader *pDexHeader, const dexProtoId *pDexProtoId) {
+const char *dex_getProtoSignature(const u1 *dexFileBuf, const dexProtoId *pDexProtoId) {
   const char *retSigStr = NULL;
   size_t retSigStrSz = 0;
   size_t retSigStrOff = 0;
 
-  const dexTypeList *pDexTypeList = dex_getProtoParameters(pDexHeader, pDexProtoId);
+  const dexTypeList *pDexTypeList = dex_getProtoParameters(dexFileBuf, pDexProtoId);
   if (pDexTypeList == NULL) {
     if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "()")) {
       return NULL;
@@ -464,7 +472,7 @@ const char *dex_getProtoSignature(const dexHeader *pDexHeader, const dexProtoId 
     }
 
     for (u4 i = 0; i < pDexTypeList->size; ++i) {
-      const char *paramStr = dex_getStringByTypeIdx(pDexHeader, pDexTypeList->list[i].typeIdx);
+      const char *paramStr = dex_getStringByTypeIdx(dexFileBuf, pDexTypeList->list[i].typeIdx);
       if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, paramStr)) {
         return NULL;
       }
@@ -476,19 +484,18 @@ const char *dex_getProtoSignature(const dexHeader *pDexHeader, const dexProtoId 
   return retSigStr;
 }
 
-const dexTypeList *dex_getProtoParameters(const dexHeader *pDexHeader,
-                                          const dexProtoId *pDexProtoId) {
+const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId *pDexProtoId) {
   if (pDexProtoId->parametersOff == 0) {
     return NULL;
   } else {
-    const u1 *addr = (u1 *)(pDexHeader + pDexProtoId->parametersOff);
+    const u1 *addr = (u1 *)(dexFileBuf + pDexProtoId->parametersOff);
     return (const dexTypeList *)addr;
   }
 }
 
 // Dumps a single instruction.
 void dex_dumpInstruction(
-    const dexHeader *pDexHeader, u2 *codePtr, u4 codeOffset, u4 insnIdx, bool highlight) {
+    const u1 *dexFileBuf, u2 *codePtr, u4 codeOffset, u4 insnIdx, bool highlight) {
   if (highlight) {
     LOGMSG_RAW(l_VDEBUG, "[updated] --->\t");
   } else {
@@ -533,7 +540,7 @@ void dex_dumpInstruction(
   // Set up additional argument.
   char indexBuf[200] = { 0 };
   if (kInstructionIndexTypes[(dexInstr_getOpcode(codePtr))] != kIndexNone) {
-    indexString(pDexHeader, codePtr, indexBuf, sizeof(indexBuf));
+    indexString(dexFileBuf, codePtr, indexBuf, sizeof(indexBuf));
   }
 
   // Dump the instruction.

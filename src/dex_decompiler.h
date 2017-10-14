@@ -29,6 +29,6 @@
 
 // Dex decompiler driver function using quicken_info data
 bool dexDecompiler_decompile(
-    const dexHeader *, dexCode *, uint32_t, const uint8_t *, uint32_t, bool);
+    const uint8_t *, dexCode *, uint32_t, const uint8_t *, uint32_t, bool);
 
 #endif

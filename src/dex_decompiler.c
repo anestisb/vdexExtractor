@@ -95,7 +95,7 @@ static void DecompileInvokeVirtual(uint16_t *insns,
   }
 }
 
-bool dexDecompiler_decompile(const dexHeader *pDexHeader,
+bool dexDecompiler_decompile(const uint8_t *dexFileBuf,
                              dexCode *pDexCode,
                              uint32_t startCodeOff,
                              const uint8_t *quickening_info,
@@ -113,7 +113,7 @@ bool dexDecompiler_decompile(const dexHeader *pDexHeader,
   while (isCodeIteratorDone() == false) {
     bool hasCodeChange = true;
     // LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
-    dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc, false);
+    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         if (decompile_return_instruction) {
@@ -177,7 +177,7 @@ bool dexDecompiler_decompile(const dexHeader *pDexHeader,
     }
 
     if (hasCodeChange) {
-      dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc, true);
+      dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, true);
     }
     codeIteratorAdvance();
   }

@@ -212,22 +212,22 @@ void dex_readClassDataField(const uint8_t **, dexField *);
 void dex_readClassDataMethod(const uint8_t **, dexMethod *);
 
 // Methods to access Dex file primitive types
-const dexStringId *dex_getStringId(const dexHeader *, u2);
-const dexTypeId *dex_getTypeId(const dexHeader *, u2);
-const dexProtoId *dex_getProtoId(const dexHeader *, u2);
-const dexFieldId *dex_getFieldId(const dexHeader *, u4);
-const dexMethodId *dex_getMethodId(const dexHeader *, u4);
-const dexClassDef *dex_getClassDef(const dexHeader *, u2);
+const dexStringId *dex_getStringId(const u1 *, u2);
+const dexTypeId *dex_getTypeId(const u1 *, u2);
+const dexProtoId *dex_getProtoId(const u1 *, u2);
+const dexFieldId *dex_getFieldId(const u1 *, u4);
+const dexMethodId *dex_getMethodId(const u1 *, u4);
+const dexClassDef *dex_getClassDef(const u1 *, u2);
 
 // Helper methods to extract data from Dex primitive types
-const char *dex_getStringDataAndUtf16Length(const dexHeader *, const dexStringId *, u4 *);
-const char *dex_getStringDataAndUtf16LengthByIdx(const dexHeader *, u2, u4 *);
-const char *dex_getStringDataByIdx(const dexHeader *, u2);
-const char *dex_getStringByTypeIdx(const dexHeader *, u2);
-const char *dex_getMethodSignature(const dexHeader *, const dexMethodId *);
-const char *dex_getProtoSignature(const dexHeader *, const dexProtoId *);
-const dexTypeList *dex_getProtoParameters(const dexHeader *, const dexProtoId *);
+const char *dex_getStringDataAndUtf16Length(const u1 *, const dexStringId *, u4 *);
+const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *, u2, u4 *);
+const char *dex_getStringDataByIdx(const u1 *, u2);
+const char *dex_getStringByTypeIdx(const u1 *, u2);
+const char *dex_getMethodSignature(const u1 *, const dexMethodId *);
+const char *dex_getProtoSignature(const u1 *, const dexProtoId *);
+const dexTypeList *dex_getProtoParameters(const u1 *, const dexProtoId *);
 
 // Debug method to parse instruction and print to log
-void dex_dumpInstruction(const dexHeader *, u2 *, u4, u4, bool);
+void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
 #endif

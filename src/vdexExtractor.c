@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
     // mmap file
     buf = utils_mapFileToRead(pFiles.files[f], &fileSz, &srcfd);
     if (buf == NULL) {
-      LOGMSG(l_ERROR, "open & map failed for R/O mode. Skipping '%s'", pFiles.files[f]);
+      LOGMSG(l_ERROR, "Open & map failed - skipping '%s'", pFiles.files[f]);
       continue;
     }
 
@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
     // Validate Vdex magic header
     const vdexHeader *pVdexHeader = (const vdexHeader *)buf;
     if (!vdex_isValidVdex(buf)) {
-      LOGMSG(l_WARN, "Invalid vdex header - skipping '%s'", pFiles.files[f]);
+      LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
       continue;
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
 
     if (unquicken) {
       if (vdex_Unquicken(buf) == false) {
-        LOGMSG(l_ERROR, "Failed to unquicken dex files - skipping '%s'", pFiles.files[f]);
+        LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
         munmap(buf, fileSz);
         close(srcfd);
         continue;
@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
 
       // If unquickening  Dex files, they should be already verified
       if (unquicken == false && dex_isValidDexMagic(pDexHeader) == false) {
-        LOGMSG(l_ERROR, "Invalid dex file 'classes%zu.dex' - skipping", i);
+        LOGMSG(l_ERROR, "Invalid Dex file 'classes%zu.dex' - skipping", i);
         continue;
       }
 

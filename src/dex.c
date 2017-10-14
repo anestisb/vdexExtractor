@@ -33,7 +33,7 @@ bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
   const char *version = pDexHeader->magic.ver;
   for (uint32_t i = 0; i < kNumDexVersions; i++) {
     if (memcmp(version, kDexMagicVersions[i], kDexVersionLen) == 0) {
-      LOGMSG(l_DEBUG, "DEX version '%s' detected", pDexHeader->magic.ver);
+      LOGMSG(l_DEBUG, "Dex version '%s' detected", pDexHeader->magic.ver);
       return true;
     }
   }

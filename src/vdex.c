@@ -68,7 +68,7 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
     if (vdex_hasDexSection(cursor)) {
       const uint8_t *dexBuf = vdex_DexBegin(cursor);
       *offset = sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
-      LOGMSG(l_DEBUG, "Processing first DEX file at offset:0x%x", *offset);
+      LOGMSG(l_DEBUG, "Processing first Dex file at offset:0x%x", *offset);
 
       // Adjust offset to point at the end of current Dex file
       dexHeader *pDexHeader = (dexHeader *)(dexBuf);
@@ -84,9 +84,9 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
     const uint8_t *dexBuf = cursor + *offset;
     const uint8_t *dexBufMax = dexBuf + pDexHeader->fileSize;
     if (dexBufMax == vdex_DexEnd(cursor)) {
-      LOGMSG(l_DEBUG, "Processing last DEX file at offset:0x%x", *offset);
+      LOGMSG(l_DEBUG, "Processing last Dex file at offset:0x%x", *offset);
     } else if (dexBufMax <= vdex_DexEnd(cursor)) {
-      LOGMSG(l_DEBUG, "Processing DEX file at offset:0x%x", *offset);
+      LOGMSG(l_DEBUG, "Processing Dex file at offset:0x%x", *offset);
     } else {
       LOGMSG(l_ERROR, "Invalid cursor offset '0x%x'", *offset);
       return NULL;
@@ -214,7 +214,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
-          LOGMSG(l_ERROR, "Failed to decompile DEX file");
+          LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;
         }
         quickening_info_ptr += quickening_size;
@@ -241,7 +241,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         quickening_info_ptr += sizeof(uint32_t);
         if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
-          LOGMSG(l_ERROR, "Failed to decompile DEX file");
+          LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;
         }
         quickening_info_ptr += quickening_size;
@@ -252,7 +252,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     uint32_t curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
     if (curChecksum != pDexHeader->checksum) {
       LOGMSG(l_ERROR,
-             "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken DEX file",
+             "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
              curChecksum, pDexHeader->checksum);
       return false;
     }

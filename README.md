@@ -49,7 +49,9 @@ The Vdex fully unquicken functionality has been also implemented as part of the 
 tool. The upstream contribution is available
 [here](https://android-review.googlesource.com/#/c/platform/art/+/505156/). If you want to use
 oatdump with Oreo release you can use the corresponding patch
-[here](https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409).
+[here](https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409) or fork and build (inside
+and AOSP_SRC_ROOT workspace) the oreo-release branch of the
+[oatdump++](https://github.com/anestisb/oatdump_plus/tree/oreo-release) tool.
 
 
 ## Changelog

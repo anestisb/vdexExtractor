@@ -77,7 +77,7 @@ void log_msg(log_level_t dl,
       printf(": %s", strerr);
     }
     int fmtLen = strlen(fmt);
-    if (fmtLen > 0 && fmt[fmtLen -1 ] == '\n') {
+    if (fmtLen > 0 && fmt[fmtLen - 1] == '\n') {
       inside_line = false;
     } else {
       inside_line = true;

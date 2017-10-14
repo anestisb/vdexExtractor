@@ -45,17 +45,11 @@ static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
   }
 }
 
-static uint8_t InstAA(uint16_t *code_ptr) {
-  return code_ptr[0] >> 8;
-}
+static uint8_t InstAA(uint16_t *code_ptr) { return code_ptr[0] >> 8; }
 
-static uint8_t InstA(uint16_t *code_ptr) {
-  return (code_ptr[0] >> 8) & 0x0f;
-}
+static uint8_t InstA(uint16_t *code_ptr) { return (code_ptr[0] >> 8) & 0x0f; }
 
-static uint8_t InstB(uint16_t *code_ptr) {
-  return code_ptr[0] >> 12;
-}
+static uint8_t InstB(uint16_t *code_ptr) { return code_ptr[0] >> 12; }
 
 Code dexInstr_getOpcode(uint16_t *code_ptr) { return (code_ptr[0] & 0xFF); }
 

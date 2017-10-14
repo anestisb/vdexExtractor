@@ -23,6 +23,153 @@
 #include "dex.h"
 #include "utils.h"
 
+static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }
+
+// Helper for dumpInstruction(), which builds the string
+// representation for the index in the given instruction.
+// Returns a pointer to a buffer of sufficient size.
+static void indexString(const dexHeader *pDexHeader, u2 *codePtr, char *buf, size_t bufSize) {
+  // TODO: Indexing is failing for most signature types, needs more debugging
+  return;
+
+  static const u4 kInvalidIndex = USHRT_MAX;
+  // Determine index and width of the string.
+  u4 index = 0;
+  u4 secondary_index = kInvalidIndex;
+  u4 width = 4;
+  switch (kInstructionFormats[dexInstr_getOpcode(codePtr)]) {
+    // SOME NOT SUPPORTED:
+    // case k20bc:
+    case k21c:
+    case k35c:
+    // case k35ms:
+    case k3rc:
+      // case k3rms:
+      // case k35mi:
+      // case k3rmi:
+      index = dexInstr_getVRegB(codePtr);
+      width = 4;
+      break;
+    case k31c:
+      index = dexInstr_getVRegB(codePtr);
+      width = 8;
+      break;
+    case k22c:
+      // case k22cs:
+      index = dexInstr_getVRegC(codePtr);
+      width = 4;
+      break;
+    case k45cc:
+    case k4rcc:
+      index = dexInstr_getVRegB(codePtr);
+      secondary_index = dexInstr_getVRegH(codePtr);
+      width = 4;
+      break;
+    default:
+      break;
+  }  // switch
+
+  // Determine index type.
+  size_t outSize = 0;
+  switch (kInstructionIndexTypes[dexInstr_getOpcode(codePtr)]) {
+    case kIndexUnknown:
+      // This function should never get called for this type, but do
+      // something sensible here, just to help with debugging.
+      outSize = snprintf(buf, bufSize, "<unknown-index>");
+      break;
+    case kIndexNone:
+      // This function should never get called for this type, but do
+      // something sensible here, just to help with debugging.
+      outSize = snprintf(buf, bufSize, "<no-index>");
+      break;
+    case kIndexTypeRef:
+      if (index < pDexHeader->typeIdsSize) {
+        const char *tp = dex_getStringByTypeIdx(pDexHeader, index);
+        outSize = snprintf(buf, bufSize, "%s // type@%0*x", tp, width, index);
+      } else {
+        outSize = snprintf(buf, bufSize, "<type?> // type@%0*x", width, index);
+      }
+      break;
+    case kIndexStringRef:
+      if (index < pDexHeader->stringIdsSize) {
+        const char *st = dex_getStringDataByIdx(pDexHeader, index);
+        outSize = snprintf(buf, bufSize, "\"%s\" // string@%0*x", st, width, index);
+      } else {
+        outSize = snprintf(buf, bufSize, "<string?> // string@%0*x", width, index);
+      }
+      break;
+    case kIndexMethodRef:
+      if (index < pDexHeader->methodIdsSize) {
+        const dexMethodId *pDexMethodId = dex_getMethodId(pDexHeader, index);
+        const char *name = dex_getStringDataByIdx(pDexHeader, pDexMethodId->nameIdx);
+        const char *signature = dex_getMethodSignature(pDexHeader, pDexMethodId);
+        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexMethodId->classIdx);
+        outSize = snprintf(buf, bufSize, "%s.%s:%s // method@%0*x", backDescriptor, name, signature,
+                           width, index);
+      } else {
+        outSize = snprintf(buf, bufSize, "<method?> // method@%0*x", width, index);
+      }
+      break;
+    case kIndexFieldRef:
+      if (index < pDexHeader->fieldIdsSize) {
+        const dexFieldId *pDexFieldId = dex_getFieldId(pDexHeader, index);
+        const char *name = dex_getStringDataByIdx(pDexHeader, pDexFieldId->nameIdx);
+        const char *typeDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexFieldId->typeIdx);
+        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexFieldId->classIdx);
+        outSize = snprintf(buf, bufSize, "%s.%s:%s // field@%0*x", backDescriptor, name,
+                           typeDescriptor, width, index);
+      } else {
+        outSize = snprintf(buf, bufSize, "<field?> // field@%0*x", width, index);
+      }
+      break;
+    case kIndexVtableOffset:
+      outSize = snprintf(buf, bufSize, "[%0*x] // vtable #%0*x", width, index, width, index);
+      break;
+    case kIndexFieldOffset:
+      outSize = snprintf(buf, bufSize, "[obj+%0*x]", width, index);
+      break;
+    case kIndexMethodAndProtoRef: {
+      const char *methodStr = "<method?>";
+      const char *protoStr = "<proto?>";
+      if (index < pDexHeader->methodIdsSize) {
+        const dexMethodId *pDexMethodId = dex_getMethodId(pDexHeader, index);
+        const char *name = dex_getStringDataByIdx(pDexHeader, pDexMethodId->nameIdx);
+        const char *signature = dex_getMethodSignature(pDexHeader, pDexMethodId);
+        const char *backDescriptor = dex_getStringByTypeIdx(pDexHeader, pDexMethodId->classIdx);
+
+        size_t actualMethodStrSz = strlen(backDescriptor) + strlen(name) + strlen(signature) + 3;
+        char *actualMethodStr = util_calloc(actualMethodStrSz);
+        snprintf(actualMethodStr, actualMethodStrSz, "%s.%s:%s", backDescriptor, name, signature);
+        methodStr = actualMethodStr;
+      }
+      if (secondary_index < pDexHeader->protoIdsSize) {
+        const dexProtoId *pDexProtoId = dex_getProtoId(pDexHeader, secondary_index);
+        protoStr = dex_getProtoSignature(pDexHeader, pDexProtoId);
+      }
+      outSize = snprintf(buf, bufSize, "%s, %s // method@%0*x, proto@%0*x", methodStr, protoStr,
+                         width, index, width, secondary_index);
+      break;
+    }
+    case kIndexCallSiteRef:
+      // Call site information is too large to detail in disassembly so just output the index.
+      outSize = snprintf(buf, bufSize, "call_site@%0*x", width, index);
+      break;
+    // SOME NOT SUPPORTED:
+    // case kIndexVaries:
+    // case kIndexInlineMethod:
+    default:
+      outSize = snprintf(buf, bufSize, "<?>");
+      break;
+  }  // switch
+
+  // Determine success of string construction.
+  if (outSize >= bufSize) {
+    // The buffer wasn't big enough
+    LOGMSG(l_FATAL, "Dex dump instruction indexString buffer wasn't big enough (%zu vs %zu)",
+           bufSize, outSize);
+  }
+}
+
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
   // Validate magic number
   if (memcmp(pDexHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
@@ -338,4 +485,202 @@ const dexTypeList *dex_getProtoParameters(const dexHeader *pDexHeader,
     return (const dexTypeList *)addr;
   }
 }
+
+// Dumps a single instruction.
+void dex_dumpInstruction(const dexHeader *pDexHeader, u2 *codePtr, u4 codeOffset, u4 insnIdx) {
+  LOGMSG_RAW(l_VDEBUG, "\t");
+  // Address of instruction (expressed as byte offset).
+  LOGMSG_RAW(l_VDEBUG, "%06x:", codeOffset);
+  u4 insnWidth = dexInstr_SizeInCodeUnits(codePtr);
+
+  // Dump (part of) raw bytes.
+  for (u4 i = 0; i < 8; i++) {
+    if (i < insnWidth) {
+      if (i == 7) {
+        LOGMSG_RAW(l_VDEBUG, " ... ");
+      } else {
+        // Print 16-bit value in little-endian order.
+        const u1 *bytePtr = (const u1 *)(codePtr + i);
+        LOGMSG_RAW(l_VDEBUG, " %02x%02x", bytePtr[0], bytePtr[1]);
+      }
+    } else {
+      LOGMSG_RAW(l_VDEBUG, "     ");
+    }
+  }
+
+  // Dump pseudo-instruction or opcode.
+  if (dexInstr_getOpcode(codePtr) == NOP) {
+    const u2 instr = get2LE((const u1 *)codePtr);
+    if (instr == kPackedSwitchSignature) {
+      LOGMSG_RAW(l_VDEBUG, "|%04x: packed-switch-data (%d units)", insnIdx, insnWidth);
+    } else if (instr == kSparseSwitchSignature) {
+      LOGMSG_RAW(l_VDEBUG, "|%04x: sparse-switch-data (%d units)", insnIdx, insnWidth);
+    } else if (instr == kArrayDataSignature) {
+      LOGMSG_RAW(l_VDEBUG, "|%04x: array-data (%d units)", insnIdx, insnWidth);
+    } else {
+      LOGMSG_RAW(l_VDEBUG, "|%04x: nop // spacer", insnIdx);
+    }
+  } else {
+    LOGMSG_RAW(l_VDEBUG, "|%04x: %s", insnIdx, dexInst_getOpcodeStr(codePtr));
+  }
+
+  // Set up additional argument.
+  char indexBuf[200] = { 0 };
+  if (kInstructionIndexTypes[(dexInstr_getOpcode(codePtr))] != kIndexNone) {
+    indexString(pDexHeader, codePtr, indexBuf, sizeof(indexBuf));
+  }
+
+  // Dump the instruction.
+  switch (kInstructionFormats[dexInstr_getOpcode(codePtr)]) {
+    case k10x:  // op
+      break;
+    case k12x:  // op vA, vB
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr));
+      break;
+    case k11n:  // op vA, #+B
+      LOGMSG_RAW(l_VDEBUG, " v%d, #int %d // #%x", dexInstr_getVRegA(codePtr),
+                 (s4)dexInstr_getVRegB(codePtr), (u1)dexInstr_getVRegB(codePtr));
+      break;
+    case k11x:  // op vAA
+      LOGMSG_RAW(l_VDEBUG, " v%d", dexInstr_getVRegA(codePtr));
+      break;
+    case k10t:    // op +AA
+    case k20t: {  // op +AAAA
+      const s4 targ = (s4)dexInstr_getVRegA(codePtr);
+      LOGMSG_RAW(l_VDEBUG, " %04x // %c%04x", insnIdx + targ, (targ < 0) ? '-' : '+',
+                 (targ < 0) ? -targ : targ);
+      break;
+    }
+    case k22x:  // op vAA, vBBBB
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr));
+      break;
+    case k21t: {  // op vAA, +BBBB
+      const s4 targ = (s4)dexInstr_getVRegB(codePtr);
+      LOGMSG_RAW(l_VDEBUG, " v%d, %04x // %c%04x", dexInstr_getVRegA(codePtr), insnIdx + targ,
+                 (targ < 0) ? '-' : '+', (targ < 0) ? -targ : targ);
+      break;
+    }
+    case k21s:  // op vAA, #+BBBB
+      LOGMSG_RAW(l_VDEBUG, " v%d, #int %d // #%x", dexInstr_getVRegA(codePtr),
+                 (s4)dexInstr_getVRegB(codePtr), (u2)dexInstr_getVRegB(codePtr));
+      break;
+    case k21h:  // op vAA, #+BBBB0000[00000000]
+      // The printed format varies a bit based on the actual opcode.
+      if (dexInstr_getOpcode(codePtr) == CONST_HIGH16) {
+        const s4 value = dexInstr_getVRegB(codePtr) << 16;
+        LOGMSG_RAW(l_VDEBUG, " v%d, #int %d // #%x", dexInstr_getVRegA(codePtr), value,
+                   (u2)dexInstr_getVRegB(codePtr));
+      } else {
+        const s8 value = ((s8)dexInstr_getVRegB(codePtr)) << 48;
+        LOGMSG_RAW(l_VDEBUG, " v%d, #long %" PRId64 " // #%x", dexInstr_getVRegA(codePtr), value,
+                   (u2)dexInstr_getVRegB(codePtr));
+      }
+      break;
+    case k21c:  // op vAA, thing@BBBB
+    case k31c:  // op vAA, thing@BBBBBBBB
+      LOGMSG_RAW(l_VDEBUG, " v%d, %s", dexInstr_getVRegA(codePtr), indexBuf);
+      break;
+    case k23x:  // op vAA, vBB, vCC
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
+                 dexInstr_getVRegC(codePtr));
+      break;
+    case k22b:  // op vAA, vBB, #+CC
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d, #int %d // #%02x", dexInstr_getVRegA(codePtr),
+                 dexInstr_getVRegB(codePtr), (s4)dexInstr_getVRegC(codePtr),
+                 (u1)dexInstr_getVRegC(codePtr));
+      break;
+    case k22t: {  // op vA, vB, +CCCC
+      const s4 targ = (s4)dexInstr_getVRegC(codePtr);
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d, %04x // %c%04x", dexInstr_getVRegA(codePtr),
+                 dexInstr_getVRegB(codePtr), insnIdx + targ, (targ < 0) ? '-' : '+',
+                 (targ < 0) ? -targ : targ);
+      break;
+    }
+    case k22s:  // op vA, vB, #+CCCC
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d, #int %d // #%04x", dexInstr_getVRegA(codePtr),
+                 dexInstr_getVRegB(codePtr), (s4)dexInstr_getVRegC(codePtr),
+                 (u2)dexInstr_getVRegC(codePtr));
+      break;
+    case k22c:  // op vA, vB, thing@CCCC
+                // NOT SUPPORTED:
+                // case k22cs:    // [opt] op vA, vB, field offset CCCC
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d, %s", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
+                 indexBuf);
+      break;
+    case k30t:
+      LOGMSG_RAW(l_VDEBUG, " #%08x", dexInstr_getVRegA(codePtr));
+      break;
+    case k31i: {  // op vAA, #+BBBBBBBB
+      // This is often, but not always, a float.
+      union {
+        float f;
+        u4 i;
+      } conv;
+      conv.i = dexInstr_getVRegB(codePtr);
+      LOGMSG_RAW(l_VDEBUG, " v%d, #float %g // #%08x", dexInstr_getVRegA(codePtr), conv.f,
+                 dexInstr_getVRegB(codePtr));
+      break;
+    }
+    case k31t:  // op vAA, offset +BBBBBBBB
+      LOGMSG_RAW(l_VDEBUG, " v%d, %08x // +%08x", dexInstr_getVRegA(codePtr),
+                 insnIdx + dexInstr_getVRegB(codePtr), dexInstr_getVRegA(codePtr));
+      break;
+    case k32x:  // op vAAAA, vBBBB
+      LOGMSG_RAW(l_VDEBUG, " v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr));
+      break;
+    case k35c:     // op {vC, vD, vE, vF, vG}, thing@BBBB
+    case k45cc: {  // op {vC, vD, vE, vF, vG}, method@BBBB, proto@HHHH
+                   // NOT SUPPORTED:
+                   // case k35ms:       // [opt] invoke-virtual+super
+                   // case k35mi:       // [opt] inline invoke
+      u4 arg[kMaxVarArgRegs];
+      dexInstr_getVarArgs(codePtr, arg);
+      LOGMSG_RAW(l_VDEBUG, " {");
+      for (int i = 0, n = dexInstr_getVRegA(codePtr); i < n; i++) {
+        if (i == 0) {
+          LOGMSG_RAW(l_VDEBUG, "v%d", arg[i]);
+        } else {
+          LOGMSG_RAW(l_VDEBUG, ", v%d", arg[i]);
+        }
+      }  // for
+      LOGMSG_RAW(l_VDEBUG, "}, %s", indexBuf);
+      break;
+    }
+    case k3rc:     // op {vCCCC .. v(CCCC+AA-1)}, thing@BBBB
+    case k4rcc: {  // op {vCCCC .. v(CCCC+AA-1)}, method@BBBB, proto@HHHH
+                   // NOT SUPPORTED:
+      // case k3rms:       // [opt] invoke-virtual+super/range
+      // case k3rmi:       // [opt] execute-inline/range
+      // This doesn't match the "dx" output when some of the args are
+      // 64-bit values -- dx only shows the first register.
+      LOGMSG_RAW(l_VDEBUG, " {");
+      for (int i = 0, n = dexInstr_getVRegA(codePtr); i < n; i++) {
+        if (i == 0) {
+          LOGMSG_RAW(l_VDEBUG, "v%d", dexInstr_getVRegC(codePtr) + i);
+        } else {
+          LOGMSG_RAW(l_VDEBUG, ", v%d", dexInstr_getVRegC(codePtr) + i);
+        }
+      }  // for
+      LOGMSG_RAW(l_VDEBUG, "}, %s", indexBuf);
+    } break;
+    case k51l: {  // op vAA, #+BBBBBBBBBBBBBBBB
+      // This is often, but not always, a double.
+      union {
+        double d;
+        u8 j;
+      } conv;
+      conv.j = dexInstr_getWideVRegB(codePtr);
+      LOGMSG_RAW(l_VDEBUG, " v%d, #double %g // #%016" PRIx64, dexInstr_getVRegA(codePtr), conv.d,
+                 dexInstr_getWideVRegB(codePtr));
+      break;
+    }
+    // NOT SUPPORTED:
+    // case k00x:        // unknown op or breakpoint
+    //    break;
+    default:
+      LOGMSG_RAW(l_VDEBUG, " ???");
+      break;
+  }  // switch
+
+  LOGMSG_RAW(l_VDEBUG, "\n");
 }

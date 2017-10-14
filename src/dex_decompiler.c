@@ -95,7 +95,8 @@ static void DecompileInvokeVirtual(uint16_t *insns,
   }
 }
 
-bool dexDecompiler_decompile(dexCode *pDexCode,
+bool dexDecompiler_decompile(const dexHeader *pDexHeader,
+                             dexCode *pDexCode,
                              uint32_t startCodeOff,
                              const uint8_t *quickening_info,
                              uint32_t quickening_size,
@@ -172,6 +173,7 @@ bool dexDecompiler_decompile(dexCode *pDexCode,
         break;
     }
 
+    dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc);
     codeIteratorAdvance();
   }
 

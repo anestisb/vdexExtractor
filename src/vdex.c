@@ -212,7 +212,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
+        if (!dexDecompiler_decompile(pDexHeader, pDexCode, dex_getFirstInstrOff(&pDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;
@@ -239,7 +239,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(pDexCode, dex_getFirstInstrOff(&pDexMethod),
+        if (!dexDecompiler_decompile(pDexHeader, pDexCode, dex_getFirstInstrOff(&pDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;

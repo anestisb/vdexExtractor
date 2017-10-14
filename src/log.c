@@ -32,6 +32,7 @@
 
 unsigned int log_minLevel;
 bool log_isStdioTTY;
+bool inside_line;
 
 __attribute__((constructor)) void log_init(void) {
   log_minLevel = l_INFO;
@@ -40,12 +41,19 @@ __attribute__((constructor)) void log_init(void) {
   } else {
     log_isStdioTTY = false;
   }
+  inside_line = false;
 }
 
 void log_setMinLevel(log_level_t dl) { log_minLevel = dl; }
 
-void log_msg(
-    log_level_t dl, bool perr, const char *file, const char *func, int line, const char *fmt, ...) {
+void log_msg(log_level_t dl,
+             bool perr,
+             bool raw_print,
+             const char *file,
+             const char *func,
+             int line,
+             const char *fmt,
+             ...) {
   struct {
     char *descr;
     char *prefix;
@@ -60,40 +68,60 @@ void log_msg(
 
   if (dl > log_minLevel) return;
 
-  struct tm tm;
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-  localtime_r((const time_t *)&tv.tv_sec, &tm);
-
-  if (log_isStdioTTY) {
-    printf("%s", logLevels[dl].prefix);
-  }
-
-  if (dl != l_VDEBUG && (log_minLevel >= l_DEBUG || !log_isStdioTTY)) {
-    printf("%s [%d] %d/%02d/%02d %02d:%02d:%02d (%s:%d %s) ", logLevels[dl].descr, getpid(),
-           tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, file,
-           line, func);
+  if (raw_print) {
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+    if (perr) {
+      printf(": %s", strerr);
+    }
+    int fmtLen = strlen(fmt);
+    if (fmtLen > 0 && fmt[fmtLen -1 ] == '\n') {
+      inside_line = false;
+    } else {
+      inside_line = true;
+    }
   } else {
-    printf("%s ", logLevels[dl].descr);
+    struct tm tm;
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    localtime_r((const time_t *)&tv.tv_sec, &tm);
+
+    if (inside_line) {
+      printf("\n");
+    }
+
+    if (log_isStdioTTY) {
+      printf("%s", logLevels[dl].prefix);
+    }
+
+    if (dl != l_VDEBUG && (log_minLevel >= l_DEBUG || !log_isStdioTTY)) {
+      printf("%s [%d] %d/%02d/%02d %02d:%02d:%02d (%s:%d %s) ", logLevels[dl].descr, getpid(),
+             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, file,
+             line, func);
+    } else {
+      printf("%s ", logLevels[dl].descr);
+    }
+
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    if (perr) {
+      printf(": %s", strerr);
+    }
+
+    if (log_isStdioTTY) {
+      printf("\033[0m");
+    }
+
+    printf("\n");
   }
 
-  va_list args;
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end(args);
-
-  if (perr) {
-    printf(": %s", strerr);
-  }
-
-  if (log_isStdioTTY) {
-    printf("\033[0m");
-  }
-
-  printf("\n");
   fflush(stdout);
-
   if (dl == l_FATAL) {
     exit(EXIT_FAILURE);
   }

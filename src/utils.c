@@ -266,3 +266,48 @@ void *util_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
   memset(ptr + old_sz, 0, new_sz - old_sz);
   return ret;
 }
+
+bool util_pseudoStrAppend(const char *charBuf,
+                          size_t *charBufSz,
+                          size_t *charBufOff,
+                          const char *strToAppend) {
+  const size_t kResizeChunk = 512;
+  if (*charBufSz == 1) {
+    LOGMSG(l_FATAL, "Pseudo string buffer size must be > 1");
+    return false;
+  }
+
+  // If charBufSz is null, allocate a new buffer
+  if (charBufSz == NULL) {
+    size_t alocSize = (*charBufSz == 0) ? kResizeChunk : *charBufSz;
+    charBuf = util_calloc(alocSize);
+    *charBufSz = alocSize;
+    *charBufOff = 0;
+  }
+
+  // Always ensure null termination
+  size_t actualBufSz = *charBufSz - 1;
+
+  // Verify valid offset is provided
+  if (*charBufOff >= actualBufSz) {
+    LOGMSG(l_ERROR, "Invalid string buffer offset (%zu)", *charBufOff);
+    return false;
+  }
+
+  // Check if new string can fit
+  if (strlen(strToAppend) + *charBufOff > actualBufSz) {
+    // We need to resize
+    charBuf = util_crealloc((void *)charBuf, *charBufSz, *charBufSz + kResizeChunk);
+    if (charBuf == NULL) {
+      LOGMSG(l_ERROR, "Failed to reallocate buffer (%zu)", *charBufSz + kResizeChunk);
+      return false;
+    }
+    *charBufSz += kResizeChunk;
+    actualBufSz += kResizeChunk;
+  }
+
+  // Then append the actual string
+  strncpy((void *)(charBuf + *charBufOff), strToAppend, strlen(strToAppend));
+  *charBufOff += strlen(strToAppend);
+  return true;
+}

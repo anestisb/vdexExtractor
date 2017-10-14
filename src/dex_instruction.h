@@ -148,6 +148,8 @@ typedef enum {
 
 // clang-format off
 
+static const uint32_t kMaxVarArgRegs = 5;
+
 static const char* const kInstructionNames[] = {
 #define INSTRUCTION_NAME(o, c, pname, f, i, a, v) pname,
   DEX_INSTRUCTION_LIST(INSTRUCTION_NAME)
@@ -243,6 +245,14 @@ uint8_t dexInstr_getVRegC_35c(uint16_t *);
 uint16_t dexInstr_getVRegC_3rc(uint16_t *);
 uint8_t dexInstr_getVRegC_45cc(uint16_t *);
 uint16_t dexInstr_getVRegC_4rcc(uint16_t *);
+
+// VRegH
+bool dexInstr_hasVRegH(uint16_t *);
+int32_t dexInstr_getVRegH(uint16_t *);
+uint16_t dexInstr_getVRegH_45cc(uint16_t *);
+uint16_t dexInstr_getVRegH_4rcc(uint16_t *);
+bool dexInstr_hasVarArgs(uint16_t *);
+void dexInstr_getVarArgs(uint16_t *, uint32_t[]);
 
 // Set register functions
 void dexInstr_SetVRegA_10x(uint16_t *, uint8_t);

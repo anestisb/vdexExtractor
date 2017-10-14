@@ -624,6 +624,88 @@ uint16_t dexInstr_getVRegC_4rcc(uint16_t *code_ptr) {
   return code_ptr[2];
 }
 
+bool dexInstr_hasVRegH(uint16_t *code_ptr) {
+  switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
+    case k45cc:
+      return true;
+    case k4rcc:
+      return true;
+    default:
+      return false;
+  }
+}
+
+int32_t dexInstr_getVRegH(uint16_t *code_ptr) {
+  switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
+    case k45cc:
+      return dexInstr_getVRegH_45cc(code_ptr);
+    case k4rcc:
+      return dexInstr_getVRegH_4rcc(code_ptr);
+    default:
+      LOGMSG(l_FATAL, "Tried to access vH of instruction '%s' which has no H operand.",
+             dexInst_getOpcodeStr(code_ptr));
+      exit(EXIT_FAILURE);
+  }
+}
+
+bool dexInstr_HasVarArgs(uint16_t *code_ptr) {
+  return (kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k35c) ||
+         (kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k45cc);
+}
+
+void dexInstr_getVarArgs(uint16_t *code_ptr, uint32_t arg[kMaxVarArgRegs]) {
+  CHECK(dexInstr_HasVarArgs(code_ptr));
+
+  // Note that the fields mentioned in the spec don't appear in
+  // their "usual" positions here compared to most formats. This
+  // was done so that the field names for the argument count and
+  // reference index match between this format and the corresponding
+  // range formats (3rc and friends).
+  //
+  // Bottom line: The argument count is always in vA, and the
+  // method constant (or equivalent) is always in vB.
+  uint16_t regList = code_ptr[2];
+  uint8_t count = InstB(code_ptr);  // This is labeled A in the spec.
+  if (count > 5U) {
+    LOGMSG(l_FATAL, "Invalid arg count in 35c (%" PRIx8 ")", count);
+  }
+
+  // Copy the argument registers into the arg[] array, and
+  // also copy the first argument (if any) into vC. (The
+  // DecodedInstruction structure doesn't have separate
+  // fields for {vD, vE, vF, vG}, so there's no need to make
+  // copies of those.) Note that cases 5..2 fall through.
+  switch (count) {
+    case 5:
+      arg[4] = InstA(code_ptr);
+      FALLTHROUGH_INTENDED;
+    case 4:
+      arg[3] = (regList >> 12) & 0x0f;
+      FALLTHROUGH_INTENDED;
+    case 3:
+      arg[2] = (regList >> 8) & 0x0f;
+      FALLTHROUGH_INTENDED;
+    case 2:
+      arg[1] = (regList >> 4) & 0x0f;
+      FALLTHROUGH_INTENDED;
+    case 1:
+      arg[0] = regList & 0x0f;
+      break;
+    default:  // case 0
+      break;  // Valid, but no need to do anything.
+  }
+}
+
+uint16_t dexInstr_getVRegH_45cc(uint16_t *code_ptr) {
+  CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
+  return code_ptr[3];
+}
+
+uint16_t dexInstr_getVRegH_4rcc(uint16_t *code_ptr) {
+  CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
+  return code_ptr[3];
+}
+
 void dexInstr_SetVRegA_10x(uint16_t *code_ptr, uint8_t val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10x);
   code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);

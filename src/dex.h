@@ -25,11 +25,10 @@
 
 #include <zlib.h>
 #include "common.h"
-#include "sha1.h"
 
 #define kNumDexVersions 4
 #define kDexVersionLen 4
-#define kSHA1Len SHA1HashSize
+#define kSHA1Len 20
 
 static const uint8_t kDexMagic[] = { 'd', 'e', 'x', '\n' };
 static const uint8_t kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {

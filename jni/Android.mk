@@ -24,7 +24,6 @@ LOCAL_MODULE    := vdexExtractor
 SRC             := ../src
 LOCAL_SRC_FILES := $(SRC)/log.c \
                    $(SRC)/utils.c \
-                   $(SRC)/sha1.c \
                    $(SRC)/dex.c \
                    $(SRC)/dex_instruction.c \
                    $(SRC)/dex_decompiler.c \

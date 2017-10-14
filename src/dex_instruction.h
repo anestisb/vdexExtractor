@@ -160,6 +160,11 @@ static Format const kInstructionFormats[] = {
   DEX_INSTRUCTION_LIST(INSTRUCTION_FORMAT)
 };
 
+static IndexType const kInstructionIndexTypes[] = {
+#define INSTRUCTION_INDEX_TYPE(o, c, p, f, index, a, v) index,
+  DEX_INSTRUCTION_LIST(INSTRUCTION_INDEX_TYPE)
+};
+
 static int const kInstructionSizeInCodeUnits[] = {
 #define INSTRUCTION_SIZE(opcode, c, p, format, i, a, v) \
     (((opcode) == NOP) ? -1 : \

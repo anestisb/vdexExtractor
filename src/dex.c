@@ -31,7 +31,7 @@ bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
 
   // Validate magic version
   const char *version = pDexHeader->magic.ver;
-  for (uint32_t i = 0; i < kNumDexVersions; i++) {
+  for (u4 i = 0; i < kNumDexVersions; i++) {
     if (memcmp(version, kDexMagicVersions[i], kDexVersionLen) == 0) {
       LOGMSG(l_DEBUG, "Dex version '%s' detected", pDexHeader->magic.ver);
       return true;
@@ -93,20 +93,25 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
   free(sigHex);
 }
 
-uint32_t dex_computeDexCRC(const uint8_t *buf, off_t fileSz) {
-  uint32_t adler_checksum = adler32(0L, Z_NULL, 0);
-  const uint8_t non_sum = sizeof(dexMagic) + sizeof(uint32_t);
-  const uint8_t *non_sum_ptr = buf + non_sum;
+u4 dex_computeDexCRC(const u1 *buf, off_t fileSz) {
+  u4 adler_checksum = adler32(0L, Z_NULL, 0);
+  const u1 non_sum = sizeof(dexMagic) + sizeof(u4);
+  const u1 *non_sum_ptr = buf + non_sum;
   adler_checksum = adler32(adler_checksum, non_sum_ptr, fileSz - non_sum);
   return adler_checksum;
 }
 
-void dex_repairDexCRC(const uint8_t *buf, off_t fileSz) {
+void dex_repairDexCRC(const u1 *buf, off_t fileSz) {
   uint32_t adler_checksum = dex_computeDexCRC(buf, fileSz);
-  memcpy((void *)buf + sizeof(dexMagic), &adler_checksum, sizeof(uint32_t));
+  memcpy((void *)buf + sizeof(dexMagic), &adler_checksum, sizeof(u4));
 }
 
-uint32_t dex_readULeb128(const u1 **pStream) {
+u4 dex_getFirstInstrOff(const dexMethod *pDexMethod) {
+  // The first instruction is the last member of the dexCode struct
+  return pDexMethod->codeOff + sizeof(dexCode) - sizeof(u2);
+}
+
+u4 dex_readULeb128(const u1 **pStream) {
   const u1 *ptr = *pStream;
   int result = *(ptr++);
 
@@ -131,12 +136,12 @@ uint32_t dex_readULeb128(const u1 **pStream) {
   }
 
   *pStream = ptr;
-  return (uint32_t)result;
+  return (u4)result;
 }
 
-int32_t dex_readSLeb128(const uint8_t **data) {
-  const uint8_t *ptr = *data;
-  int32_t result = *(ptr++);
+s4 dex_readSLeb128(const u1 **data) {
+  const u1 *ptr = *data;
+  s4 result = *(ptr++);
   if (result <= 0x7f) {
     result = (result << 25) >> 25;
   } else {
@@ -167,19 +172,19 @@ int32_t dex_readSLeb128(const uint8_t **data) {
   return result;
 }
 
-void dex_readClassDataHeader(const uint8_t **cursor, dexClassDataHeader *pDexClassDataHeader) {
+void dex_readClassDataHeader(const u1 **cursor, dexClassDataHeader *pDexClassDataHeader) {
   pDexClassDataHeader->staticFieldsSize = dex_readULeb128(cursor);
   pDexClassDataHeader->instanceFieldsSize = dex_readULeb128(cursor);
   pDexClassDataHeader->directMethodsSize = dex_readULeb128(cursor);
   pDexClassDataHeader->virtualMethodsSize = dex_readULeb128(cursor);
 }
 
-void dex_readClassDataField(const uint8_t **cursor, dexField *pDexField) {
+void dex_readClassDataField(const u1 **cursor, dexField *pDexField) {
   pDexField->fieldIdx = dex_readULeb128(cursor);
   pDexField->accessFlags = dex_readULeb128(cursor);
 }
 
-void dex_readClassDataMethod(const uint8_t **cursor, dexMethod *pDexMethod) {
+void dex_readClassDataMethod(const u1 **cursor, dexMethod *pDexMethod) {
   pDexMethod->methodIdx = dex_readULeb128(cursor);
   pDexMethod->accessFlags = dex_readULeb128(cursor);
   pDexMethod->codeOff = dex_readULeb128(cursor);

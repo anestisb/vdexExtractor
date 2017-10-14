@@ -32,6 +32,8 @@
 
 // clang-format off
 static void usage(bool exit_success) {
+  LOGMSG_RAW(l_INFO, "              " PROG_NAME " ver. " PROG_VERSION "\n");
+  LOGMSG_RAW(l_INFO, PROG_AUTHORS "\n\n");
   LOGMSG_RAW(l_INFO,"%s",
              "  -i,  --input=<path>: input dir (1 max depth) or single file\n"
              "  -o,  --output=<path>: output path (default is same as input)\n"
@@ -132,7 +134,6 @@ int main(int argc, char **argv) {
     LOGMSG(l_FATAL, "Invalid debug level '%d'", logLevel);
   }
   log_setMinLevel(logLevel);
-  LOGMSG_RAW(l_INFO, "\t\t" PROG_NAME " ver. " PROG_VERSION "\n" PROG_AUTHORS "\n\n");
 
   // Initialize input files
   if (!utils_init(&pFiles)) {

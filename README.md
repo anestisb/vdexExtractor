@@ -24,7 +24,7 @@ has been introduced in the Oreo (API-26) build. More information is available
 
 ```
 $ bin/vdexExtractor -h
-    vdexExtractor ver. 0.1.1
+              vdexExtractor ver. 0.1.1
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 

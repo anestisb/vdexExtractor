@@ -146,10 +146,10 @@ typedef struct __attribute__((packed)) {
   u4 debug_info_off;
   u4 insns_size;
   u2 insns[1];
-  /* followed by optional u2 padding */
-  /* followed by try_item[triesSize] */
-  /* followed by uleb128 handlersSize */
-  /* followed by catch_handler_item[handlersSize] */
+  // followed by optional u2 padding
+  // followed by try_item[triesSize]
+  // followed by uleb128 handlersSize
+  // followed by catch_handler_item[handlersSize]
 } dexCode;
 
 typedef struct __attribute__((packed)) {
@@ -205,58 +205,38 @@ typedef struct __attribute__((packed)) {
   u4 accessFlags;
 } dexField;
 
-/*
- * Verify if valid DEX file magic number
- */
+// Verify if valid Dex file magic number
 bool dex_isValidDexMagic(const dexHeader *);
 
-/*
- * Debug print dex header info
- */
+// Debug print Dex header info
 void dex_dumpHeaderInfo(const dexHeader *);
 
-/*
- * Compute DEX file CRC
- */
+// Compute Dex file CRC
 uint32_t dex_computeDexCRC(const uint8_t *, off_t);
 
-/*
- * Repair DEX file CRC
- */
+// Repair Dex file CRC
 void dex_repairDexCRC(const uint8_t *, off_t);
 
-/*
- * Reads an unsigned LEB128 (Little-Endian Base 128) value, updating the
- * given pointer to point just past the end of the read value. This function
- * tolerates non-zero high-order bits in the fifth encoded byte.
- */
+// Reads an unsigned LEB128 (Little-Endian Base 128) value, updating the
+// given pointer to point just past the end of the read value. This function
+// tolerates non-zero high-order bits in the fifth encoded byte.
 uint32_t dex_readULeb128(const u1 **);
 
-/*
- * Reads a signed LEB128 value, updating the given pointer to point
- * just past the end of the read value. This function tolerates
- * non-zero high-order bits in the fifth encoded byte.
- */
-int32_t dex_readSLeb128(const uint8_t **data);
+// Reads a signed LEB128 value, updating the given pointer to point
+// just past the end of the read value. This function tolerates
+// non-zero high-order bits in the fifth encoded byte.
+int32_t dex_readSLeb128(const uint8_t **);
 
-/*
- * Read Leb128 class data header
- */
+// Read Leb128 class data header
 void dex_readClassDataHeader(const uint8_t **, dexClassDataHeader *);
 
-/*
- * Read a Leb128 class data field item
- */
+// Read a Leb128 class data field item
 void dex_readClassDataField(const uint8_t **, dexField *);
 
-/*
- * Read a Leb128 class data method item
- */
+// Read a Leb128 class data method item
 void dex_readClassDataMethod(const uint8_t **, dexMethod *);
 
-/*
- * Get the offset of the first instruction for a given dexMethod
- */
+// Get the offset of the first instruction for a given dexMethod
 uint32_t dex_getFirstInstrOff(const dexMethod *);
 
 #endif

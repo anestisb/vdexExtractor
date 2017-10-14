@@ -30,10 +30,8 @@
 #include "utils.h"
 #include "vdex.h"
 
-/* Module global variables */
 static int logLevel = l_INFO;
 
-/* Help page */
 static void usage(bool exit_success) {
   printf("%s", "  " AB "-i,  --input=<path>" AC
                "  : input dir (1 max depth) or single file\n"
@@ -79,7 +77,7 @@ static void formatName(
   }
 
   if (rootPath == NULL) {
-    /* Save to same directory as input file */
+    // Save to same directory as input file
     snprintf(outBuf, outBufLen, "%s", formattedName);
   } else {
     snprintf(outBuf, outBufLen, "%s/%s", rootPath, fileBasename(formattedName));
@@ -91,8 +89,6 @@ int main(int argc, char **argv) {
   char *outputDir = NULL;
   bool unquicken = false;
   bool fileOverride = false;
-
-  /* Default values */
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
@@ -134,10 +130,10 @@ int main(int argc, char **argv) {
     }
   }
 
-  /* adjust log level */
+  // Adjust log level
   log_setMinLevel(logLevel);
 
-  /* initialize input files */
+  // Initialize input files
   if (!utils_init(&pFiles)) {
     LOGMSG(l_FATAL, "Couldn't load input files");
     exit(EXIT_FAILURE);
@@ -152,13 +148,14 @@ int main(int argc, char **argv) {
 
     LOGMSG(l_DEBUG, "Processing '%s'", pFiles.files[f]);
 
-    /* mmap file */
+    // mmap file
     buf = utils_mapFileToRead(pFiles.files[f], &fileSz, &srcfd);
     if (buf == NULL) {
       LOGMSG(l_ERROR, "open & map failed for R/O mode. Skipping '%s'", pFiles.files[f]);
       continue;
     }
 
+    // Quick size checks for minimum valid file
     if ((size_t)fileSz < (sizeof(vdexHeader) + sizeof(dexHeader))) {
       LOGMSG(l_WARN, "Invalid input file - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
@@ -166,9 +163,8 @@ int main(int argc, char **argv) {
       continue;
     }
 
+    // Validate Vdex magic header
     const vdexHeader *pVdexHeader = (const vdexHeader *)buf;
-
-    /* Validate VDEX magic header */
     if (!vdex_isValidVdex(buf)) {
       LOGMSG(l_WARN, "Invalid vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
@@ -195,19 +191,19 @@ int main(int argc, char **argv) {
       }
       dexHeader *pDexHeader = (dexHeader *)current_data;
 
-      /* If unquicken DEX files have already been verified */
+      // If unquickening  Dex files, they should be already verified
       if (unquicken == false && dex_isValidDexMagic(pDexHeader) == false) {
         LOGMSG(l_ERROR, "Invalid dex file 'classes%zu.dex' - skipping", i);
         continue;
       }
 
-      /* Repair CRC */
+      // Repair CRC
       dex_repairDexCRC(current_data, pDexHeader->fileSize);
 
       char outFile[PATH_MAX] = { 0 };
       formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i);
 
-      /* Write DEX file */
+      // Write Dex file
       int fileFlags = O_CREAT | O_RDWR;
       if (fileOverride == false) {
         fileFlags |= O_EXCL;
@@ -232,7 +228,7 @@ int main(int argc, char **argv) {
 
     processedVdexCnt++;
 
-    /* Clean-up */
+    // Clean-up
     munmap(buf, fileSz);
     buf = NULL;
     close(srcfd);

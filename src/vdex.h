@@ -41,7 +41,7 @@ typedef struct __attribute__((packed)) {
   uint32_t quickening_info_size_;
 } vdexHeader;
 
-// VDEX files contain extracted DEX files.
+// Vdex files contain extracted Dex files.
 // File format:
 //   VdexFile::Header    fixed-length header
 //
@@ -55,9 +55,11 @@ typedef struct __attribute__((packed)) {
   dexFile *pDexFiles;
 } vdexFile;
 
+// Verify if valid Vdex file
+bool vdex_isValidVdex(const uint8_t *);
 bool vdex_isMagicValid(const uint8_t *);
 bool vdex_isVersionValid(const uint8_t *);
-bool vdex_isValidVdex(const uint8_t *);
+
 bool vdex_hasDexSection(const uint8_t *);
 uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *);
 const uint8_t *vdex_DexBegin(const uint8_t *);

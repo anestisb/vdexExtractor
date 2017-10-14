@@ -24,9 +24,6 @@
 #include "dex_decompiler.h"
 #include "utils.h"
 
-/*
- * Verify if valid VDEX file
- */
 bool vdex_isMagicValid(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return (memcmp(pVdexHeader->magic_, kVdexMagic, sizeof(kVdexMagic)) == 0);
@@ -67,7 +64,7 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
       *offset = sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
       LOGMSG(l_DEBUG, "Processing first DEX file at offset:0x%x", *offset);
 
-      // Adjust offset to point at the end of current DEX file
+      // Adjust offset to point at the end of current Dex file
       dexHeader *pDexHeader = (dexHeader *)(dexBuf);
       *offset += pDexHeader->fileSize;
       return dexBuf;
@@ -89,7 +86,7 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
       return NULL;
     }
 
-    // Adjust offset to point at the end of current DEX file
+    // Adjust offset to point at the end of current Dex file
     *offset += pDexHeader->fileSize;
     return dexBuf;
   }
@@ -121,8 +118,7 @@ uint32_t vdex_GetQuickeningInfoSize(const uint8_t *cursor) {
 
 bool vdex_Unquicken(const uint8_t *cursor) {
   if (vdex_GetQuickeningInfoSize(cursor) == 0) {
-    // If there is no quickening info, we bail early, as the code below expects
-    // at
+    // If there is no quickening info, we bail early, as the code below expects at
     // least the size of quickening data for each method that has a code item.
     return true;
   }
@@ -135,7 +131,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
   const uint8_t *dexFileBuf = NULL;
   uint32_t offset = 0;
 
-  // For each dex file
+  // For each Dex file
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->number_of_dex_files_; ++dex_file_idx) {
     dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
@@ -145,7 +141,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
     const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
 
-    // Check if valid dex file
+    // Check if valid Dex file
     dex_dumpHeaderInfo(pDexHeader);
     if (!dex_isValidDexMagic(pDexHeader)) {
       LOGMSG(l_ERROR, "Failed to unquicken 'classes%zu.dex' - skipping", dex_file_idx);
@@ -160,7 +156,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       LOGMSG(l_VDEBUG, "\tclass #%" PRIu32 ": class_data_off=%" PRIu32, i,
              dexClassDefs[i].classDataOff);
 
-      // cursor for currently processed class data item
+      // Cursor for currently processed class data item
       const uint8_t *curClassDataCursor;
       if (dexClassDefs[i].classDataOff == 0) {
         continue;

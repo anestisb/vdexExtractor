@@ -24,12 +24,12 @@
 #include "utils.h"
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
-  /* Validate magic number */
+  // Validate magic number
   if (memcmp(pDexHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
     return false;
   }
 
-  /* Validate magic version */
+  // Validate magic version
   const char *version = pDexHeader->magic.ver;
   for (uint32_t i = 0; i < kNumDexVersions; i++) {
     if (memcmp(version, kDexMagicVersions[i], kDexVersionLen) == 0) {
@@ -120,11 +120,9 @@ uint32_t dex_readULeb128(const u1 **pStream) {
         cur = *(ptr++);
         result |= (cur & 0x7f) << 21;
         if (cur > 0x7f) {
-          /*
-           * Note: We don't check to see if cur is out of
-           * range here, meaning we tolerate garbage in the
-           * high four-order bits.
-           */
+          // Note: We don't check to see if cur is out of
+          // range here, meaning we tolerate garbage in the
+          // high four-order bits.
           cur = *(ptr++);
           result |= cur << 28;
         }

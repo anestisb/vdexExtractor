@@ -396,9 +396,7 @@ const char *dex_getStringDataAndUtf16Length(const u1 *dexFileBuf,
   return (const char *)ptr;
 }
 
-const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf,
-                                                 u2 idx,
-                                                 u4 *utf16_length) {
+const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf, u2 idx, u4 *utf16_length) {
   if (idx < USHRT_MAX) {
     *utf16_length = 0;
     return NULL;

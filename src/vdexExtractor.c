@@ -30,8 +30,6 @@
 #include "utils.h"
 #include "vdex.h"
 
-static int logLevel = l_INFO;
-
 static void usage(bool exit_success) {
   printf("%s", "  " AB "-i,  --input=<path>" AC
                "  : input dir (1 max depth) or single file\n"
@@ -86,6 +84,7 @@ static void formatName(
 
 int main(int argc, char **argv) {
   int c;
+  int logLevel = l_INFO;
   char *outputDir = NULL;
   bool unquicken = false;
   bool fileOverride = false;

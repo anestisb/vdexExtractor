@@ -111,7 +111,9 @@ bool dexDecompiler_decompile(const dexHeader *pDexHeader,
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
-    LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
+    bool hasCodeChange = true;
+    // LOGMSG(l_VDEBUG, "\t\t\t  %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
+    dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc, false);
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         if (decompile_return_instruction) {
@@ -170,10 +172,13 @@ bool dexDecompiler_decompile(const dexHeader *pDexHeader,
         DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL_RANGE, true);
         break;
       default:
+        hasCodeChange = false;
         break;
     }
 
-    dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc);
+    if (hasCodeChange) {
+      dex_dumpInstruction(pDexHeader, code_ptr, cur_code_off, dex_pc, true);
+    }
     codeIteratorAdvance();
   }
 

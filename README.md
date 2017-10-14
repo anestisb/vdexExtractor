@@ -54,6 +54,9 @@ oatdump with Oreo release you can use the corresponding patch
 
 ## Changelog
 
+* __0.X.X__ - TBC
+  * Unquicken decompiler stable release
+  * Implement Dex bytecode disassembler
 * __0.1.1__ - 13 October 2017
   * Unquicken decompiler beta release
 * __0.1.0__ - 8 October 2017

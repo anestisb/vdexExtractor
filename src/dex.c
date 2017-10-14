@@ -487,8 +487,17 @@ const dexTypeList *dex_getProtoParameters(const dexHeader *pDexHeader,
 }
 
 // Dumps a single instruction.
-void dex_dumpInstruction(const dexHeader *pDexHeader, u2 *codePtr, u4 codeOffset, u4 insnIdx) {
-  LOGMSG_RAW(l_VDEBUG, "\t");
+void dex_dumpInstruction(const dexHeader *pDexHeader,
+                         u2 *codePtr,
+                         u4 codeOffset,
+                         u4 insnIdx,
+                         bool highlight) {
+  if (highlight) {
+    LOGMSG_RAW(l_VDEBUG, "[updated] --->\t");
+  } else {
+    LOGMSG_RAW(l_VDEBUG, "\t\t");
+  }
+
   // Address of instruction (expressed as byte offset).
   LOGMSG_RAW(l_VDEBUG, "%06x:", codeOffset);
   u4 insnWidth = dexInstr_SizeInCodeUnits(codePtr);

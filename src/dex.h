@@ -229,5 +229,5 @@ const char *dex_getProtoSignature(const dexHeader *, const dexProtoId *);
 const dexTypeList *dex_getProtoParameters(const dexHeader *, const dexProtoId *);
 
 // Debug method to parse instruction and print to log
-void dex_dumpInstruction(const dexHeader *, u2 *, u4, u4);
+void dex_dumpInstruction(const dexHeader *, u2 *, u4, u4, bool);
 #endif

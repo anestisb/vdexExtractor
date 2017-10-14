@@ -23,7 +23,7 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-typedef enum { l_FATAL = 0, l_ERROR, l_WARN, l_INFO, l_DEBUG, l_VDEBUG, l_MAX_LEVEL} log_level_t;
+typedef enum { l_FATAL = 0, l_ERROR, l_WARN, l_INFO, l_DEBUG, l_VDEBUG, l_MAX_LEVEL } log_level_t;
 
 void log_setMinLevel(log_level_t);
 void log_enableVerbDebug();

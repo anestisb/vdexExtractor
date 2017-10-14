@@ -494,7 +494,7 @@ const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId
 // Dumps a single instruction.
 void dex_dumpInstruction(
     const u1 *dexFileBuf, u2 *codePtr, u4 codeOffset, u4 insnIdx, bool highlight) {
-  if (log_isVerbDebug() == false) return; // Save time if no disassemble
+  if (log_isVerbDebug() == false) return;  // Save time if no disassemble
 
   // Highlight decompile instructions
   if (highlight) {

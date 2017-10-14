@@ -197,8 +197,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "   direct_method #%" PRIu32 ": codeOff=%" PRIx32, j,
-               pDexMethod.codeOff);
+        LOGMSG(l_VDEBUG, "   direct_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
 
         // Skip empty methods
         if (pDexMethod.codeOff == 0) {
@@ -224,8 +223,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexMethod pDexMethod;
         memset(&pDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "   virtual_method #%" PRIu32 ": codeOff=%" PRIx32, j,
-               pDexMethod.codeOff);
+        LOGMSG(l_VDEBUG, "   virtual_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
 
         // Skip native or abstract methods
         if (pDexMethod.codeOff == 0) {

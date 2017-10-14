@@ -91,14 +91,12 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = { { "input", required_argument, 0, 'i' },
-                               { "output", required_argument, 0, 'o' },
-                               { "file-override", no_argument, 0, 'f' },
-                               { "unquicken", no_argument, 0, 'u' },
-                               { "disassemble", no_argument, 0, 'd'},
-                               { "help", no_argument, 0, 'h' },
-                               { "debug", required_argument, 0, 'v' },
-                               { 0, 0, 0, 0 } };
+  struct option longopts[] = {
+    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
+    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
+    { "disassemble", no_argument, 0, 'd' },   { "help", no_argument, 0, 'h' },
+    { "debug", required_argument, 0, 'v' },   { 0, 0, 0, 0 }
+  };
 
   while ((c = getopt_long(argc, argv, "i:o:fudhv:", longopts, NULL)) != -1) {
     switch (c) {
@@ -134,7 +132,7 @@ int main(int argc, char **argv) {
     LOGMSG(l_FATAL, "Invalid debug level '%d'", logLevel);
   }
   log_setMinLevel(logLevel);
-  LOGMSG_RAW(l_INFO,"\t\t" PROG_NAME " ver. " PROG_VERSION "\n" PROG_AUTHORS "\n\n");
+  LOGMSG_RAW(l_INFO, "\t\t" PROG_NAME " ver. " PROG_VERSION "\n" PROG_AUTHORS "\n\n");
 
   // Initialize input files
   if (!utils_init(&pFiles)) {

@@ -34,8 +34,12 @@
 #include <unistd.h>
 #include "log.h"
 
+#ifndef LIKELY
 #define LIKELY(x) __builtin_expect(!!(x), 1)
+#endif
+#ifndef UNLIKELY
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#endif
 
 // The FALLTHROUGH_INTENDED macro can be used to annotate implicit fall-through
 // between switch labels:

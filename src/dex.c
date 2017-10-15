@@ -27,10 +27,12 @@ static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] <
 
 // Helper for dex_dumpInstruction(), which builds the string representation
 // for the index in the given instruction.
-static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t bufSize) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
+static char* indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
+  char *buf = util_calloc(bufSize);
 
+  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   static const u4 kInvalidIndex = USHRT_MAX;
+
   // Determine index and width of the string.
   u4 index = 0;
   u4 secondary_index = kInvalidIndex;
@@ -104,6 +106,7 @@ static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t buf
         const char *backDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexMethodId->classIdx);
         outSize = snprintf(buf, bufSize, "%s.%s:%s // method@%0*x", backDescriptor, name, signature,
                            width, index);
+        free((void*)signature);
       } else {
         outSize = snprintf(buf, bufSize, "<method?> // method@%0*x", width, index);
       }
@@ -127,25 +130,40 @@ static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t buf
       outSize = snprintf(buf, bufSize, "[obj+%0*x]", width, index);
       break;
     case kIndexMethodAndProtoRef: {
-      const char *methodStr = "<method?>";
-      const char *protoStr = "<proto?>";
+      const char *kDefaultMethodStr = "<method?>";
+      const char *kDefaultProtoStr = "<proto?>";
+      const char *methodStr = util_calloc(32);
+      const char *protoStr = util_calloc(32);
+      strncpy((void*)methodStr, kDefaultMethodStr, strlen(kDefaultMethodStr));
+      strncpy((void*)protoStr, kDefaultProtoStr, strlen(kDefaultProtoStr));
+
       if (index < pDexHeader->methodIdsSize) {
         const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, index);
         const char *name = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
         const char *signature = dex_getMethodSignature(dexFileBuf, pDexMethodId);
         const char *backDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexMethodId->classIdx);
 
-        size_t actualMethodStrSz = strlen(backDescriptor) + strlen(name) + strlen(signature) + 3;
-        char *actualMethodStr = util_calloc(actualMethodStrSz);
-        snprintf(actualMethodStr, actualMethodStrSz, "%s.%s:%s", backDescriptor, name, signature);
-        methodStr = actualMethodStr;
+        // Free the default and allocate a new one
+        free((void*)methodStr);
+        size_t newMethodStrSz = strlen(backDescriptor) + strlen(name) + strlen(signature) + 3;
+        methodStr = util_calloc(newMethodStrSz);
+        snprintf((char*)methodStr, newMethodStrSz, "%s.%s:%s", backDescriptor, name, signature);
+
+        // Clean-up intermediates
+        free((void*)signature);
       }
       if (secondary_index < pDexHeader->protoIdsSize) {
         const dexProtoId *pDexProtoId = dex_getProtoId(dexFileBuf, secondary_index);
+
+        // Free the default since a new one is allocated
+        free((void*)protoStr);
         protoStr = dex_getProtoSignature(dexFileBuf, pDexProtoId);
       }
+
       outSize = snprintf(buf, bufSize, "%s, %s // method@%0*x, proto@%0*x", methodStr, protoStr,
                          width, index, width, secondary_index);
+      free((void*)methodStr);
+      free((void*)protoStr);
       break;
     }
     case kIndexCallSiteRef:
@@ -163,10 +181,11 @@ static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t buf
   // Determine success of string construction.
   if (outSize >= bufSize) {
     // The buffer wasn't big enough, try with new size + null termination
+    free(buf);
     size_t newBufSz = outSize + 1;
-    buf = util_crealloc(buf, bufSize, newBufSz);
-    indexString(dexFileBuf, codePtr, buf, newBufSz);
+    return indexString(dexFileBuf, codePtr, newBufSz);
   }
+  return buf;
 }
 
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
@@ -236,7 +255,7 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
          pDexHeader->dataOff);
   LOGMSG(l_VDEBUG, "-----------------------------");
 
-  free(sigHex);
+  free((void*)sigHex);
 }
 
 u4 dex_computeDexCRC(const u1 *buf, off_t fileSz) {
@@ -536,9 +555,10 @@ void dex_dumpInstruction(
   }
 
   // Set up additional argument.
-  char *indexBuf = util_calloc(256);
+  char *indexBuf = NULL;
   if (kInstructionIndexTypes[(dexInstr_getOpcode(codePtr))] != kIndexNone) {
-    indexString(dexFileBuf, codePtr, indexBuf, 256);
+    const size_t kDefaultIndexStrLen = 256;
+    indexBuf = indexString(dexFileBuf, codePtr, kDefaultIndexStrLen);
   }
 
   // Dump the instruction.
@@ -694,4 +714,5 @@ void dex_dumpInstruction(
   }  // switch
 
   LOGMSG_RAW(l_VDEBUG, "\n");
+  free((void*)indexBuf);
 }

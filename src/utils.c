@@ -275,8 +275,8 @@ bool util_pseudoStrAppend(const char *charBuf,
     return false;
   }
 
-  // If charBufSz is null, allocate a new buffer
-  if (charBufSz == NULL) {
+  // If charBuf is null, allocate a new buffer
+  if (charBuf == NULL) {
     size_t alocSize = (*charBufSz == 0) ? kResizeChunk : *charBufSz;
     charBuf = util_calloc(alocSize);
     *charBufSz = alocSize;

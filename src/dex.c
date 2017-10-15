@@ -397,7 +397,7 @@ const char *dex_getStringDataAndUtf16Length(const u1 *dexFileBuf,
 }
 
 const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf, u2 idx, u4 *utf16_length) {
-  if (idx < USHRT_MAX) {
+  if (idx > USHRT_MAX) {
     *utf16_length = 0;
     return NULL;
   }
@@ -411,7 +411,7 @@ const char *dex_getStringDataByIdx(const u1 *dexFileBuf, u2 idx) {
 }
 
 const char *dex_getStringByTypeIdx(const u1 *dexFileBuf, u2 idx) {
-  if (idx < USHRT_MAX) {
+  if (idx > USHRT_MAX) {
     return NULL;
   }
   const dexTypeId *type_id = dex_getTypeId(dexFileBuf, idx);

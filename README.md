@@ -68,9 +68,9 @@ reverted back to original signatures and prototypes.
 
 ```
 $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
-[DEBUG] [32070] 2017/10/15 13:58:20 (vdexExtractor.c:151 main) Processing '/Users/anestisb/Desktop/Videos.vdex'
-[DEBUG] [32070] 2017/10/15 13:58:20 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
-[DEBUG] [32070] 2017/10/15 13:58:20 (vdex.c:71 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+[DEBUG] [46458] 2017/10/15 16:00:23 (vdexExtractor.c:151 main) Processing '/Users/anestisb/Desktop/Videos.vdex'
+[DEBUG] [46458] 2017/10/15 16:00:23 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+[DEBUG] [46458] 2017/10/15 16:00:23 (vdex.c:71 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
  ------ Dex Header Info ------
  magic        : dex-035
  checksum     : e14de163 (3779977571)
@@ -96,7 +96,7 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
  dataSize     : 73d594 (7591316)
  dataOff      : 18d0a4 (1626276)
  -----------------------------
-[DEBUG] [32070] 2017/10/15 13:58:20 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+[DEBUG] [46458] 2017/10/15 16:00:23 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
  file #0: classDefsSize=8840
   class #0: class_data_off=8722695
    static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=0
@@ -124,7 +124,7 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
     quickening_size=23
       1abba4: 1211                                   |0000: const/4 v1, #int 1 // #1
       1abba6: 1200                                   |0001: const/4 v0, #int 0 // #0
-      1abba8: 7010 dbf9 0200                         |0002: invoke-direct {v2}, Ljava/lang/Object;.<init>:(null) // method@f9db
+      1abba8: 7010 dbf9 0200                         |0002: invoke-direct {v2}, Ljava/lang/Object;.<init>:()V // method@f9db
       1abbae: e620 4000                              |0005: iput-quick v0, v2, [obj+0040]
 [new] 1abbae: 5920 0400                              |0005: iput v0, v2, La;.mDefaultShowAsAction:I // field@0004
       1abbb2: eb20 4a00                              |0007: iput-boolean-quick v0, v2, [obj+004a]
@@ -138,18 +138,17 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
       1abbc2: eb20 4500                              |000f: iput-boolean-quick v0, v2, [obj+0045]
 [new] 1abbc2: 5c20 0a00                              |000f: iput-boolean v0, v2, La;.mIsClosing:Z // field@000a
       1abbc6: 2200 fe25                              |0011: new-instance v0, Ljava/util/ArrayList; // type@25fe
-      1abbca: 7010 6bfb 0000                         |0013: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:(null) // method@fb6b
+      1abbca: 7010 6bfb 0000                         |0013: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
       1abbd0: e820 3800                              |0016: iput-object-quick v0, v2, [obj+0038]
 [new] 1abbd0: 5b20 1700                              |0016: iput-object v0, v2, La;.mTempShortcutItemList:Ljava/util/ArrayList; // field@0017
       1abbd4: 2200 2c26                              |0018: new-instance v0, Ljava/util/concurrent/CopyOnWriteArrayList; // type@262c
-      1abbd8: 7010 cdfc 0000                         |001a: invoke-direct {v0}, Ljava/util/concurrent/CopyOnWriteArrayList;.<init>:(null) // method@fccd
+      1abbd8: 7010 cdfc 0000                         |001a: invoke-direct {v0}, Ljava/util/concurrent/CopyOnWriteArrayList;.<init>:()V // method@fccd
       1abbde: e820 3000                              |001d: iput-object-quick v0, v2, [obj+0030]
 [new] 1abbde: 5b20 1100                              |001d: iput-object v0, v2, La;.mPresenters:Ljava/util/concurrent/CopyOnWriteArrayList; // field@0011
       1abbe2: e823 1000                              |001f: iput-object-quick v3, v2, [obj+0010]
 [new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
-[new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:(null) // method@0265
-```
+[new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265```
 
 ## Changelog
 

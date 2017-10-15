@@ -454,6 +454,10 @@ const char *dex_getProtoSignature(const u1 *dexFileBuf, const dexProtoId *pDexPr
     }
     util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, ")");
   }
+
+  const char *retTypeStr = dex_getStringByTypeIdx(dexFileBuf, pDexProtoId->returnTypeIdx);
+  util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, retTypeStr);
+
   return retSigStr;
 }
 

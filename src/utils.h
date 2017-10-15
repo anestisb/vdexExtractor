@@ -35,6 +35,8 @@ void *util_malloc(size_t);
 void *util_calloc(size_t);
 void *util_realloc(void *, size_t);
 void *util_crealloc(void *ptr, size_t, size_t);
-bool util_pseudoStrAppend(const char *, size_t *, size_t *, const char *);
+
+// To simplify api, all errors are treated as fatal
+void util_pseudoStrAppend(const char **, size_t *, size_t *, const char *);
 
 #endif

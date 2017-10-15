@@ -235,6 +235,7 @@ char *util_bin2hex(const unsigned char *str, const size_t strLen) {
 void *util_malloc(size_t sz) {
   void *p = malloc(sz);
   if (p == NULL) {
+    // This is expected to abort
     LOGMSG(l_FATAL, "malloc(size='%zu')", sz);
   }
   return p;
@@ -249,36 +250,36 @@ void *util_calloc(size_t sz) {
 void *util_realloc(void *ptr, size_t sz) {
   void *ret = realloc(ptr, sz);
   if (ret == NULL) {
+    // This is expected to abort
     LOGMSG_P(l_FATAL, "realloc(%p, %zu)", ptr, sz);
     free(ptr);
-    return NULL;
   }
   return ret;
 }
 
 void *util_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
+  // util_realloc is expected to abort in case of error
   void *ret = util_realloc(ptr, new_sz);
-  if (ret == NULL) {
-    return NULL;
-  }
   memset(ptr + old_sz, 0, new_sz - old_sz);
   return ret;
 }
 
-bool util_pseudoStrAppend(const char *charBuf,
+void util_pseudoStrAppend(const char **charBuf,
                           size_t *charBufSz,
                           size_t *charBufOff,
                           const char *strToAppend) {
+
+  const char *buf = *charBuf;
+
   const size_t kResizeChunk = 512;
   if (*charBufSz == 1) {
     LOGMSG(l_FATAL, "Pseudo string buffer size must be > 1");
-    return false;
   }
 
   // If charBuf is null, allocate a new buffer
-  if (charBuf == NULL) {
+  if (buf == NULL) {
     size_t alocSize = (*charBufSz == 0) ? kResizeChunk : *charBufSz;
-    charBuf = util_calloc(alocSize);
+    buf = util_calloc(alocSize);
     *charBufSz = alocSize;
     *charBufOff = 0;
   }
@@ -288,24 +289,21 @@ bool util_pseudoStrAppend(const char *charBuf,
 
   // Verify valid offset is provided
   if (*charBufOff >= actualBufSz) {
-    LOGMSG(l_ERROR, "Invalid string buffer offset (%zu)", *charBufOff);
-    return false;
+    LOGMSG(l_FATAL, "Invalid string buffer offset (%zu)", *charBufOff);
   }
 
   // Check if new string can fit
   if (strlen(strToAppend) + *charBufOff > actualBufSz) {
-    // We need to resize
-    charBuf = util_crealloc((void *)charBuf, *charBufSz, *charBufSz + kResizeChunk);
-    if (charBuf == NULL) {
-      LOGMSG(l_ERROR, "Failed to reallocate buffer (%zu)", *charBufSz + kResizeChunk);
-      return false;
-    }
+    // We need to resize. util_crealloc is expected to abort in case of error
+    buf = util_crealloc((void*)buf, *charBufSz, *charBufSz + kResizeChunk);
     *charBufSz += kResizeChunk;
     actualBufSz += kResizeChunk;
   }
 
   // Then append the actual string
-  strncpy((void *)(charBuf + *charBufOff), strToAppend, strlen(strToAppend));
+  strncpy((void*)(buf + *charBufOff), strToAppend, strlen(strToAppend));
   *charBufOff += strlen(strToAppend);
-  return true;
+
+  // Update reference before returning
+  *charBuf = buf;
 }

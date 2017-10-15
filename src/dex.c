@@ -428,12 +428,15 @@ const char *dex_getStringByTypeIdx(const u1 *dexFileBuf, u2 idx) {
 }
 
 const char *dex_getMethodSignature(const u1 *dexFileBuf, const dexMethodId *pDexMethodId) {
+  return dex_getProtoSignature(dexFileBuf, dex_getProtoId(dexFileBuf, pDexMethodId->protoIdx));
+}
+
+const char *dex_getProtoSignature(const u1 *dexFileBuf, const dexProtoId *pDexProtoId) {
   const char *kDefaultNoSigStr = "<no signature>";
   const char *retSigStr = NULL;
   size_t retSigStrSz = 0;
   size_t retSigStrOff = 0;
 
-  const dexProtoId *pDexProtoId = dex_getProtoId(dexFileBuf, pDexMethodId->protoIdx);
   if (pDexProtoId == NULL) {
     return util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, kDefaultNoSigStr)
                ? retSigStr
@@ -456,34 +459,7 @@ const char *dex_getMethodSignature(const u1 *dexFileBuf, const dexMethodId *pDex
         return NULL;
       }
     }
-    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, ")")) {
-      return NULL;
-    }
-  }
-  return retSigStr;
-}
 
-const char *dex_getProtoSignature(const u1 *dexFileBuf, const dexProtoId *pDexProtoId) {
-  const char *retSigStr = NULL;
-  size_t retSigStrSz = 0;
-  size_t retSigStrOff = 0;
-
-  const dexTypeList *pDexTypeList = dex_getProtoParameters(dexFileBuf, pDexProtoId);
-  if (pDexTypeList == NULL) {
-    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "()")) {
-      return NULL;
-    }
-  } else {
-    if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, "(")) {
-      return NULL;
-    }
-
-    for (u4 i = 0; i < pDexTypeList->size; ++i) {
-      const char *paramStr = dex_getStringByTypeIdx(dexFileBuf, pDexTypeList->list[i].typeIdx);
-      if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, paramStr)) {
-        return NULL;
-      }
-    }
     if (!util_pseudoStrAppend(retSigStr, &retSigStrSz, &retSigStrOff, ")")) {
       return NULL;
     }

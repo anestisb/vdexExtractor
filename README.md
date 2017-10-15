@@ -1,9 +1,11 @@
 # Vdex Extractor
 
 Command line tool to decompile and extract Android Dex bytecode from Vdex files that are generated
-along with OAT files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format
+along with Oat files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format
 has been introduced in the Oreo (API-26) build. More information is available
-[here](https://android-review.googlesource.com/#/c/264514/).
+[here](https://android-review.googlesource.com/#/c/264514/). It should be noted that Oat files are
+no longer storing the matching Dex files inside their `.rodata` section. Instead they're always
+paired with a matching Vdex file.
 
 
 ## Compile
@@ -53,6 +55,101 @@ oatdump with Oreo release you can use the corresponding patch
 and AOSP_SRC_ROOT workspace) the oreo-release branch of the
 [oatdump++](https://github.com/anestisb/oatdump_plus/tree/oreo-release) tool.
 
+
+## Integrated Disassembler
+
+To debug the decompiler and assist the Dex bytecode investigation tasks, a light disassembler has
+been implemented. The disassembler output is very similar to the one provided by the AOSP dexdump2
+utility of the `platform/art` project. A sample output is illustrated in the following snippet.
+
+Lines prefixed with `[new]` illustrate the output of the decompiled instruction (previous line)
+located in that offset. Notice that all the quickened offsets and vtable references have been
+reverted back to original signatures and prototypes.
+
+```
+$ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
+[DEBUG] [32070] 2017/10/15 13:58:20 (vdexExtractor.c:151 main) Processing '/Users/anestisb/Desktop/Videos.vdex'
+[DEBUG] [32070] 2017/10/15 13:58:20 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+[DEBUG] [32070] 2017/10/15 13:58:20 (vdex.c:71 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+ ------ Dex Header Info ------
+ magic        : dex-035
+ checksum     : e14de163 (3779977571)
+ signature    : 9a91f8e5f2afe2c6b5c2b4853832d3c5ed01aef8
+ fileSize     : 8ca638 (9217592)
+ headerSize   : 70 (112)
+ endianTag    : 12345678 (305419896)
+ linkSize     : 0 (0)
+ linkOff      : 0 (0)
+ mapOff       : 8ca568 (9217384)
+ stringIdsSize: ef06 (61190)
+ stringIdsOff : 70 (112)
+ typeIdsSize  : 29f4 (10740)
+ typeIdsOff   : 3bc88 (244872)
+ protoIdsSize : 3df9 (15865)
+ protoIdsOff  : 46458 (287832)
+ fieldIdsSize : a79d (42909)
+ fieldIdsOff  : 74c04 (478212)
+ methodIdsSize: fed7 (65239)
+ methodIdsOff : c88ec (821484)
+ classDefsSize: 2288 (8840)
+ classDefsOff : 147fa4 (1343396)
+ dataSize     : 73d594 (7591316)
+ dataOff      : 18d0a4 (1626276)
+ -----------------------------
+[DEBUG] [32070] 2017/10/15 13:58:20 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+ file #0: classDefsSize=8840
+  class #0: class_data_off=8722695
+   static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=0
+    virtual_method #0: codeOff=0
+    virtual_method #1: codeOff=0
+  class #1: class_data_off=8722707
+   static_fields=1, instance_fields=0, direct_methods=0, virtual_methods=0
+    virtual_method #0: codeOff=0
+  class #2: class_data_off=0
+  class #3: class_data_off=8722715
+   static_fields=3, instance_fields=1, direct_methods=25, virtual_methods=12
+    direct_method #0: codeOff=1abb50
+    quickening_size=0
+      1abb60: 1260                                   |0000: const/4 v0, #int 6 // #6
+      1abb62: 2300 e426                              |0001: new-array v0, v0, [I // type@26e4
+      1abb66: 2600 0700 0000                         |0003: fill-array-data v0, 0000000a // +00000000
+      1abb6c: 6900 1900                              |0006: sput-object v0, La;.sCategoryToOrder:[I // field@0019
+      1abb70: 7300                                   |0008: return-void-no-barrier
+[new] 1abb70: 0e00                                   |0008: return-void
+      1abb72: 0000                                   |0009: nop // spacer
+[new] 1abb72: 0000                                   |0009: nop // spacer
+      1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
+[new] 1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
+    direct_method #1: codeOff=1abb94
+    quickening_size=23
+      1abba4: 1211                                   |0000: const/4 v1, #int 1 // #1
+      1abba6: 1200                                   |0001: const/4 v0, #int 0 // #0
+      1abba8: 7010 dbf9 0200                         |0002: invoke-direct {v2}, Ljava/lang/Object;.<init>:(null) // method@f9db
+      1abbae: e620 4000                              |0005: iput-quick v0, v2, [obj+0040]
+[new] 1abbae: 5920 0400                              |0005: iput v0, v2, La;.mDefaultShowAsAction:I // field@0004
+      1abbb2: eb20 4a00                              |0007: iput-boolean-quick v0, v2, [obj+004a]
+[new] 1abbb2: 5c20 1200                              |0007: iput-boolean v0, v2, La;.mPreventDispatchingItemsChanged:Z // field@0012
+      1abbb6: eb20 4700                              |0009: iput-boolean-quick v0, v2, [obj+0047]
+[new] 1abbb6: 5c20 0d00                              |0009: iput-boolean v0, v2, La;.mItemsChangedWhileDispatchPrevented:Z // field@000d
+      1abbba: eb20 4d00                              |000b: iput-boolean-quick v0, v2, [obj+004d]
+[new] 1abbba: 5c20 1600                              |000b: iput-boolean v0, v2, La;.mStructureChangedWhileDispatchPrevented:Z // field@0016
+      1abbbe: eb20 4800                              |000d: iput-boolean-quick v0, v2, [obj+0048]
+[new] 1abbbe: 5c20 0f00                              |000d: iput-boolean v0, v2, La;.mOptionalIconsVisible:Z // field@000f
+      1abbc2: eb20 4500                              |000f: iput-boolean-quick v0, v2, [obj+0045]
+[new] 1abbc2: 5c20 0a00                              |000f: iput-boolean v0, v2, La;.mIsClosing:Z // field@000a
+      1abbc6: 2200 fe25                              |0011: new-instance v0, Ljava/util/ArrayList; // type@25fe
+      1abbca: 7010 6bfb 0000                         |0013: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:(null) // method@fb6b
+      1abbd0: e820 3800                              |0016: iput-object-quick v0, v2, [obj+0038]
+[new] 1abbd0: 5b20 1700                              |0016: iput-object v0, v2, La;.mTempShortcutItemList:Ljava/util/ArrayList; // field@0017
+      1abbd4: 2200 2c26                              |0018: new-instance v0, Ljava/util/concurrent/CopyOnWriteArrayList; // type@262c
+      1abbd8: 7010 cdfc 0000                         |001a: invoke-direct {v0}, Ljava/util/concurrent/CopyOnWriteArrayList;.<init>:(null) // method@fccd
+      1abbde: e820 3000                              |001d: iput-object-quick v0, v2, [obj+0030]
+[new] 1abbde: 5b20 1100                              |001d: iput-object v0, v2, La;.mPresenters:Ljava/util/concurrent/CopyOnWriteArrayList; // field@0011
+      1abbe2: e823 1000                              |001f: iput-object-quick v3, v2, [obj+0010]
+[new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
+      1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
+[new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:(null) // method@0265
+```
 
 ## Changelog
 

@@ -148,7 +148,8 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
       1abbe2: e823 1000                              |001f: iput-object-quick v3, v2, [obj+0010]
 [new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
-[new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265```
+[new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265
+```
 
 ## Changelog
 

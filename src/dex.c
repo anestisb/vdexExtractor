@@ -25,13 +25,9 @@
 
 static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }
 
-// Helper for dumpInstruction(), which builds the string
-// representation for the index in the given instruction.
-// Returns a pointer to a buffer of sufficient size.
+// Helper for dex_dumpInstruction(), which builds the string representation
+// for the index in the given instruction.
 static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t bufSize) {
-  // TODO: Indexing is failing for most signature types, needs more debugging
-  return;
-
   const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
 
   static const u4 kInvalidIndex = USHRT_MAX;
@@ -166,9 +162,10 @@ static void indexString(const u1 *dexFileBuf, u2 *codePtr, char *buf, size_t buf
 
   // Determine success of string construction.
   if (outSize >= bufSize) {
-    // The buffer wasn't big enough
-    LOGMSG(l_FATAL, "Dex dump instruction indexString buffer wasn't big enough (%zu vs %zu)",
-           bufSize, outSize);
+    // The buffer wasn't big enough, try with new size + null termination
+    size_t newBufSz = outSize + 1;
+    buf = util_crealloc(buf, bufSize, newBufSz);
+    indexString(dexFileBuf, codePtr, buf, newBufSz);
   }
 }
 
@@ -539,9 +536,9 @@ void dex_dumpInstruction(
   }
 
   // Set up additional argument.
-  char indexBuf[200] = { 0 };
+  char *indexBuf = util_calloc(256);
   if (kInstructionIndexTypes[(dexInstr_getOpcode(codePtr))] != kIndexNone) {
-    indexString(dexFileBuf, codePtr, indexBuf, sizeof(indexBuf));
+    indexString(dexFileBuf, codePtr, indexBuf, 256);
   }
 
   // Dump the instruction.

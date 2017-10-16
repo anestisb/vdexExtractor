@@ -288,7 +288,7 @@ void util_pseudoStrAppend(const char **charBuf,
   size_t actualBufSz = *charBufSz - 1;
 
   // Verify valid offset is provided
-  if (*charBufOff >= actualBufSz) {
+  if (*charBufOff > actualBufSz) {
     LOGMSG(l_FATAL, "Invalid string buffer offset (%zu)", *charBufOff);
   }
 

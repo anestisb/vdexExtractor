@@ -59,21 +59,23 @@ static uint16_t GetIndexAt(uint32_t dex_pc) {
   return index;
 }
 
-static void DecompileNop(uint16_t *insns, uint32_t dex_pc) {
+static bool DecompileNop(uint16_t *insns, uint32_t dex_pc) {
   if (quickening_info_ptr == quickening_info_end) {
-    return;
+    return false;
   }
   const uint8_t *temporary_pointer = quickening_info_ptr;
   uint32_t quickened_pc = dex_readULeb128(&temporary_pointer);
   if (quickened_pc != dex_pc) {
     LOGMSG(l_FATAL, "Fatal error when decompiling NOP instruction");
-    return;
+    return false;
   }
   uint16_t reference_index = GetIndexAt(dex_pc);
   uint16_t type_index = GetIndexAt(dex_pc);
   dexInstr_SetOpcode(insns, CHECK_CAST);
   dexInstr_SetVRegA_21c(insns, reference_index);
   dexInstr_SetVRegB_21c(insns, type_index);
+
+  return true;
 }
 
 static void DecompileInstanceFieldAccess(uint16_t *insns, uint32_t dex_pc, Code new_opcode) {
@@ -121,7 +123,7 @@ bool dexDecompiler_decompile(const uint8_t *dexFileBuf,
         }
         break;
       case NOP:
-        DecompileNop(code_ptr, dex_pc);
+        hasCodeChange = DecompileNop(code_ptr, dex_pc);
         break;
       case IGET_QUICK:
         DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET);

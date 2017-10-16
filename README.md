@@ -74,8 +74,8 @@ $ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -v5 -d -l /tmp/dis.log
 [INFO] 2 Dex files have been extracted in total
 [INFO] Extracted Dex files are available in '/tmp'
 $ head -100 /tmp/dis.log
-[DEBUG] [12436] 2017/10/16 16:01:12 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
-[DEBUG] [12436] 2017/10/16 16:01:12 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+[DEBUG] [17975] 2017/10/16 17:56:12 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
+[DEBUG] [17975] 2017/10/16 17:56:12 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
  ------ Vdex Header Info ------
  magic header & version      : vdex-006
  number of dex files         : 2 (2)
@@ -88,7 +88,7 @@ $ head -100 /tmp/dis.log
    [0] location checksum : 34315154 (875647316)
    [1] location checksum : 1e8f2991 (512698769)
  ------------------------------
-[DEBUG] [12436] 2017/10/16 16:01:12 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+[DEBUG] [17975] 2017/10/16 17:56:12 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
  ------ Dex Header Info ------
  magic        : dex-035
  checksum     : e14de163 (3779977571)
@@ -114,7 +114,7 @@ $ head -100 /tmp/dis.log
  dataSize     : 73d594 (7591316)
  dataOff      : 18d0a4 (1626276)
  -----------------------------
-[DEBUG] [12436] 2017/10/16 16:01:12 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+[DEBUG] [17975] 2017/10/16 17:56:12 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
  file #0: classDefsSize=8840
   class #0: class_data_off=8722695
    static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=0
@@ -135,9 +135,7 @@ $ head -100 /tmp/dis.log
       1abb70: 7300                                   |0008: return-void-no-barrier
 [new] 1abb70: 0e00                                   |0008: return-void
       1abb72: 0000                                   |0009: nop // spacer
-[new] 1abb72: 0000                                   |0009: nop // spacer
       1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
-[new] 1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
     direct_method #1: codeOff=1abb94
     quickening_size=23
       1abba4: 1211                                   |0000: const/4 v1, #int 1 // #1
@@ -174,7 +172,10 @@ $ head -100 /tmp/dis.log
       1abbf6: 7010 6bfb 0000                         |0029: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
       1abbfc: e820 2800                              |002c: iput-object-quick v0, v2, [obj+0028]
 [new] 1abbfc: 5b20 0c00                              |002c: iput-object v0, v2, La;.mItems:Ljava/util/ArrayList; // field@000c
+      1abc00: 2200 fe25                              |002e: new-instance v0, Ljava/util/ArrayList; // type@25fe
+      1abc04: 7010 6bfb 0000                         |0030: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
 ```
+
 
 ## Changelog
 

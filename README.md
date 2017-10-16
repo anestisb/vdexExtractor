@@ -26,7 +26,7 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.2.1
+              vdexExtractor ver. 0.2.2
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
@@ -178,6 +178,8 @@ $ head -100 /tmp/dis.log
 
 ## Changelog
 
+* __0.2.2__ - 16 October 2017
+  * Fix UAF bug when processing multiple files
 * __0.2.1__ - 16 October 2017
   * Option to save output to log file instead of (default) STDOUT (`-l, --log-file`)
   * Dump Vdex header information with verbose debug option

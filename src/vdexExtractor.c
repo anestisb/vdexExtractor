@@ -252,9 +252,9 @@ int main(int argc, char **argv) {
     munmap(buf, fileSz);
     buf = NULL;
     close(srcfd);
-    free(pFiles.files);
   }
 
+  free(pFiles.files);
   DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",

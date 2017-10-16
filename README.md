@@ -154,10 +154,11 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
 
 ## Changelog
 
-* __0.2.1__ - TBC
+* __0.2.1__ - 16 October 2017
   * Option to save output to log file instead of (default) STDOUT (`-l, --log-file`)
+  * Dump Vdex header information with verbose debug option
   * Fix minor memory leaks & memory corruptions in disassembler engine
-* __0.2.0__ - 16 October
+* __0.2.0__ - 16 October 2017
   * Unquicken decompiler stable release (`-u, --unquicken`)
   * Implement Dex bytecode disassembler (`-d, --disassemble`)
 * __0.1.1__ - 13 October 2017
@@ -165,6 +166,11 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
   * Allow override of output Dex files (`-f, --file-override`)
 * __0.1.0__ - 8 October 2017
   * Initial release
+
+
+## ToDo
+
+* Parse Vdex dependency info and enumerate external dependencies of Dex files
 
 
 ## License

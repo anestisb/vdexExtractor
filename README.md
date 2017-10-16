@@ -68,10 +68,27 @@ located in that offset. Notice that all the quickened offsets and vtable referen
 reverted back to original signatures and prototypes.
 
 ```
-$ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
-[DEBUG] [46458] 2017/10/15 16:00:23 (vdexExtractor.c:151 main) Processing '/Users/anestisb/Desktop/Videos.vdex'
-[DEBUG] [46458] 2017/10/15 16:00:23 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
-[DEBUG] [46458] 2017/10/15 16:00:23 (vdex.c:71 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+$ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -v5 -d -l /tmp/dis.log
+[INFO] Processing 1 file(s) from /tmp/Videos.vdex
+[INFO] 1 out of 1 Vdex files have been processed
+[INFO] 2 Dex files have been extracted in total
+[INFO] Extracted Dex files are available in '/tmp'
+$ head -100 /tmp/dis.log
+[DEBUG] [12436] 2017/10/16 16:01:12 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
+[DEBUG] [12436] 2017/10/16 16:01:12 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+ ------ Vdex Header Info ------
+ magic header & version      : vdex-006
+ number of dex files         : 2 (2)
+ dex size (overall)          : 8f0e4c (9375308)
+ verifier dependencies size  : df5c (57180)
+ verifier dependencies offset: 8f0e6c (9375340)
+ quickening info size        : 100843 (1050691)
+ quickening info offset      : 8fedc8 (9432520)
+ dex files info              :
+   [0] location checksum : 34315154 (875647316)
+   [1] location checksum : 1e8f2991 (512698769)
+ ------------------------------
+[DEBUG] [12436] 2017/10/16 16:01:12 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
  ------ Dex Header Info ------
  magic        : dex-035
  checksum     : e14de163 (3779977571)
@@ -97,7 +114,7 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
  dataSize     : 73d594 (7591316)
  dataOff      : 18d0a4 (1626276)
  -----------------------------
-[DEBUG] [46458] 2017/10/15 16:00:23 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+[DEBUG] [12436] 2017/10/16 16:01:12 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
  file #0: classDefsSize=8840
   class #0: class_data_off=8722695
    static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=0
@@ -150,6 +167,13 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
 [new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
 [new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265
+      1abbec: 0c00                                   |0024: move-result-object v0
+      1abbee: e820 3400                              |0025: iput-object-quick v0, v2, [obj+0034]
+[new] 1abbee: 5b20 1400                              |0025: iput-object v0, v2, La;.mResources:Landroid/content/res/Resources; // field@0014
+      1abbf2: 2200 fe25                              |0027: new-instance v0, Ljava/util/ArrayList; // type@25fe
+      1abbf6: 7010 6bfb 0000                         |0029: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
+      1abbfc: e820 2800                              |002c: iput-object-quick v0, v2, [obj+0028]
+[new] 1abbfc: 5b20 0c00                              |002c: iput-object v0, v2, La;.mItems:Ljava/util/ArrayList; // field@000c
 ```
 
 ## Changelog

@@ -99,7 +99,8 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
 }
 
 uint32_t vdex_GetLocationChecksum(const uint8_t *cursor, uint32_t fileIdx) {
-  return (cursor + sizeof(vdexHeader))[fileIdx];
+  uint32_t *checksums = (uint32_t *)(cursor + sizeof(vdexHeader));
+  return checksums[fileIdx];
 }
 
 const uint8_t *vdex_GetVerifierDepsData(const uint8_t *cursor) {

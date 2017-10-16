@@ -26,17 +26,17 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.1.1
+              vdexExtractor ver. 0.2.0
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
-  -i,  --input=<path> : input directory with Vdex files (1 max depth) or single Vdex file
-  -o,  --output=<path>: output path (default is same location as input Vdex file)
-  -f,  --file-override: allow output file override if already exists
-  -u,  --unquicken    : enable unquicken bytecode decompiler (beta)
-  -d,  --disassemble  : enable bytecode disassembler (beta)
-  -h,  --help         : this help message
-  -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
+  -i, --input=<path> : input directory with Vdex files (1 max depth) or single Vdex file
+  -o, --output=<path>: output path (default is same location as input Vdex file)
+  -f, --file-override: allow output file override if already exists
+  -u, --unquicken    : enable unquicken bytecode decompiler
+  -d, --disassemble  : enable bytecode disassembler
+  -h, --help         : this help message
+  -v, --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
 ```
 
 
@@ -153,12 +153,12 @@ $ bin/vdexExtractor -i  /tmp/Videos.vdex -o /tmp -f -u -v5 -d
 
 ## Changelog
 
-* __0.2.0__ - TBC
-  * Unquicken decompiler stable release (`-u,  --unquicken `)
-  * Implement Dex bytecode disassembler (`-d,  --disassemble`)
+* __0.2.0__ - 16 October
+  * Unquicken decompiler stable release (`-u, --unquicken`)
+  * Implement Dex bytecode disassembler (`-d, --disassemble`)
 * __0.1.1__ - 13 October 2017
-  * Unquicken decompiler beta release
-  * Allow override of output Dex files (`-f,  --file-override`)
+  * Unquicken decompiler beta release (`-u, --unquicken`)
+  * Allow override of output Dex files (`-f, --file-override`)
 * __0.1.0__ - 8 October 2017
   * Initial release
 

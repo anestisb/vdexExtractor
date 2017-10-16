@@ -77,7 +77,9 @@ static void formatName(
     // Save to same directory as input file
     snprintf(outBuf, outBufLen, "%s", formattedName);
   } else {
-    snprintf(outBuf, outBufLen, "%s/%s", rootPath, fileBasename(formattedName));
+    const char *pFileBaseName = fileBasename(formattedName);
+    snprintf(outBuf, outBufLen, "%s/%s", rootPath, pFileBaseName);
+    free((void*)pFileBaseName);
   }
 }
 
@@ -234,6 +236,7 @@ int main(int argc, char **argv) {
     munmap(buf, fileSz);
     buf = NULL;
     close(srcfd);
+    free(pFiles.files);
   }
 
   LOGMSG(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);

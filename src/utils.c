@@ -173,14 +173,14 @@ void utils_hexDump(char *desc, const uint8_t *addr, int len) {
   unsigned char *pc = (unsigned char *)addr;
 
   // Output description if given.
-  if (desc != NULL) printf("%s:\n", desc);
+  if (desc != NULL) LOGMSG_RAW(l_DEBUG, "%s:\n", desc);
 
   if (len == 0) {
-    printf("  ZERO LENGTH\n");
+    LOGMSG_RAW(l_DEBUG, "  ZERO LENGTH\n");
     return;
   }
   if (len < 0) {
-    printf("  NEGATIVE LENGTH: %i\n", len);
+    LOGMSG_RAW(l_DEBUG, "  NEGATIVE LENGTH: %i\n", len);
     return;
   }
 
@@ -190,14 +190,14 @@ void utils_hexDump(char *desc, const uint8_t *addr, int len) {
 
     if ((i % 16) == 0) {
       // Just don't print ASCII for the zeroth line.
-      if (i != 0) printf("  %s\n", buff);
+      if (i != 0) LOGMSG_RAW(l_DEBUG, "  %s\n", buff);
 
       // Output the offset.
-      printf("  %04x ", i);
+      LOGMSG_RAW(l_DEBUG, "  %04x ", i);
     }
 
     // Now the hex code for the specific character.
-    printf(" %02x", pc[i]);
+    LOGMSG_RAW(l_DEBUG, " %02x", pc[i]);
 
     // And store a printable ASCII character for later.
     if ((pc[i] < 0x20) || (pc[i] > 0x7e))
@@ -209,12 +209,12 @@ void utils_hexDump(char *desc, const uint8_t *addr, int len) {
 
   // Pad out last line if not exactly 16 characters.
   while ((i % 16) != 0) {
-    printf("   ");
+    LOGMSG_RAW(l_DEBUG, "   ");
     i++;
   }
 
   // And print the final ASCII bit.
-  printf("  %s\n", buff);
+  LOGMSG_RAW(l_DEBUG, "  %s\n", buff);
 }
 
 char *util_bin2hex(const unsigned char *str, const size_t strLen) {

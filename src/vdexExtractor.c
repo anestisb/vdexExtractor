@@ -35,13 +35,14 @@ static void usage(bool exit_success) {
   LOGMSG_RAW(l_INFO, "              " PROG_NAME " ver. " PROG_VERSION "\n");
   LOGMSG_RAW(l_INFO, PROG_AUTHORS "\n\n");
   LOGMSG_RAW(l_INFO,"%s",
-             "  -i,  --input=<path>: input dir (1 max depth) or single file\n"
-             "  -o,  --output=<path>: output path (default is same as input)\n"
-             "  -f,  --file-override: allow output file override if already exists\n"
-             "  -u,  --unquicken    : unquicken bytecode decompiler\n"
-             "  -d,  --disassemble  : enable bytecode disassembler\n"
-             "  -h,  --help         : this help\n"
-             "  -v,  --debug=LEVEL  : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n");
+             " -i, --input=<path>   : input dir (1 max depth) or single file\n"
+             " -o, --output=<path>  : output path (default is same as input)\n"
+             " -f, --file-override  : allow output file override if already exists\n"
+             " -u, --unquicken      : unquicken bytecode decompiler\n"
+             " -d, --disassemble    : enable bytecode disassembler\n"
+             " -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n"
+             " -l, --log-file=<path>: save output to log file (default is STDOUT)\n"
+             " -h, --help           : this help\n");
 
   if (exit_success)
     exit(EXIT_SUCCESS);
@@ -86,6 +87,7 @@ static void formatName(
 int main(int argc, char **argv) {
   int c;
   int logLevel = l_INFO;
+  const char* logFile = NULL;
   char *outputDir = NULL;
   bool unquicken = false;
   bool fileOverride = false;
@@ -98,11 +100,12 @@ int main(int argc, char **argv) {
   struct option longopts[] = {
     { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
     { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
-    { "disassemble", no_argument, 0, 'd' },   { "help", no_argument, 0, 'h' },
-    { "debug", required_argument, 0, 'v' },   { 0, 0, 0, 0 }
+    { "disassemble", no_argument, 0, 'd' },   { "debug", required_argument, 0, 'v' },
+    { "log-file", required_argument, 0, 'l' }, { "help", no_argument, 0, 'h' },
+    { 0, 0, 0, 0 }
   };
 
-  while ((c = getopt_long(argc, argv, "i:o:fudhv:", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fudv:l:h", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -119,11 +122,14 @@ int main(int argc, char **argv) {
       case 'd':
         log_enableVerbDebug();
         break;
-      case 'h':
-        usage(true);
-        break;
       case 'v':
         logLevel = atoi(optarg);
+        break;
+      case 'l':
+        logFile = optarg;
+        break;
+      case 'h':
+        usage(true);
         break;
       default:
         exit(EXIT_FAILURE);
@@ -137,6 +143,12 @@ int main(int argc, char **argv) {
   }
   log_setMinLevel(logLevel);
 
+  // Set log file
+  if (log_initLogFile(logFile) == false) {
+    LOGMSG(l_FATAL, "Failed to initialize log file");
+    exit(EXIT_FAILURE);
+  }
+
   // Initialize input files
   if (!utils_init(&pFiles)) {
     LOGMSG(l_FATAL, "Couldn't load input files");
@@ -144,6 +156,7 @@ int main(int argc, char **argv) {
   }
 
   size_t processedVdexCnt = 0, processedDexCnt = 0;
+  DISPLAY(l_INFO, "Processing %zu file(s) from %s", pFiles.fileCnt, pFiles.inputFile);
 
   for (size_t f = 0; f < pFiles.fileCnt; f++) {
     off_t fileSz = 0;
@@ -239,9 +252,9 @@ int main(int argc, char **argv) {
     free(pFiles.files);
   }
 
-  LOGMSG(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
-  LOGMSG(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
-  LOGMSG(l_INFO, "Extracted Dex files available in '%s'",
+  DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
+  DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
+  DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
          outputDir ? outputDir : dirname(pFiles.inputFile));
 
   return EXIT_SUCCESS;

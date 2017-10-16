@@ -29,10 +29,13 @@ void log_setMinLevel(log_level_t);
 void log_enableVerbDebug();
 void log_disableVerbDebug();
 bool log_isVerbDebug();
-void log_msg(log_level_t, bool, bool, const char *, const char *, int, const char *, ...);
+bool log_initLogFile(const char *);
 
-#define LOGMSG(ll, ...) log_msg(ll, false, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
-#define LOGMSG_P(ll, ...) log_msg(ll, true, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
-#define LOGMSG_RAW(ll, ...) log_msg(ll, false, true, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+void log_msg(log_level_t, bool, bool, bool, const char *, const char *, int, const char *, ...);
+
+#define LOGMSG(ll, ...) log_msg(ll, false, false, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOGMSG_P(ll, ...) log_msg(ll, true, false, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOGMSG_RAW(ll, ...) log_msg(ll, false, true, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define DISPLAY(ll, ...) log_msg(ll, false, false, true, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 #endif

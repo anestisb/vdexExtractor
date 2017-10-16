@@ -295,9 +295,13 @@ void util_pseudoStrAppend(const char **charBuf,
   // Check if new string can fit
   if (strlen(strToAppend) + *charBufOff > actualBufSz) {
     // We need to resize. util_crealloc is expected to abort in case of error
-    buf = util_crealloc((void*)buf, *charBufSz, *charBufSz + kResizeChunk);
-    *charBufSz += kResizeChunk;
-    actualBufSz += kResizeChunk;
+    size_t resizeSize = *charBufSz + kResizeChunk;
+    while (resizeSize <= strlen(strToAppend) + *charBufOff) {
+      resizeSize += kResizeChunk;
+    }
+    buf = util_crealloc((void*)buf, *charBufSz, *charBufSz + resizeSize);
+    *charBufSz += resizeSize;
+    actualBufSz += resizeSize;
   }
 
   // Then append the actual string

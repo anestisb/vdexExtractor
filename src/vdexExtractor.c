@@ -190,6 +190,7 @@ int main(int argc, char **argv) {
       close(srcfd);
       continue;
     }
+    vdex_dumpHeaderInfo(buf);
 
     if (unquicken) {
       if (vdex_Unquicken(buf) == false) {

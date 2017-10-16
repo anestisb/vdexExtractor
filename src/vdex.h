@@ -71,13 +71,19 @@ bool vdex_isVersionValid(const uint8_t *);
 bool vdex_hasDexSection(const uint8_t *);
 uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *);
 const uint8_t *vdex_DexBegin(const uint8_t *);
+uint32_t vdex_DexBeginOffset(const uint8_t *);
 const uint8_t *vdex_DexEnd(const uint8_t *);
+uint32_t vdex_DexEndOffset(const uint8_t *);
 const uint8_t *vdex_GetNextDexFileData(const uint8_t *, uint32_t *);
 uint32_t vdex_GetLocationChecksum(const uint8_t *, uint32_t);
 const uint8_t *vdex_GetVerifierDepsData(const uint8_t *);
+uint32_t vdex_GetVerifierDepsDataOffset(const uint8_t *);
 uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *);
 const uint8_t *vdex_GetQuickeningInfo(const uint8_t *);
 uint32_t vdex_GetQuickeningInfoSize(const uint8_t *);
+uint32_t vdex_GetQuickeningInfoOffset(const uint8_t *);
+
+void vdex_dumpHeaderInfo(const uint8_t *);
 bool vdex_Unquicken(const uint8_t *);
 
 #endif

@@ -58,9 +58,18 @@ const uint8_t *vdex_DexBegin(const uint8_t *cursor) {
   return cursor + sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
 }
 
+uint32_t vdex_DexBeginOffset(const uint8_t *cursor) {
+  return sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
+}
+
 const uint8_t *vdex_DexEnd(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
+}
+
+uint32_t vdex_DexEndOffset(const uint8_t *cursor) {
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+  return vdex_DexBeginOffset(cursor) + pVdexHeader->dex_size_;
 }
 
 const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) {
@@ -108,6 +117,11 @@ const uint8_t *vdex_GetVerifierDepsData(const uint8_t *cursor) {
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
+uint32_t vdex_GetVerifierDepsDataOffset(const uint8_t *cursor) {
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+  return vdex_DexBeginOffset(cursor) + pVdexHeader->dex_size_;
+}
+
 uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return pVdexHeader->verifier_deps_size_;
@@ -118,9 +132,41 @@ const uint8_t *vdex_GetQuickeningInfo(const uint8_t *cursor) {
   return vdex_GetVerifierDepsData(cursor) + pVdexHeader->verifier_deps_size_;
 }
 
+uint32_t vdex_GetQuickeningInfoOffset(const uint8_t *cursor) {
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+  return vdex_GetVerifierDepsDataOffset(cursor) + pVdexHeader->verifier_deps_size_;
+}
+
 uint32_t vdex_GetQuickeningInfoSize(const uint8_t *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return pVdexHeader->quickening_info_size_;
+}
+
+void vdex_dumpHeaderInfo(const uint8_t *cursor) {
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+
+  LOGMSG(l_VDEBUG, "------ Vdex Header Info ------");
+  LOGMSG(l_VDEBUG, "magic header & version      : %.4s-%.4s", pVdexHeader->magic_,
+         pVdexHeader->version_);
+  LOGMSG(l_VDEBUG, "number of dex files         : %" PRIx32 " (%" PRIu32 ")",
+         pVdexHeader->number_of_dex_files_, pVdexHeader->number_of_dex_files_);
+  LOGMSG(l_VDEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")",
+         pVdexHeader->dex_size_, pVdexHeader->dex_size_);
+  LOGMSG(l_VDEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
+         pVdexHeader->verifier_deps_size_, pVdexHeader->verifier_deps_size_);
+  LOGMSG(l_VDEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
+         vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
+  LOGMSG(l_VDEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")",
+         pVdexHeader->quickening_info_size_, pVdexHeader->quickening_info_size_);
+  LOGMSG(l_VDEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")",
+         vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
+  LOGMSG(l_VDEBUG, "dex files info              :")
+
+  for (uint32_t i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
+    LOGMSG(l_VDEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
+           vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
+  }
+  LOGMSG(l_VDEBUG, "------------------------------");
 }
 
 bool vdex_Unquicken(const uint8_t *cursor) {

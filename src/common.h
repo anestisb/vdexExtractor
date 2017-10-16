@@ -110,7 +110,7 @@ typedef int64_t s8;
 #define CHECK_GE(a, b) CHECK_IMPL((a), >=, (b))
 
 #define PROG_NAME "vdexExtractor"
-#define PROG_VERSION "0.2.2"
+#define PROG_VERSION "0.2.3"
 #define PROG_AUTHORS                                    \
   "    Anestis Bechtsoudis <anestis@census-labs.com>\n" \
   "  Copyright 2017 by CENSUS S.A. All Rights Reserved."

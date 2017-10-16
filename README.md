@@ -26,7 +26,7 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.2.2
+              vdexExtractor ver. 0.2.3
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
@@ -178,6 +178,8 @@ $ head -100 /tmp/dis.log
 
 ## Changelog
 
+* __0.2.3__ - 16 October 2017
+  * Improve disassembler output when decompiling NOP instructions (effectively ignore spacers)
 * __0.2.2__ - 16 October 2017
   * Fix UAF bug when processing multiple files
 * __0.2.1__ - 16 October 2017

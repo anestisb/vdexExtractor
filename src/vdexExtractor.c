@@ -80,14 +80,14 @@ static void formatName(
   } else {
     const char *pFileBaseName = fileBasename(formattedName);
     snprintf(outBuf, outBufLen, "%s/%s", rootPath, pFileBaseName);
-    free((void*)pFileBaseName);
+    free((void *)pFileBaseName);
   }
 }
 
 int main(int argc, char **argv) {
   int c;
   int logLevel = l_INFO;
-  const char* logFile = NULL;
+  const char *logFile = NULL;
   char *outputDir = NULL;
   bool unquicken = false;
   bool fileOverride = false;
@@ -97,13 +97,15 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = {
-    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
-    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
-    { "disassemble", no_argument, 0, 'd' },   { "debug", required_argument, 0, 'v' },
-    { "log-file", required_argument, 0, 'l' }, { "help", no_argument, 0, 'h' },
-    { 0, 0, 0, 0 }
-  };
+  struct option longopts[] = { { "input", required_argument, 0, 'i' },
+                               { "output", required_argument, 0, 'o' },
+                               { "file-override", no_argument, 0, 'f' },
+                               { "unquicken", no_argument, 0, 'u' },
+                               { "disassemble", no_argument, 0, 'd' },
+                               { "debug", required_argument, 0, 'v' },
+                               { "log-file", required_argument, 0, 'l' },
+                               { "help", no_argument, 0, 'h' },
+                               { 0, 0, 0, 0 } };
 
   while ((c = getopt_long(argc, argv, "i:o:fudv:l:h", longopts, NULL)) != -1) {
     switch (c) {
@@ -255,7 +257,7 @@ int main(int argc, char **argv) {
   DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
-         outputDir ? outputDir : dirname(pFiles.inputFile));
+          outputDir ? outputDir : dirname(pFiles.inputFile));
 
   return EXIT_SUCCESS;
 }

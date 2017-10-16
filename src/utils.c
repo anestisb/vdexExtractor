@@ -268,7 +268,6 @@ void util_pseudoStrAppend(const char **charBuf,
                           size_t *charBufSz,
                           size_t *charBufOff,
                           const char *strToAppend) {
-
   const char *buf = *charBuf;
 
   const size_t kResizeChunk = 512;
@@ -299,13 +298,13 @@ void util_pseudoStrAppend(const char **charBuf,
     while (resizeSize <= strlen(strToAppend) + *charBufOff) {
       resizeSize += kResizeChunk;
     }
-    buf = util_crealloc((void*)buf, *charBufSz, *charBufSz + resizeSize);
+    buf = util_crealloc((void *)buf, *charBufSz, *charBufSz + resizeSize);
     *charBufSz += resizeSize;
     actualBufSz += resizeSize;
   }
 
   // Then append the actual string
-  strncpy((void*)(buf + *charBufOff), strToAppend, strlen(strToAppend));
+  strncpy((void *)(buf + *charBufOff), strToAppend, strlen(strToAppend));
   *charBufOff += strlen(strToAppend);
 
   // Update reference before returning

@@ -20,11 +20,11 @@
 
 */
 
+#include <fcntl.h>
 #include <stdarg.h>
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-#include <fcntl.h>
 
 #include "common.h"
 #include "log.h"
@@ -53,9 +53,9 @@ bool log_initLogFile(const char *logFile) {
 
   log_fd = open(logFile, O_CREAT | O_RDWR | O_APPEND, 0640);
   if (log_fd == -1) {
-      log_fd = STDOUT_FILENO;
-      LOGMSG_P(l_ERROR, "Couldn't open logFile '%s'", logFile);
-      return false;
+    log_fd = STDOUT_FILENO;
+    LOGMSG_P(l_ERROR, "Couldn't open logFile '%s'", logFile);
+    return false;
   }
   log_isTTY = (isatty(log_fd) == 1 ? true : false);
   return true;

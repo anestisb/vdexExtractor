@@ -260,7 +260,7 @@ void *util_realloc(void *ptr, size_t sz) {
 void *util_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
   // util_realloc is expected to abort in case of error
   void *ret = util_realloc(ptr, new_sz);
-  memset(ptr + old_sz, 0, new_sz - old_sz);
+  memset(ret + old_sz, 0, new_sz - old_sz);
   return ret;
 }
 

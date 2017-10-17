@@ -228,6 +228,9 @@ const char *dex_getMethodSignature(const u1 *, const dexMethodId *);
 const char *dex_getProtoSignature(const u1 *, const dexProtoId *);
 const dexTypeList *dex_getProtoParameters(const u1 *, const dexProtoId *);
 
-// Debug method to parse instruction and print to log
+// Functions to print information of primitive types (mainly used by disassembler)
+void dex_dumpClassInfo(const u1 *, u4);
+void dex_dumpMethodInfo(const u1 *, dexMethod *, u4, const char *);
 void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
+
 #endif

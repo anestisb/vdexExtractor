@@ -470,7 +470,51 @@ const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId
   }
 }
 
-// Dumps a single instruction.
+void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
+  const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, idx);
+  const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);
+  const char *classDescriptorFormated = utils_descriptorToDot(classDescriptor);
+  const char *srcFileName = "<striped src file>";
+  if (pDexClassDef->sourceFileIdx < USHRT_MAX) {
+    srcFileName = dex_getStringDataByIdx(dexFileBuf, pDexClassDef->sourceFileIdx);
+  }
+
+  LOGMSG_RAW(l_VDEBUG, "  class #%" PRIu32 ": %s ('%s')\n", idx, classDescriptorFormated,
+             classDescriptor);
+  LOGMSG_RAW(l_VDEBUG, "   source_file=%s, class_data_off=%" PRIx32 " (%" PRIu32 ")", srcFileName,
+             pDexClassDef->classDataOff, pDexClassDef->classDataOff);
+
+  if (pDexClassDef->classDataOff != 0) {
+    dexClassDataHeader pDexClassDataHeader;
+    const uint8_t *curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
+    memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
+    dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
+    LOGMSG_RAW(l_VDEBUG, "\n   static_fields=%" PRIu32 ", instance_fields=%" PRIu32
+                         ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
+               pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
+               pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
+  }
+
+  free((void *)classDescriptorFormated);
+  LOGMSG_RAW(l_VDEBUG, "\n");
+}
+
+void dex_dumpMethodInfo(const u1 *dexFileBuf,
+                        dexMethod *pDexMethod,
+                        u4 localIdx,
+                        const char *type) {
+  const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, localIdx + pDexMethod->methodIdx);
+
+  const char *methodName = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
+  const char *typeDesc = dex_getMethodSignature(dexFileBuf, pDexMethodId);
+
+  LOGMSG_RAW(l_VDEBUG, "   %s_method #%" PRIu32 ": %s %s\n", type, localIdx, methodName, typeDesc);
+  LOGMSG_RAW(l_VDEBUG, "    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff,
+             pDexMethod->codeOff);
+
+  free((void *)typeDesc);
+}
+
 void dex_dumpInstruction(
     const u1 *dexFileBuf, u2 *codePtr, u4 codeOffset, u4 insnIdx, bool highlight) {
   if (log_isVerbDebug() == false) return;  // Save time if no disassemble

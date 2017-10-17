@@ -205,8 +205,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
     for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
-      LOGMSG(l_VDEBUG, " class #%" PRIu32 ": class_data_off=%" PRIu32, i,
-             pDexClassDef->classDataOff);
+      dex_dumpClassInfo(dexFileBuf, i);
 
       // Cursor for currently processed class data item
       const uint8_t *curClassDataCursor;
@@ -219,11 +218,6 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       dexClassDataHeader pDexClassDataHeader;
       memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
       dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
-
-      LOGMSG(l_VDEBUG, "  static_fields=%" PRIu32 ", instance_fields=%" PRIu32
-                       ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32,
-             i, pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
-             pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
 
       // Skip static fields
       for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
@@ -241,23 +235,23 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
       // For each direct method
       for (uint32_t j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
-        dexMethod pDexMethod;
-        memset(&pDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "   direct_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
+        dexMethod curDexMethod;
+        memset(&curDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "direct");
 
         // Skip empty methods
-        if (pDexMethod.codeOff == 0) {
+        if (curDexMethod.codeOff == 0) {
           continue;
         }
 
         // Get method code offset and revert quickened instructions
-        dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
+        dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&pDexMethod),
+        if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;
@@ -267,23 +261,23 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
       // For each virtual method
       for (uint32_t j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
-        dexMethod pDexMethod;
-        memset(&pDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(&curClassDataCursor, &pDexMethod);
-        LOGMSG(l_VDEBUG, "   virtual_method #%" PRIu32 ": codeOff=%" PRIx32, j, pDexMethod.codeOff);
+        dexMethod curDexMethod;
+        memset(&curDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "virtual");
 
         // Skip native or abstract methods
-        if (pDexMethod.codeOff == 0) {
+        if (curDexMethod.codeOff == 0) {
           continue;
         }
 
         // Get method code offset and revert quickened instructions
-        dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod.codeOff);
+        dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
         uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
         quickening_info_ptr += sizeof(uint32_t);
-        if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&pDexMethod),
+        if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
           return false;

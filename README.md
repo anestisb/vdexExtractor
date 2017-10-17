@@ -74,8 +74,8 @@ $ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -v5 -d -l /tmp/dis.log
 [INFO] 2 Dex files have been extracted in total
 [INFO] Extracted Dex files are available in '/tmp'
 $ head -100 /tmp/dis.log
-[DEBUG] [17975] 2017/10/16 17:56:12 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
-[DEBUG] [17975] 2017/10/16 17:56:12 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+[DEBUG] [29245] 2017/10/17 15:09:07 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
+[DEBUG] [29245] 2017/10/17 15:09:07 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
  ------ Vdex Header Info ------
  magic header & version      : vdex-006
  number of dex files         : 2 (2)
@@ -88,7 +88,7 @@ $ head -100 /tmp/dis.log
    [0] location checksum : 34315154 (875647316)
    [1] location checksum : 1e8f2991 (512698769)
  ------------------------------
-[DEBUG] [17975] 2017/10/16 17:56:12 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+[DEBUG] [29245] 2017/10/17 15:09:07 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
  ------ Dex Header Info ------
  magic        : dex-035
  checksum     : e14de163 (3779977571)
@@ -114,20 +114,28 @@ $ head -100 /tmp/dis.log
  dataSize     : 73d594 (7591316)
  dataOff      : 18d0a4 (1626276)
  -----------------------------
-[DEBUG] [17975] 2017/10/16 17:56:12 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+[DEBUG] [29245] 2017/10/17 15:09:07 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
  file #0: classDefsSize=8840
-  class #0: class_data_off=8722695
-   static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=0
-    virtual_method #0: codeOff=0
-    virtual_method #1: codeOff=0
-  class #1: class_data_off=8722707
-   static_fields=1, instance_fields=0, direct_methods=0, virtual_methods=0
-    virtual_method #0: codeOff=0
-  class #2: class_data_off=0
-  class #3: class_data_off=8722715
-   static_fields=3, instance_fields=1, direct_methods=25, virtual_methods=12
-    direct_method #0: codeOff=1abb50
-    quickening_size=0
+  class #0: a$a ('La$a;')
+   source_file=SourceFile, class_data_off=851907 (8722695)
+   static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=2
+   virtual_method #0: onMenuItemSelected (La;Landroid/view/MenuItem;)Z
+    codeOff=0 (0)
+   virtual_method #1: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    codeOff=0 (0)
+  class #1: a$b ('La$b;')
+   source_file=SourceFile, class_data_off=851913 (8722707)
+   static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=1
+   virtual_method #0: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    codeOff=0 (0)
+  class #2: android.support.v4.internal.view.SupportMenu ('Landroid/support/v4/internal/view/SupportMenu;')
+   source_file=SourceFile, class_data_off=0 (0)
+  class #3: a ('La;')
+   source_file=SourceFile, class_data_off=85191b (8722715)
+   static_fields=1, instance_fields=25, direct_methods=12, virtual_methods=74
+   direct_method #0: <clinit> ()V
+    codeOff=1abb50 (1751888)
+    quickening_size=0 (0)
       1abb60: 1260                                   |0000: const/4 v0, #int 6 // #6
       1abb62: 2300 e426                              |0001: new-array v0, v0, [I // type@26e4
       1abb66: 2600 0700 0000                         |0003: fill-array-data v0, 0000000a // +00000000
@@ -136,8 +144,9 @@ $ head -100 /tmp/dis.log
 [new] 1abb70: 0e00                                   |0008: return-void
       1abb72: 0000                                   |0009: nop // spacer
       1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
-    direct_method #1: codeOff=1abb94
-    quickening_size=23
+   direct_method #1: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    codeOff=1abb94 (1751956)
+    quickening_size=23 (35)
       1abba4: 1211                                   |0000: const/4 v1, #int 1 // #1
       1abba6: 1200                                   |0001: const/4 v0, #int 0 // #0
       1abba8: 7010 dbf9 0200                         |0002: invoke-direct {v2}, Ljava/lang/Object;.<init>:()V // method@f9db
@@ -165,20 +174,14 @@ $ head -100 /tmp/dis.log
 [new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
 [new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265
-      1abbec: 0c00                                   |0024: move-result-object v0
-      1abbee: e820 3400                              |0025: iput-object-quick v0, v2, [obj+0034]
-[new] 1abbee: 5b20 1400                              |0025: iput-object v0, v2, La;.mResources:Landroid/content/res/Resources; // field@0014
-      1abbf2: 2200 fe25                              |0027: new-instance v0, Ljava/util/ArrayList; // type@25fe
-      1abbf6: 7010 6bfb 0000                         |0029: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
-      1abbfc: e820 2800                              |002c: iput-object-quick v0, v2, [obj+0028]
-[new] 1abbfc: 5b20 0c00                              |002c: iput-object v0, v2, La;.mItems:Ljava/util/ArrayList; // field@000c
-      1abc00: 2200 fe25                              |002e: new-instance v0, Ljava/util/ArrayList; // type@25fe
-      1abc04: 7010 6bfb 0000                         |0030: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
 ```
 
 
 ## Changelog
 
+* __0.2.4__ - TBC
+  * Improve disassembler output by resolving class & method definitions
+  * Fixed a bug when printing number of class fields and method from disassembler
 * __0.2.3__ - 16 October 2017
   * Improve disassembler output when decompiling NOP instructions (effectively ignore spacers)
 * __0.2.2__ - 16 October 2017

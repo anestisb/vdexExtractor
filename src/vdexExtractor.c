@@ -38,7 +38,7 @@ static void usage(bool exit_success) {
              " -i, --input=<path>   : input dir (1 max depth) or single file\n"
              " -o, --output=<path>  : output path (default is same as input)\n"
              " -f, --file-override  : allow output file override if already exists\n"
-             " -u, --unquicken      : unquicken bytecode decompiler\n"
+             " -u, --unquicken      : enable unquicken bytecode decompiler\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save output to log file (default is STDOUT)\n"

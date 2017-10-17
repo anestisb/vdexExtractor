@@ -33,7 +33,7 @@ $ bin/vdexExtractor -h
  -i, --input=<path>   : input dir (1 max depth) or single file
  -o, --output=<path>  : output path (default is same as input)
  -f, --file-override  : allow output file override if already exists
- -u, --unquicken      : unquicken bytecode decompiler
+ -u, --unquicken      : enable unquicken bytecode decompiler
  -d, --disassemble    : enable bytecode disassembler
  -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
  -l, --log-file=<path>: save output to log file (default is STDOUT)

@@ -473,7 +473,7 @@ const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId
 void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
   const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, idx);
   const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);
-  const char *classDescriptorFormated = utils_descriptorToDot(classDescriptor);
+  const char *classDescriptorFormated = dex_descriptorClassToDot(classDescriptor);
   const char *srcFileName = "<striped src file>";
   if (pDexClassDef->sourceFileIdx < USHRT_MAX) {
     srcFileName = dex_getStringDataByIdx(dexFileBuf, pDexClassDef->sourceFileIdx);
@@ -722,4 +722,68 @@ void dex_dumpInstruction(
 
   LOGMSG_RAW(l_VDEBUG, "\n");
   free((void *)indexBuf);
+}
+
+char *dex_descriptorToDot(const char* str) {
+  int targetLen = strlen(str);
+  int offset = 0;
+
+  // Strip leading [s; will be added to end.
+  while (targetLen > 1 && str[offset] == '[') {
+    offset++;
+    targetLen--;
+  }  // while
+
+  const int arrayDepth = offset;
+
+  if (targetLen == 1) {
+    // Primitive type.
+    str = primitiveTypeLabel(str[offset]);
+    offset = 0;
+    targetLen = strlen(str);
+  } else {
+    // Account for leading 'L' and trailing ';'.
+    if (targetLen >= 2 && str[offset] == 'L' &&
+        str[offset + targetLen - 1] == ';') {
+      targetLen -= 2;
+      offset++;
+    }
+  }
+
+  // Copy class name over.
+  char *newStr = utils_calloc(targetLen + arrayDepth * 2 + 1);
+  int i = 0;
+  for (; i < targetLen; i++) {
+    const char ch = str[offset + i];
+    newStr[i] = (ch == '/' || ch == '$') ? '.' : ch;
+  }  // for
+
+  // Add the appropriate number of brackets for arrays.
+  for (int j = 0; j < arrayDepth; j++) {
+    newStr[i++] = '[';
+    newStr[i++] = ']';
+  }  // for
+
+  newStr[i] = '\0';
+  return newStr;
+}
+
+char *dex_descriptorClassToDot(const char* str) {
+  // Reduce to just the class name prefix.
+  const char* lastSlash = strrchr(str, '/');
+  if (lastSlash == NULL) {
+    lastSlash = str + 1;  // start past 'L'
+  } else {
+    lastSlash++;          // start past '/'
+  }
+
+  // Copy class name over, trimming trailing ';'.
+  const int targetLen = strlen(lastSlash);
+  char *newStr = utils_calloc(targetLen);
+  for (int i = 0; i < targetLen - 1; i++) {
+    const char ch = lastSlash[i];
+    newStr[i] = ch == '$' ? '.' : ch;
+  }  // for
+  newStr[targetLen - 1] = '\0';
+  return newStr;
 }

@@ -37,12 +37,6 @@ void *utils_realloc(void *, size_t);
 void *utils_crealloc(void *ptr, size_t, size_t);
 
 // To simplify api, all errors are treated as fatal
-
-// Returns a newly-allocated string for the "dot version" of the class
-// name for the given type descriptor. That is, The initial "L" and
-// final ";" (if any) have been removed and all occurrences of '/'
-// have been changed to '.'.
-char *utils_descriptorToDot(const char *);
 void utils_pseudoStrAppend(const char **, size_t *, size_t *, const char *);
 
 #endif

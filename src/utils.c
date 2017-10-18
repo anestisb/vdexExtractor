@@ -310,17 +310,3 @@ void utils_pseudoStrAppend(const char **charBuf,
   // Update reference before returning
   *charBuf = buf;
 }
-
-char *utils_descriptorToDot(const char *str) {
-  size_t len = strlen(str);
-  if (str[0] == 'L') {
-    len -= 2;  // Two fewer chars to copy (trims L and ;).
-    str++;     // Start past 'L'.
-  }
-  char *newStr = util_calloc(len + 1);
-  for (size_t i = 0; i < len; i++) {
-    newStr[i] = (str[i] == '/') ? '.' : str[i];
-  }
-  newStr[len] = '\0';
-  return newStr;
-}

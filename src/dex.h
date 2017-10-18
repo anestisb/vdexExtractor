@@ -233,4 +233,14 @@ void dex_dumpClassInfo(const u1 *, u4);
 void dex_dumpMethodInfo(const u1 *, dexMethod *, u4, const char *);
 void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
 
+// Converts a type descriptor to human-readable "dotted" form.  For
+// example, "Ljava/lang/String;" becomes "java.lang.String", and
+// "[I" becomes "int[]".  Also converts '$' to '.', which means this
+// form can't be converted back to a descriptor.
+char *dex_descriptorToDot(const char*);
+
+// Converts the class name portion of a type descriptor to human-readable
+// "dotted" form. For example, "Ljava/lang/String;" becomes "String".
+char *dex_descriptorClassToDot(const char*);
+
 #endif

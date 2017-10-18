@@ -621,8 +621,10 @@ void dex_dumpMethodInfo(const u1 *dexFileBuf,
 
   const char *methodName = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
   const char *typeDesc = dex_getMethodSignature(dexFileBuf, pDexMethodId);
+  const char *methodAccessStr = createAccessFlagStr(pDexMethod->accessFlags, kDexAccessForMethod);
 
   LOGMSG_RAW(l_VDEBUG, "   %s_method #%" PRIu32 ": %s %s\n", type, localIdx, methodName, typeDesc);
+  LOGMSG_RAW(l_VDEBUG, "    access=%04" PRIx32 " (%s)\n", pDexMethod->accessFlags, methodAccessStr);
   LOGMSG_RAW(l_VDEBUG, "    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff,
              pDexMethod->codeOff);
 

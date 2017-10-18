@@ -73,9 +73,9 @@ $ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -v5 -d -l /tmp/dis.log
 [INFO] 1 out of 1 Vdex files have been processed
 [INFO] 2 Dex files have been extracted in total
 [INFO] Extracted Dex files are available in '/tmp'
-$ head -100 /tmp/dis.log
-[DEBUG] [29245] 2017/10/17 15:09:07 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
-[DEBUG] [29245] 2017/10/17 15:09:07 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
+$ head -110 /tmp/dis.log
+[DEBUG] [1185] 2017/10/18 16:30:04 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
+[DEBUG] [1185] 2017/10/18 16:30:04 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
  ------ Vdex Header Info ------
  magic header & version      : vdex-006
  number of dex files         : 2 (2)
@@ -88,7 +88,7 @@ $ head -100 /tmp/dis.log
    [0] location checksum : 34315154 (875647316)
    [1] location checksum : 1e8f2991 (512698769)
  ------------------------------
-[DEBUG] [29245] 2017/10/17 15:09:07 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
+[DEBUG] [1185] 2017/10/18 16:30:04 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
  ------ Dex Header Info ------
  magic        : dex-035
  checksum     : e14de163 (3779977571)
@@ -114,26 +114,34 @@ $ head -100 /tmp/dis.log
  dataSize     : 73d594 (7591316)
  dataOff      : 18d0a4 (1626276)
  -----------------------------
-[DEBUG] [29245] 2017/10/17 15:09:07 (dex.c:201 dex_isValidDexMagic) Dex version '035' detected
+[DEBUG] [1185] 2017/10/18 16:30:04 (dex.c:313 dex_isValidDexMagic) Dex version '035' detected
  file #0: classDefsSize=8840
-  class #0: a$a ('La$a;')
+  class #0: a.a ('La$a;')
+   access=0601 (PUBLIC INTERFACE ABSTRACT)
    source_file=SourceFile, class_data_off=851907 (8722695)
    static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=2
    virtual_method #0: onMenuItemSelected (La;Landroid/view/MenuItem;)Z
+    access=0401 (PUBLIC ABSTRACT)
     codeOff=0 (0)
    virtual_method #1: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    access=0401 (PUBLIC ABSTRACT)
     codeOff=0 (0)
-  class #1: a$b ('La$b;')
+  class #1: a.b ('La$b;')
+   access=0601 (PUBLIC INTERFACE ABSTRACT)
    source_file=SourceFile, class_data_off=851913 (8722707)
    static_fields=0, instance_fields=0, direct_methods=0, virtual_methods=1
    virtual_method #0: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    access=0401 (PUBLIC ABSTRACT)
     codeOff=0 (0)
-  class #2: android.support.v4.internal.view.SupportMenu ('Landroid/support/v4/internal/view/SupportMenu;')
+  class #2: SupportMenu ('Landroid/support/v4/internal/view/SupportMenu;')
+   access=0601 (PUBLIC INTERFACE ABSTRACT)
    source_file=SourceFile, class_data_off=0 (0)
   class #3: a ('La;')
+   access=0001 (PUBLIC)
    source_file=SourceFile, class_data_off=85191b (8722715)
    static_fields=1, instance_fields=25, direct_methods=12, virtual_methods=74
    direct_method #0: <clinit> ()V
+    access=10008 (STATIC CONSTRUCTOR)
     codeOff=1abb50 (1751888)
     quickening_size=0 (0)
       1abb60: 1260                                   |0000: const/4 v0, #int 6 // #6
@@ -145,6 +153,7 @@ $ head -100 /tmp/dis.log
       1abb72: 0000                                   |0009: nop // spacer
       1abb74: 0003 0400 0600 0000 0100 0000 0400 ... |000a: array-data (16 units)
    direct_method #1: invokeItem (Landroid/support/v7/view/menu/MenuItemImpl;)Z
+    access=10001 (PUBLIC CONSTRUCTOR)
     codeOff=1abb94 (1751956)
     quickening_size=23 (35)
       1abba4: 1211                                   |0000: const/4 v1, #int 1 // #1
@@ -174,14 +183,41 @@ $ head -100 /tmp/dis.log
 [new] 1abbe2: 5b23 0200                              |001f: iput-object v3, v2, La;.mContext:Landroid/content/Context; // field@0002
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
 [new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265
+      1abbec: 0c00                                   |0024: move-result-object v0
 ```
+
+
+## Utility Scripts
+
+* **scripts/extract-apps-from-device.sh**
+
+  Extract ART compiler output resources (oat, art, vdex) of installed packages (user and system)
+  from a connected Android device. Also supports extracting APK archives of installed packages. Some
+  system app data might fail to extract without root access due to applied DAC permissions.
+
+  ```
+  $ scripts/extract-apps-from-device.sh -h
+    Usage: extract-apps-from-device.sh [options]
+      options:
+        -o|--output <dir>  : Output directory to save extracted data (default is '.')
+        -d|--device <devID>: Device serial to use instead of default interactive selection
+        --system-apps      : Extract system apps too (default is user apps only)
+        --apks             : Extract apks (default is optimized Dex)
+        -h|--help          : This help message
+  $ scripts/extract-apps-from-device.sh --system-apps -o /tmp/art_data --apks
+  [INFO]: Enumerating connected Android devices
+  [INFO]: Trying to extract data from '163' packages
+  [INFO]: Extracted data stored under '/tmp/art_data'
+  ```
 
 
 ## Changelog
 
 * __0.2.4__ - TBC
   * Improve disassembler output by resolving class & method definitions
+  * Improve disassembler output by annotating classes & methods access flags
   * Fixed a bug when printing number of class fields and method from disassembler
+  * Utility script to automate extraction of ART compiler output resources from a device
 * __0.2.3__ - 16 October 2017
   * Improve disassembler output when decompiling NOP instructions (effectively ignore spacers)
 * __0.2.2__ - 16 October 2017
@@ -203,6 +239,7 @@ $ head -100 /tmp/dis.log
 ## ToDo
 
 * Parse Vdex dependency info and enumerate external dependencies of Dex files
+* Disassembler performance and functionality improvements
 
 
 ## License

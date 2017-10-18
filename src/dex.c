@@ -28,7 +28,7 @@ static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] <
 // Helper for dex_dumpInstruction(), which builds the string representation
 // for the index in the given instruction.
 static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
-  char *buf = util_calloc(bufSize);
+  char *buf = utils_calloc(bufSize);
 
   const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   static const u4 kInvalidIndex = USHRT_MAX;
@@ -132,8 +132,8 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
     case kIndexMethodAndProtoRef: {
       const char *kDefaultMethodStr = "<method?>";
       const char *kDefaultProtoStr = "<proto?>";
-      const char *methodStr = util_calloc(32);
-      const char *protoStr = util_calloc(32);
+      const char *methodStr = utils_calloc(32);
+      const char *protoStr = utils_calloc(32);
       strncpy((void *)methodStr, kDefaultMethodStr, strlen(kDefaultMethodStr));
       strncpy((void *)protoStr, kDefaultProtoStr, strlen(kDefaultProtoStr));
 
@@ -146,7 +146,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
         // Free the default and allocate a new one
         free((void *)methodStr);
         size_t newMethodStrSz = strlen(backDescriptor) + strlen(name) + strlen(signature) + 3;
-        methodStr = util_calloc(newMethodStrSz);
+        methodStr = utils_calloc(newMethodStrSz);
         snprintf((char *)methodStr, newMethodStrSz, "%s.%s:%s", backDescriptor, name, signature);
 
         // Clean-up intermediates
@@ -206,7 +206,7 @@ bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
 }
 
 void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
-  char *sigHex = util_bin2hex(pDexHeader->signature, kSHA1Len);
+  char *sigHex = utils_bin2hex(pDexHeader->signature, kSHA1Len);
 
   LOGMSG(l_VDEBUG, "------ Dex Header Info ------");
   LOGMSG(l_VDEBUG, "magic        : %.3s-%.3s", pDexHeader->magic.dex, pDexHeader->magic.ver);
@@ -438,25 +438,25 @@ const char *dex_getProtoSignature(const u1 *dexFileBuf, const dexProtoId *pDexPr
 
   if (pDexProtoId == NULL) {
     const char *kDefaultNoSigStr = "<no signature>";
-    retSigStr = util_calloc(strlen(kDefaultNoSigStr) + 1);
+    retSigStr = utils_calloc(strlen(kDefaultNoSigStr) + 1);
     strncpy((char *)retSigStr, kDefaultNoSigStr, strlen(kDefaultNoSigStr));
     return retSigStr;
   }
 
   const dexTypeList *pDexTypeList = dex_getProtoParameters(dexFileBuf, pDexProtoId);
   if (pDexTypeList == NULL) {
-    util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, "()");
+    utils_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, "()");
   } else {
-    util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, "(");
+    utils_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, "(");
     for (u4 i = 0; i < pDexTypeList->size; ++i) {
       const char *paramStr = dex_getStringByTypeIdx(dexFileBuf, pDexTypeList->list[i].typeIdx);
-      util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, paramStr);
+      utils_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, paramStr);
     }
-    util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, ")");
+    utils_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, ")");
   }
 
   const char *retTypeStr = dex_getStringByTypeIdx(dexFileBuf, pDexProtoId->returnTypeIdx);
-  util_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, retTypeStr);
+  utils_pseudoStrAppend(&retSigStr, &retSigStrSz, &retSigStrOff, retTypeStr);
 
   return retSigStr;
 }

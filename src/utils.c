@@ -217,7 +217,7 @@ void utils_hexDump(char *desc, const uint8_t *addr, int len) {
   LOGMSG_RAW(l_DEBUG, "  %s\n", buff);
 }
 
-char *util_bin2hex(const unsigned char *str, const size_t strLen) {
+char *utils_bin2hex(const unsigned char *str, const size_t strLen) {
   char *result = (char *)malloc(strLen * 2 + 1);
   size_t i, j;
   int b = 0;
@@ -232,7 +232,7 @@ char *util_bin2hex(const unsigned char *str, const size_t strLen) {
   return result;
 }
 
-void *util_malloc(size_t sz) {
+void *utils_malloc(size_t sz) {
   void *p = malloc(sz);
   if (p == NULL) {
     // This is expected to abort
@@ -241,13 +241,13 @@ void *util_malloc(size_t sz) {
   return p;
 }
 
-void *util_calloc(size_t sz) {
-  void *p = util_malloc(sz);
+void *utils_calloc(size_t sz) {
+  void *p = utils_malloc(sz);
   memset(p, '\0', sz);
   return p;
 }
 
-void *util_realloc(void *ptr, size_t sz) {
+void *utils_realloc(void *ptr, size_t sz) {
   void *ret = realloc(ptr, sz);
   if (ret == NULL) {
     // This is expected to abort
@@ -257,14 +257,14 @@ void *util_realloc(void *ptr, size_t sz) {
   return ret;
 }
 
-void *util_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
-  // util_realloc is expected to abort in case of error
-  void *ret = util_realloc(ptr, new_sz);
+void *utils_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
+  // utils_realloc is expected to abort in case of error
+  void *ret = utils_realloc(ptr, new_sz);
   memset(ret + old_sz, 0, new_sz - old_sz);
   return ret;
 }
 
-void util_pseudoStrAppend(const char **charBuf,
+void utils_pseudoStrAppend(const char **charBuf,
                           size_t *charBufSz,
                           size_t *charBufOff,
                           const char *strToAppend) {
@@ -278,7 +278,7 @@ void util_pseudoStrAppend(const char **charBuf,
   // If charBuf is null, allocate a new buffer
   if (buf == NULL) {
     size_t alocSize = (*charBufSz == 0) ? kResizeChunk : *charBufSz;
-    buf = util_calloc(alocSize);
+    buf = utils_calloc(alocSize);
     *charBufSz = alocSize;
     *charBufOff = 0;
   }
@@ -293,12 +293,12 @@ void util_pseudoStrAppend(const char **charBuf,
 
   // Check if new string can fit
   if (strlen(strToAppend) + *charBufOff > actualBufSz) {
-    // We need to resize. util_crealloc is expected to abort in case of error
+    // We need to resize. utils_crealloc is expected to abort in case of error
     size_t resizeSize = *charBufSz + kResizeChunk;
     while (resizeSize <= strlen(strToAppend) + *charBufOff) {
       resizeSize += kResizeChunk;
     }
-    buf = util_crealloc((void *)buf, *charBufSz, *charBufSz + resizeSize);
+    buf = utils_crealloc((void *)buf, *charBufSz, *charBufSz + resizeSize);
     *charBufSz += resizeSize;
     actualBufSz += resizeSize;
   }

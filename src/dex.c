@@ -188,6 +188,118 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
   return buf;
 }
 
+// Converts a single-character primitive type into human-readable form.
+static const char* primitiveTypeLabel(char typeChar) {
+  switch (typeChar) {
+    case 'B': return "byte";
+    case 'C': return "char";
+    case 'D': return "double";
+    case 'F': return "float";
+    case 'I': return "int";
+    case 'J': return "long";
+    case 'S': return "short";
+    case 'V': return "void";
+    case 'Z': return "boolean";
+    default:  return "UNKNOWN";
+  }
+}
+
+// Counts the number of '1' bits in a word.
+static int countOnes(u4 val) {
+  val = val - ((val >> 1) & 0x55555555);
+  val = (val & 0x33333333) + ((val >> 2) & 0x33333333);
+  return (((val + (val >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+}
+
+// Creates a new string with human-readable access flags.
+static char* createAccessFlagStr(u4 flags, dexAccessFor forWhat) {
+  static const char* kAccessStrings[kDexAccessForMAX][kDexNumAccessFlags] = {
+    {
+      "PUBLIC",                /* 0x00001 */
+      "PRIVATE",               /* 0x00002 */
+      "PROTECTED",             /* 0x00004 */
+      "STATIC",                /* 0x00008 */
+      "FINAL",                 /* 0x00010 */
+      "?",                     /* 0x00020 */
+      "?",                     /* 0x00040 */
+      "?",                     /* 0x00080 */
+      "?",                     /* 0x00100 */
+      "INTERFACE",             /* 0x00200 */
+      "ABSTRACT",              /* 0x00400 */
+      "?",                     /* 0x00800 */
+      "SYNTHETIC",             /* 0x01000 */
+      "ANNOTATION",            /* 0x02000 */
+      "ENUM",                  /* 0x04000 */
+      "?",                     /* 0x08000 */
+      "VERIFIED",              /* 0x10000 */
+      "OPTIMIZED",             /* 0x20000 */
+    }, {
+      "PUBLIC",                /* 0x00001 */
+      "PRIVATE",               /* 0x00002 */
+      "PROTECTED",             /* 0x00004 */
+      "STATIC",                /* 0x00008 */
+      "FINAL",                 /* 0x00010 */
+      "SYNCHRONIZED",          /* 0x00020 */
+      "BRIDGE",                /* 0x00040 */
+      "VARARGS",               /* 0x00080 */
+      "NATIVE",                /* 0x00100 */
+     "?",                     /* 0x00200 */
+     "ABSTRACT",              /* 0x00400 */
+     "STRICT",                /* 0x00800 */
+     "SYNTHETIC",             /* 0x01000 */
+     "?",                     /* 0x02000 */
+     "?",                     /* 0x04000 */
+     "MIRANDA",               /* 0x08000 */
+     "CONSTRUCTOR",           /* 0x10000 */
+     "DECLARED_SYNCHRONIZED", /* 0x20000 */
+    }, {
+      "PUBLIC",                /* 0x00001 */
+      "PRIVATE",               /* 0x00002 */
+      "PROTECTED",             /* 0x00004 */
+      "STATIC",                /* 0x00008 */
+      "FINAL",                 /* 0x00010 */
+      "?",                     /* 0x00020 */
+      "VOLATILE",              /* 0x00040 */
+      "TRANSIENT",             /* 0x00080 */
+      "?",                     /* 0x00100 */
+      "?",                     /* 0x00200 */
+      "?",                     /* 0x00400 */
+      "?",                     /* 0x00800 */
+      "SYNTHETIC",             /* 0x01000 */
+      "?",                     /* 0x02000 */
+      "ENUM",                  /* 0x04000 */
+      "?",                     /* 0x08000 */
+      "?",                     /* 0x10000 */
+      "?",                     /* 0x20000 */
+    },
+  };
+
+  // Allocate enough storage to hold the expected number of strings,
+  // plus a space between each.  We over-allocate, using the longest
+  // string above as the base metric.
+  const int kLongest = 21;  // The strlen of longest string above.
+  const int count = countOnes(flags);
+  char* str;
+  char* cp;
+  cp = str = (char*)utils_malloc(count * (kLongest + 1) + 1);
+
+  for (int i = 0; i < kDexNumAccessFlags; i++) {
+    if (flags & 0x01) {
+      const char* accessStr = kAccessStrings[forWhat][i];
+      const int len = strlen(accessStr);
+      if (cp != str) {
+        *cp++ = ' ';
+      }
+      memcpy(cp, accessStr, len);
+      cp += len;
+    }
+    flags >>= 1;
+  }  // for
+
+  *cp = '\0';
+  return str;
+}
+
 bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
   // Validate magic number
   if (memcmp(pDexHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
@@ -474,6 +586,7 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
   const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, idx);
   const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);
   const char *classDescriptorFormated = dex_descriptorClassToDot(classDescriptor);
+  const char *classAccessStr = createAccessFlagStr(pDexClassDef->accessFlags, kDexAccessForClass);
   const char *srcFileName = "<striped src file>";
   if (pDexClassDef->sourceFileIdx < USHRT_MAX) {
     srcFileName = dex_getStringDataByIdx(dexFileBuf, pDexClassDef->sourceFileIdx);
@@ -481,8 +594,9 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
 
   LOGMSG_RAW(l_VDEBUG, "  class #%" PRIu32 ": %s ('%s')\n", idx, classDescriptorFormated,
              classDescriptor);
-  LOGMSG_RAW(l_VDEBUG, "   source_file=%s, class_data_off=%" PRIx32 " (%" PRIu32 ")", srcFileName,
-             pDexClassDef->classDataOff, pDexClassDef->classDataOff);
+  LOGMSG_RAW(l_VDEBUG, "   access=%04" PRIx32 " (%s)\n", pDexClassDef->accessFlags, classAccessStr);
+  LOGMSG_RAW(l_VDEBUG, "   source_file=%s, class_data_off=%" PRIx32 " (%" PRIu32 ")",
+             srcFileName, pDexClassDef->classDataOff, pDexClassDef->classDataOff);
 
   if (pDexClassDef->classDataOff != 0) {
     dexClassDataHeader pDexClassDataHeader;

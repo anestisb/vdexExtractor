@@ -177,6 +177,11 @@ typedef struct __attribute__((packed)) {
   u4 accessFlags;
 } dexField;
 
+typedef enum {
+  kDexAccessForClass = 0, kDexAccessForMethod = 1, kDexAccessForField = 2, kDexAccessForMAX
+} dexAccessFor;
+#define kDexNumAccessFlags 18
+
 // Verify if valid Dex file magic number
 bool dex_isValidDexMagic(const dexHeader *);
 

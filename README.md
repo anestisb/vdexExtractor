@@ -50,8 +50,8 @@ AOSP.
 
 The Vdex fully unquicken functionality has been also implemented as part of the AOSP oatdump libart
 tool. The upstream contribution is available
-[here](https://android-review.googlesource.com/#/c/platform/art/+/505156/). If you want to use
-oatdump with Oreo release you can use the corresponding patch
+[here](https://android.googlesource.com/platform/art/+/a1f56a8dddb88f5377a7dd4ec79640103c713d30).
+If you want to use oatdump with Oreo release you can use the corresponding patch
 [here](https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409) or fork and build (inside
 and AOSP_SRC_ROOT workspace) the oreo-release branch of the
 [oatdump++](https://github.com/anestisb/oatdump_plus/tree/oreo-release) tool.

@@ -265,9 +265,9 @@ void *utils_crealloc(void *ptr, size_t old_sz, size_t new_sz) {
 }
 
 void utils_pseudoStrAppend(const char **charBuf,
-                          size_t *charBufSz,
-                          size_t *charBufOff,
-                          const char *strToAppend) {
+                           size_t *charBufSz,
+                           size_t *charBufOff,
+                           const char *strToAppend) {
   const char *buf = *charBuf;
 
   const size_t kResizeChunk = 512;

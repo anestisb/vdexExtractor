@@ -178,7 +178,10 @@ typedef struct __attribute__((packed)) {
 } dexField;
 
 typedef enum {
-  kDexAccessForClass = 0, kDexAccessForMethod = 1, kDexAccessForField = 2, kDexAccessForMAX
+  kDexAccessForClass = 0,
+  kDexAccessForMethod = 1,
+  kDexAccessForField = 2,
+  kDexAccessForMAX
 } dexAccessFor;
 #define kDexNumAccessFlags 18
 
@@ -242,10 +245,10 @@ void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
 // example, "Ljava/lang/String;" becomes "java.lang.String", and
 // "[I" becomes "int[]".  Also converts '$' to '.', which means this
 // form can't be converted back to a descriptor.
-char *dex_descriptorToDot(const char*);
+char *dex_descriptorToDot(const char *);
 
 // Converts the class name portion of a type descriptor to human-readable
 // "dotted" form. For example, "Ljava/lang/String;" becomes "String".
-char *dex_descriptorClassToDot(const char*);
+char *dex_descriptorClassToDot(const char *);
 
 #endif

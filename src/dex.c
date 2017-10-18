@@ -621,6 +621,7 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
                pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
   }
 
+  free((void *)classAccessStr);
   free((void *)classDescriptorFormated);
   LOGMSG_RAW(l_VDEBUG, "\n");
 }
@@ -640,6 +641,7 @@ void dex_dumpMethodInfo(const u1 *dexFileBuf,
   LOGMSG_RAW(l_VDEBUG, "    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff,
              pDexMethod->codeOff);
 
+  free((void *)methodAccessStr);
   free((void *)typeDesc);
 }
 

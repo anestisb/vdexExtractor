@@ -27,9 +27,9 @@
 #include "common.h"
 
 bool utils_init(infiles_t *);
-uint8_t *utils_mapFileToRead(char *, off_t *, int *);
-bool utils_writeToFd(int, const uint8_t *, off_t);
-void utils_hexDump(char *, const uint8_t *, int);
+u1 *utils_mapFileToRead(char *, off_t *, int *);
+bool utils_writeToFd(int, const u1 *, off_t);
+void utils_hexDump(char *, const u1 *, int);
 char *utils_bin2hex(const unsigned char *, const size_t);
 void *utils_malloc(size_t);
 void *utils_calloc(size_t);

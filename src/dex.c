@@ -391,7 +391,7 @@ u4 dex_computeDexCRC(const u1 *buf, off_t fileSz) {
 }
 
 void dex_repairDexCRC(const u1 *buf, off_t fileSz) {
-  uint32_t adler_checksum = dex_computeDexCRC(buf, fileSz);
+  u4 adler_checksum = dex_computeDexCRC(buf, fileSz);
   memcpy((void *)buf + sizeof(dexMagic), &adler_checksum, sizeof(u4));
 }
 
@@ -612,7 +612,7 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
 
   if (pDexClassDef->classDataOff != 0) {
     dexClassDataHeader pDexClassDataHeader;
-    const uint8_t *curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
+    const u1 *curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
     memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
     dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
     LOGMSG_RAW(l_VDEBUG, "\n   static_fields=%" PRIu32 ", instance_fields=%" PRIu32

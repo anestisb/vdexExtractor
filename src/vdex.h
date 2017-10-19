@@ -30,23 +30,23 @@
 #define kNumVdexVersions 1
 #define kVdexVersionLen 4
 
-static const uint8_t kVdexMagic[] = { 'v', 'd', 'e', 'x' };
-static const uint8_t kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
+static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
+static const u1 kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
   // Vdex version 006: Android "O".
   { '0', '0', '6', '\0' },
   // Vdex verion 010: Beyond Android "O" (current dev-master).
   // { '0', '1', '0', '\0' },
 };
 
-typedef uint32_t VdexChecksum;
+typedef u4 VdexChecksum;
 
 typedef struct __attribute__((packed)) {
-  uint8_t magic_[4];
-  uint8_t version_[4];
-  uint32_t number_of_dex_files_;
-  uint32_t dex_size_;
-  uint32_t verifier_deps_size_;
-  uint32_t quickening_info_size_;
+  u1 magic_[4];
+  u1 version_[4];
+  u4 number_of_dex_files_;
+  u4 dex_size_;
+  u4 verifier_deps_size_;
+  u4 quickening_info_size_;
 } vdexHeader;
 
 // Vdex files contain extracted Dex files.
@@ -64,26 +64,26 @@ typedef struct __attribute__((packed)) {
 } vdexFile;
 
 // Verify if valid Vdex file
-bool vdex_isValidVdex(const uint8_t *);
-bool vdex_isMagicValid(const uint8_t *);
-bool vdex_isVersionValid(const uint8_t *);
+bool vdex_isValidVdex(const u1 *);
+bool vdex_isMagicValid(const u1 *);
+bool vdex_isVersionValid(const u1 *);
 
-bool vdex_hasDexSection(const uint8_t *);
-uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *);
-const uint8_t *vdex_DexBegin(const uint8_t *);
-uint32_t vdex_DexBeginOffset(const uint8_t *);
-const uint8_t *vdex_DexEnd(const uint8_t *);
-uint32_t vdex_DexEndOffset(const uint8_t *);
-const uint8_t *vdex_GetNextDexFileData(const uint8_t *, uint32_t *);
-uint32_t vdex_GetLocationChecksum(const uint8_t *, uint32_t);
-const uint8_t *vdex_GetVerifierDepsData(const uint8_t *);
-uint32_t vdex_GetVerifierDepsDataOffset(const uint8_t *);
-uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *);
-const uint8_t *vdex_GetQuickeningInfo(const uint8_t *);
-uint32_t vdex_GetQuickeningInfoSize(const uint8_t *);
-uint32_t vdex_GetQuickeningInfoOffset(const uint8_t *);
+bool vdex_hasDexSection(const u1 *);
+u4 vdex_GetSizeOfChecksumsSection(const u1 *);
+const u1 *vdex_DexBegin(const u1 *);
+u4 vdex_DexBeginOffset(const u1 *);
+const u1 *vdex_DexEnd(const u1 *);
+u4 vdex_DexEndOffset(const u1 *);
+const u1 *vdex_GetNextDexFileData(const u1 *, u4 *);
+u4 vdex_GetLocationChecksum(const u1 *, u4);
+const u1 *vdex_GetVerifierDepsData(const u1 *);
+u4 vdex_GetVerifierDepsDataOffset(const u1 *);
+u4 vdex_GetVerifierDepsDataSize(const u1 *);
+const u1 *vdex_GetQuickeningInfo(const u1 *);
+u4 vdex_GetQuickeningInfoSize(const u1 *);
+u4 vdex_GetQuickeningInfoOffset(const u1 *);
 
-void vdex_dumpHeaderInfo(const uint8_t *);
-bool vdex_Unquicken(const uint8_t *);
+void vdex_dumpHeaderInfo(const u1 *);
+bool vdex_Unquicken(const u1 *);
 
 #endif

@@ -24,14 +24,14 @@
 #include "dex_decompiler.h"
 #include "utils.h"
 
-bool vdex_isMagicValid(const uint8_t *cursor) {
+bool vdex_isMagicValid(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return (memcmp(pVdexHeader->magic_, kVdexMagic, sizeof(kVdexMagic)) == 0);
 }
 
-bool vdex_isVersionValid(const uint8_t *cursor) {
+bool vdex_isVersionValid(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  for (uint32_t i = 0; i < kNumVdexVersions; i++) {
+  for (u4 i = 0; i < kNumVdexVersions; i++) {
     if (memcmp(pVdexHeader->version_, kVdexMagicVersions[i], kVdexVersionLen) == 0) {
       LOGMSG(l_DEBUG, "Vdex version '%s' detected", pVdexHeader->version_);
       return true;
@@ -40,42 +40,42 @@ bool vdex_isVersionValid(const uint8_t *cursor) {
   return false;
 }
 
-bool vdex_isValidVdex(const uint8_t *cursor) {
+bool vdex_isValidVdex(const u1 *cursor) {
   return vdex_isMagicValid(cursor) && vdex_isVersionValid(cursor);
 }
 
-bool vdex_hasDexSection(const uint8_t *cursor) {
+bool vdex_hasDexSection(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return pVdexHeader->dex_size_ != 0;
 }
 
-uint32_t vdex_GetSizeOfChecksumsSection(const uint8_t *cursor) {
+u4 vdex_GetSizeOfChecksumsSection(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return sizeof(VdexChecksum) * pVdexHeader->number_of_dex_files_;
 }
 
-const uint8_t *vdex_DexBegin(const uint8_t *cursor) {
+const u1 *vdex_DexBegin(const u1 *cursor) {
   return cursor + sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
 }
 
-uint32_t vdex_DexBeginOffset(const uint8_t *cursor) {
+u4 vdex_DexBeginOffset(const u1 *cursor) {
   return sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
 }
 
-const uint8_t *vdex_DexEnd(const uint8_t *cursor) {
+const u1 *vdex_DexEnd(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
-uint32_t vdex_DexEndOffset(const uint8_t *cursor) {
+u4 vdex_DexEndOffset(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_DexBeginOffset(cursor) + pVdexHeader->dex_size_;
 }
 
-const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) {
+const u1 *vdex_GetNextDexFileData(const u1 *cursor, u4 *offset) {
   if (*offset == 0) {
     if (vdex_hasDexSection(cursor)) {
-      const uint8_t *dexBuf = vdex_DexBegin(cursor);
+      const u1 *dexBuf = vdex_DexBegin(cursor);
       *offset = sizeof(vdexHeader) + vdex_GetSizeOfChecksumsSection(cursor);
       LOGMSG(l_DEBUG, "Processing first Dex file at offset:0x%x", *offset);
 
@@ -90,8 +90,8 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
     dexHeader *pDexHeader = (dexHeader *)(cursor + *offset);
 
     // Check boundaries
-    const uint8_t *dexBuf = cursor + *offset;
-    const uint8_t *dexBufMax = dexBuf + pDexHeader->fileSize;
+    const u1 *dexBuf = cursor + *offset;
+    const u1 *dexBufMax = dexBuf + pDexHeader->fileSize;
     if (dexBufMax == vdex_DexEnd(cursor)) {
       LOGMSG(l_DEBUG, "Processing last Dex file at offset:0x%x", *offset);
     } else if (dexBufMax <= vdex_DexEnd(cursor)) {
@@ -107,42 +107,42 @@ const uint8_t *vdex_GetNextDexFileData(const uint8_t *cursor, uint32_t *offset) 
   }
 }
 
-uint32_t vdex_GetLocationChecksum(const uint8_t *cursor, uint32_t fileIdx) {
-  uint32_t *checksums = (uint32_t *)(cursor + sizeof(vdexHeader));
+u4 vdex_GetLocationChecksum(const u1 *cursor, u4 fileIdx) {
+  u4 *checksums = (u4 *)(cursor + sizeof(vdexHeader));
   return checksums[fileIdx];
 }
 
-const uint8_t *vdex_GetVerifierDepsData(const uint8_t *cursor) {
+const u1 *vdex_GetVerifierDepsData(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_DexBegin(cursor) + pVdexHeader->dex_size_;
 }
 
-uint32_t vdex_GetVerifierDepsDataOffset(const uint8_t *cursor) {
+u4 vdex_GetVerifierDepsDataOffset(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_DexBeginOffset(cursor) + pVdexHeader->dex_size_;
 }
 
-uint32_t vdex_GetVerifierDepsDataSize(const uint8_t *cursor) {
+u4 vdex_GetVerifierDepsDataSize(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return pVdexHeader->verifier_deps_size_;
 }
 
-const uint8_t *vdex_GetQuickeningInfo(const uint8_t *cursor) {
+const u1 *vdex_GetQuickeningInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_GetVerifierDepsData(cursor) + pVdexHeader->verifier_deps_size_;
 }
 
-uint32_t vdex_GetQuickeningInfoOffset(const uint8_t *cursor) {
+u4 vdex_GetQuickeningInfoOffset(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return vdex_GetVerifierDepsDataOffset(cursor) + pVdexHeader->verifier_deps_size_;
 }
 
-uint32_t vdex_GetQuickeningInfoSize(const uint8_t *cursor) {
+u4 vdex_GetQuickeningInfoSize(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return pVdexHeader->quickening_info_size_;
 }
 
-void vdex_dumpHeaderInfo(const uint8_t *cursor) {
+void vdex_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
 
   LOGMSG(l_VDEBUG, "------ Vdex Header Info ------");
@@ -162,14 +162,14 @@ void vdex_dumpHeaderInfo(const uint8_t *cursor) {
          vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
   LOGMSG(l_VDEBUG, "dex files info              :")
 
-  for (uint32_t i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
+  for (u4 i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
     LOGMSG(l_VDEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
            vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
   LOGMSG(l_VDEBUG, "------------------------------");
 }
 
-bool vdex_Unquicken(const uint8_t *cursor) {
+bool vdex_Unquicken(const u1 *cursor) {
   if (vdex_GetQuickeningInfoSize(cursor) == 0) {
     // If there is no quickening info, we bail early, as the code below expects at
     // least the size of quickening data for each method that has a code item.
@@ -177,12 +177,12 @@ bool vdex_Unquicken(const uint8_t *cursor) {
   }
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  const uint8_t *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
-  const uint8_t *const quickening_info_end =
+  const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
+  const u1 *const quickening_info_end =
       vdex_GetQuickeningInfo(cursor) + vdex_GetQuickeningInfoSize(cursor);
 
-  const uint8_t *dexFileBuf = NULL;
-  uint32_t offset = 0;
+  const u1 *dexFileBuf = NULL;
+  u4 offset = 0;
 
   // For each Dex file
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->number_of_dex_files_; ++dex_file_idx) {
@@ -203,12 +203,12 @@ bool vdex_Unquicken(const uint8_t *cursor) {
 
     // For each class
     LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
-    for (uint32_t i = 0; i < pDexHeader->classDefsSize; ++i) {
+    for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
       dex_dumpClassInfo(dexFileBuf, i);
 
       // Cursor for currently processed class data item
-      const uint8_t *curClassDataCursor;
+      const u1 *curClassDataCursor;
       if (pDexClassDef->classDataOff == 0) {
         continue;
       } else {
@@ -220,21 +220,21 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
 
       // Skip static fields
-      for (uint32_t j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
+      for (u4 j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(&curClassDataCursor, &pDexField);
       }
 
       // Skip instance fields
-      for (uint32_t j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
+      for (u4 j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(&curClassDataCursor, &pDexField);
       }
 
       // For each direct method
-      for (uint32_t j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
+      for (u4 j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
@@ -249,8 +249,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
-        quickening_info_ptr += sizeof(uint32_t);
+        u4 quickening_size = *(u4 *)quickening_info_ptr;
+        quickening_info_ptr += sizeof(u4);
         if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
@@ -260,7 +260,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
       }
 
       // For each virtual method
-      for (uint32_t j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
+      for (u4 j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
@@ -275,8 +275,8 @@ bool vdex_Unquicken(const uint8_t *cursor) {
         dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
 
         // For quickening info blob the first 4bytes are the inner blobs size
-        uint32_t quickening_size = *(uint32_t *)quickening_info_ptr;
-        quickening_info_ptr += sizeof(uint32_t);
+        u4 quickening_size = *(u4 *)quickening_info_ptr;
+        quickening_info_ptr += sizeof(u4);
         if (!dexDecompiler_decompile(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod),
                                      quickening_info_ptr, quickening_size, true)) {
           LOGMSG(l_ERROR, "Failed to decompile Dex file");
@@ -287,7 +287,7 @@ bool vdex_Unquicken(const uint8_t *cursor) {
     }
 
     // If unquicken was successful original checksum should verify
-    uint32_t curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
+    u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
     if (curChecksum != pDexHeader->checksum) {
       LOGMSG(l_ERROR,
              "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",

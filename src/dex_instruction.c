@@ -22,7 +22,7 @@
 
 #include "dex_instruction.h"
 
-static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
+static u4 SizeInCodeUnitsComplexOpcode(u2 *code_ptr) {
   // Handle special NOP encoded variable length sequences.
   switch (*code_ptr) {
     case kPackedSwitchSignature:
@@ -30,8 +30,8 @@ static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
     case kSparseSwitchSignature:
       return (2 + code_ptr[1] * 4);
     case kArrayDataSignature: {
-      uint16_t element_size = code_ptr[1];
-      uint32_t length = code_ptr[2] | (((uint32_t)code_ptr[3]) << 16);
+      u2 element_size = code_ptr[1];
+      u4 length = code_ptr[2] | (((u4)code_ptr[3]) << 16);
       // The plus 1 is to round up for odd size and width.
       return (4 + (element_size * length + 1) / 2);
     }
@@ -45,24 +45,24 @@ static uint32_t SizeInCodeUnitsComplexOpcode(uint16_t *code_ptr) {
   }
 }
 
-static uint8_t InstAA(uint16_t *code_ptr) { return code_ptr[0] >> 8; }
+static u1 InstAA(u2 *code_ptr) { return code_ptr[0] >> 8; }
 
-static uint8_t InstA(uint16_t *code_ptr) { return (code_ptr[0] >> 8) & 0x0f; }
+static u1 InstA(u2 *code_ptr) { return (code_ptr[0] >> 8) & 0x0f; }
 
-static uint8_t InstB(uint16_t *code_ptr) { return code_ptr[0] >> 12; }
+static u1 InstB(u2 *code_ptr) { return code_ptr[0] >> 12; }
 
-Code dexInstr_getOpcode(uint16_t *code_ptr) { return (code_ptr[0] & 0xFF); }
+Code dexInstr_getOpcode(u2 *code_ptr) { return (code_ptr[0] & 0xFF); }
 
-const char *dexInst_getOpcodeStr(uint16_t *code_ptr) {
+const char *dexInst_getOpcodeStr(u2 *code_ptr) {
   return kInstructionNames[dexInstr_getOpcode(code_ptr)];
 }
 
-void dexInstr_SetOpcode(uint16_t *code_ptr, Code opcode) {
+void dexInstr_SetOpcode(u2 *code_ptr, Code opcode) {
   CHECK_LT(opcode, 256u);
   code_ptr[0] = (code_ptr[0] & 0xff00) | opcode;
 }
 
-bool dexInstr_hasVRegA(uint16_t *code_ptr) {
+bool dexInstr_hasVRegA(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k10t:
       return true;
@@ -121,7 +121,7 @@ bool dexInstr_hasVRegA(uint16_t *code_ptr) {
   }
 }
 
-int32_t dexInstr_getVRegA(uint16_t *code_ptr) {
+s4 dexInstr_getVRegA(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k10t:
       return dexInstr_getVRegA_10t(code_ptr);
@@ -182,137 +182,137 @@ int32_t dexInstr_getVRegA(uint16_t *code_ptr) {
   }
 }
 
-int8_t dexInstr_getVRegA_10t(uint16_t *code_ptr) {
+s1 dexInstr_getVRegA_10t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10t);
-  return (int8_t)InstAA(code_ptr);
+  return (s1)InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_10x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_10x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10x);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_11n(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_11n(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11n);
   return InstA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_11x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_11x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11x);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_12x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_12x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k12x);
   return InstA(code_ptr);
 }
 
-int16_t dexInstr_getVRegA_20t(uint16_t *code_ptr) {
+s2 dexInstr_getVRegA_20t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k20t);
-  return (int16_t)code_ptr[1];
+  return (s2)code_ptr[1];
 }
 
-uint8_t dexInstr_getVRegA_21c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_21c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21c);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_21h(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_21h(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21h);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_21s(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_21s(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21s);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_21t(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_21t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21t);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_22b(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_22b(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22b);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_22c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_22c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
   return InstA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_22s(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_22s(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22s);
   return InstA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_22t(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_22t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22t);
   return InstA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_22x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_22x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22x);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_23x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_23x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k23x);
   return InstAA(code_ptr);
 }
 
-int32_t dexInstr_getVRegA_30t(uint16_t *code_ptr) {
+s4 dexInstr_getVRegA_30t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k30t);
-  return (int32_t)(code_ptr[1] | ((uint32_t)code_ptr[2] << 16));
+  return (s4)(code_ptr[1] | ((u4)code_ptr[2] << 16));
 }
 
-uint8_t dexInstr_getVRegA_31c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_31c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31c);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_31i(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_31i(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31i);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_31t(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_31t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31t);
   return InstAA(code_ptr);
 }
 
-uint16_t dexInstr_getVRegA_32x(uint16_t *code_ptr) {
+u2 dexInstr_getVRegA_32x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k32x);
   return code_ptr[1];
 }
 
-uint8_t dexInstr_getVRegA_35c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_35c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k35c);
   return InstB(code_ptr);  // This is labeled A in the spec.
 }
 
-uint8_t dexInstr_getVRegA_3rc(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_3rc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k3rc);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_51l(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_51l(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k51l);
   return InstAA(code_ptr);
 }
 
-uint8_t dexInstr_getVRegA_45cc(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_45cc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
   return InstB(code_ptr);  // This is labeled A in the spec.
 }
 
-uint8_t dexInstr_getVRegA_4rcc(uint16_t *code_ptr) {
+u1 dexInstr_getVRegA_4rcc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
   return InstAA(code_ptr);
 }
 
-bool dexInstr_hasVRegB(uint16_t *code_ptr) {
+bool dexInstr_hasVRegB(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k11n:
       return true;
@@ -361,7 +361,7 @@ bool dexInstr_hasVRegB(uint16_t *code_ptr) {
   }
 }
 
-int32_t dexInstr_getVRegB(uint16_t *code_ptr) {
+s4 dexInstr_getVRegB(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k11n:
       return dexInstr_getVRegB_11n(code_ptr);
@@ -412,116 +412,116 @@ int32_t dexInstr_getVRegB(uint16_t *code_ptr) {
   }
 }
 
-uint64_t dexInstr_getWideVRegB(uint16_t *code_ptr) { return dexInstr_getVRegB_51l(code_ptr); }
+u8 dexInstr_getWideVRegB(u2 *code_ptr) { return dexInstr_getVRegB_51l(code_ptr); }
 
-int8_t dexInstr_getVRegB_11n(uint16_t *code_ptr) {
+s1 dexInstr_getVRegB_11n(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k11n);
   return (InstB(code_ptr) << 28) >> 28;
 }
 
-uint8_t dexInstr_getVRegB_12x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_12x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k12x);
   return InstB(code_ptr);
 }
 
-uint16_t dexInstr_getVRegB_21c(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_21c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21c);
   return code_ptr[1];
 }
 
-uint16_t dexInstr_getVRegB_21h(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_21h(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21h);
   return code_ptr[1];
 }
 
-int16_t dexInstr_getVRegB_21s(uint16_t *code_ptr) {
+s2 dexInstr_getVRegB_21s(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21s);
-  return (int16_t)(code_ptr[1]);
+  return (s2)(code_ptr[1]);
 }
 
-int16_t dexInstr_getVRegB_21t(uint16_t *code_ptr) {
+s2 dexInstr_getVRegB_21t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21t);
-  return (int16_t)(code_ptr[1]);
+  return (s2)(code_ptr[1]);
 }
 
-uint8_t dexInstr_getVRegB_22b(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_22b(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22b);
-  return (uint8_t)(code_ptr[1] & 0xff);
+  return (u1)(code_ptr[1] & 0xff);
 }
 
-uint8_t dexInstr_getVRegB_22c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_22c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
   return InstB(code_ptr);
 }
 
-uint8_t dexInstr_getVRegB_22s(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_22s(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22s);
   return InstB(code_ptr);
 }
 
-uint8_t dexInstr_getVRegB_22t(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_22t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22t);
   return InstB(code_ptr);
 }
 
-uint16_t dexInstr_getVRegB_22x(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_22x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22x);
   return code_ptr[1];
 }
 
-uint8_t dexInstr_getVRegB_23x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegB_23x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k23x);
-  return (uint8_t)(code_ptr[1] & 0xff);
+  return (u1)(code_ptr[1] & 0xff);
 }
 
-uint32_t dexInstr_getVRegB_31c(uint16_t *code_ptr) {
+u4 dexInstr_getVRegB_31c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31c);
-  return (code_ptr[1] | ((uint32_t)code_ptr[2] << 16));
+  return (code_ptr[1] | ((u4)code_ptr[2] << 16));
 }
 
-int32_t dexInstr_getVRegB_31i(uint16_t *code_ptr) {
+s4 dexInstr_getVRegB_31i(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31i);
-  return (int32_t)(code_ptr[1] | ((uint32_t)code_ptr[2] << 16));
+  return (s4)(code_ptr[1] | ((u4)code_ptr[2] << 16));
 }
 
-int32_t dexInstr_getVRegB_31t(uint16_t *code_ptr) {
+s4 dexInstr_getVRegB_31t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k31t);
-  return (int32_t)(code_ptr[1] | ((uint32_t)code_ptr[2] << 16));
+  return (s4)(code_ptr[1] | ((u4)code_ptr[2] << 16));
 }
 
-uint16_t dexInstr_getVRegB_32x(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_32x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k32x);
   return code_ptr[2];
 }
 
-uint16_t dexInstr_getVRegB_35c(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_35c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k35c);
   return code_ptr[1];
 }
 
-uint16_t dexInstr_getVRegB_3rc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_3rc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k3rc);
   return code_ptr[1];
 }
 
-uint16_t dexInstr_getVRegB_45cc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_45cc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
   return code_ptr[1];
 }
 
-uint16_t dexInstr_getVRegB_4rcc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegB_4rcc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
   return code_ptr[1];
 }
 
-uint64_t dexInstr_getVRegB_51l(uint16_t *code_ptr) {
+u8 dexInstr_getVRegB_51l(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k51l);
-  uint64_t vB_wide = (code_ptr[1] | ((uint32_t)code_ptr[2] << 16)) |
-                     ((uint64_t)(code_ptr[3] | ((uint32_t)code_ptr[4] << 16)) << 32);
+  u8 vB_wide =
+      (code_ptr[1] | ((u4)code_ptr[2] << 16)) | ((u8)(code_ptr[3] | ((u4)code_ptr[4] << 16)) << 32);
   return vB_wide;
 }
 
-bool dexInstr_hasVRegC(uint16_t *code_ptr) {
+bool dexInstr_hasVRegC(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k22b:
       return true;
@@ -546,7 +546,7 @@ bool dexInstr_hasVRegC(uint16_t *code_ptr) {
   }
 }
 
-int32_t dexInstr_getVRegC(uint16_t *code_ptr) {
+s4 dexInstr_getVRegC(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k22b:
       return dexInstr_getVRegC_22b(code_ptr);
@@ -573,52 +573,52 @@ int32_t dexInstr_getVRegC(uint16_t *code_ptr) {
   }
 }
 
-int8_t dexInstr_getVRegC_22b(uint16_t *code_ptr) {
+s1 dexInstr_getVRegC_22b(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22b);
-  return (int8_t)(code_ptr[1] >> 8);
+  return (s1)(code_ptr[1] >> 8);
 }
 
-uint16_t dexInstr_getVRegC_22c(uint16_t *code_ptr) {
+u2 dexInstr_getVRegC_22c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
   return code_ptr[1];
 }
 
-int16_t dexInstr_getVRegC_22s(uint16_t *code_ptr) {
+s2 dexInstr_getVRegC_22s(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22s);
-  return (int16_t)(code_ptr[1]);
+  return (s2)(code_ptr[1]);
 }
 
-int16_t dexInstr_getVRegC_22t(uint16_t *code_ptr) {
+s2 dexInstr_getVRegC_22t(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22t);
-  return (int16_t)(code_ptr[1]);
+  return (s2)(code_ptr[1]);
 }
 
-uint8_t dexInstr_getVRegC_23x(uint16_t *code_ptr) {
+u1 dexInstr_getVRegC_23x(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k23x);
-  return (uint8_t)(code_ptr[1] >> 8);
+  return (u1)(code_ptr[1] >> 8);
 }
 
-uint8_t dexInstr_getVRegC_35c(uint16_t *code_ptr) {
+u1 dexInstr_getVRegC_35c(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k35c);
-  return (uint8_t)(code_ptr[2] & 0x0f);
+  return (u1)(code_ptr[2] & 0x0f);
 }
 
-uint16_t dexInstr_getVRegC_3rc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegC_3rc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k3rc);
   return code_ptr[2];
 }
 
-uint8_t dexInstr_getVRegC_45cc(uint16_t *code_ptr) {
+u1 dexInstr_getVRegC_45cc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
-  return (uint8_t)(code_ptr[2] & 0x0f);
+  return (u1)(code_ptr[2] & 0x0f);
 }
 
-uint16_t dexInstr_getVRegC_4rcc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegC_4rcc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
   return code_ptr[2];
 }
 
-bool dexInstr_hasVRegH(uint16_t *code_ptr) {
+bool dexInstr_hasVRegH(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k45cc:
       return true;
@@ -629,7 +629,7 @@ bool dexInstr_hasVRegH(uint16_t *code_ptr) {
   }
 }
 
-int32_t dexInstr_getVRegH(uint16_t *code_ptr) {
+s4 dexInstr_getVRegH(u2 *code_ptr) {
   switch (kInstructionFormats[dexInstr_getOpcode(code_ptr)]) {
     case k45cc:
       return dexInstr_getVRegH_45cc(code_ptr);
@@ -642,12 +642,12 @@ int32_t dexInstr_getVRegH(uint16_t *code_ptr) {
   }
 }
 
-bool dexInstr_HasVarArgs(uint16_t *code_ptr) {
+bool dexInstr_HasVarArgs(u2 *code_ptr) {
   return (kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k35c) ||
          (kInstructionFormats[dexInstr_getOpcode(code_ptr)] == k45cc);
 }
 
-void dexInstr_getVarArgs(uint16_t *code_ptr, uint32_t arg[kMaxVarArgRegs]) {
+void dexInstr_getVarArgs(u2 *code_ptr, u4 arg[kMaxVarArgRegs]) {
   CHECK(dexInstr_HasVarArgs(code_ptr));
 
   // Note that the fields mentioned in the spec don't appear in
@@ -658,8 +658,8 @@ void dexInstr_getVarArgs(uint16_t *code_ptr, uint32_t arg[kMaxVarArgRegs]) {
   //
   // Bottom line: The argument count is always in vA, and the
   // method constant (or equivalent) is always in vB.
-  uint16_t regList = code_ptr[2];
-  uint8_t count = InstB(code_ptr);  // This is labeled A in the spec.
+  u2 regList = code_ptr[2];
+  u1 count = InstB(code_ptr);  // This is labeled A in the spec.
   if (count > 5U) {
     LOGMSG(l_FATAL, "Invalid arg count in 35c (%" PRIx8 ")", count);
   }
@@ -690,47 +690,47 @@ void dexInstr_getVarArgs(uint16_t *code_ptr, uint32_t arg[kMaxVarArgRegs]) {
   }
 }
 
-uint16_t dexInstr_getVRegH_45cc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegH_45cc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k45cc);
   return code_ptr[3];
 }
 
-uint16_t dexInstr_getVRegH_4rcc(uint16_t *code_ptr) {
+u2 dexInstr_getVRegH_4rcc(u2 *code_ptr) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k4rcc);
   return code_ptr[3];
 }
 
-void dexInstr_SetVRegA_10x(uint16_t *code_ptr, uint8_t val) {
+void dexInstr_SetVRegA_10x(u2 *code_ptr, u1 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k10x);
   code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
 }
 
-void dexInstr_SetVRegB_3rc(uint16_t *code_ptr, uint16_t val) {
+void dexInstr_SetVRegB_3rc(u2 *code_ptr, u2 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k3rc);
   code_ptr[1] = val;
 }
 
-void dexInstr_SetVRegB_35c(uint16_t *code_ptr, uint16_t val) {
+void dexInstr_SetVRegB_35c(u2 *code_ptr, u2 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k35c);
   code_ptr[1] = val;
 }
 
-void dexInstr_SetVRegC_22c(uint16_t *code_ptr, uint16_t val) {
+void dexInstr_SetVRegC_22c(u2 *code_ptr, u2 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k22c);
   code_ptr[1] = val;
 }
 
-void dexInstr_SetVRegA_21c(uint16_t *code_ptr, uint8_t val) {
+void dexInstr_SetVRegA_21c(u2 *code_ptr, u1 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21c);
   code_ptr[0] = (val << 8) | (code_ptr[0] & 0x00ff);
 }
 
-void dexInstr_SetVRegB_21c(uint16_t *code_ptr, uint16_t val) {
+void dexInstr_SetVRegB_21c(u2 *code_ptr, u2 val) {
   CHECK_EQ(kInstructionFormats[dexInstr_getOpcode(code_ptr)], k21c);
   code_ptr[1] = val;
 }
 
-uint32_t dexInstr_SizeInCodeUnits(uint16_t *code_ptr) {
+u4 dexInstr_SizeInCodeUnits(u2 *code_ptr) {
   int result = kInstructionSizeInCodeUnits[dexInstr_getOpcode(code_ptr)];
   if (result < 0) {
     return SizeInCodeUnitsComplexOpcode(code_ptr);

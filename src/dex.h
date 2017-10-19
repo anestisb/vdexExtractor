@@ -31,8 +31,8 @@
 #define kDexVersionLen 4
 #define kSHA1Len 20
 
-static const uint8_t kDexMagic[] = { 'd', 'e', 'x', '\n' };
-static const uint8_t kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {
+static const u1 kDexMagic[] = { 'd', 'e', 'x', '\n' };
+static const u1 kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {
   { '0', '3', '5', '\0' },
   // Dex version 036 skipped
   { '0', '3', '7', '\0' },
@@ -192,32 +192,32 @@ bool dex_isValidDexMagic(const dexHeader *);
 void dex_dumpHeaderInfo(const dexHeader *);
 
 // Compute Dex file CRC
-uint32_t dex_computeDexCRC(const uint8_t *, off_t);
+u4 dex_computeDexCRC(const u1 *, off_t);
 
 // Repair Dex file CRC
-void dex_repairDexCRC(const uint8_t *, off_t);
+void dex_repairDexCRC(const u1 *, off_t);
 
 // Reads an unsigned LEB128 (Little-Endian Base 128) value, updating the
 // given pointer to point just past the end of the read value. This function
 // tolerates non-zero high-order bits in the fifth encoded byte.
-uint32_t dex_readULeb128(const u1 **);
+u4 dex_readULeb128(const u1 **);
 
 // Reads a signed LEB128 value, updating the given pointer to point
 // just past the end of the read value. This function tolerates
 // non-zero high-order bits in the fifth encoded byte.
-int32_t dex_readSLeb128(const uint8_t **);
+s4 dex_readSLeb128(const u1 **);
 
 // Get the offset of the first instruction for a given dexMethod
-uint32_t dex_getFirstInstrOff(const dexMethod *);
+u4 dex_getFirstInstrOff(const dexMethod *);
 
 // Read Leb128 class data header
-void dex_readClassDataHeader(const uint8_t **, dexClassDataHeader *);
+void dex_readClassDataHeader(const u1 **, dexClassDataHeader *);
 
 // Read a Leb128 class data field item
-void dex_readClassDataField(const uint8_t **, dexField *);
+void dex_readClassDataField(const u1 **, dexField *);
 
 // Read a Leb128 class data method item
-void dex_readClassDataMethod(const uint8_t **, dexMethod *);
+void dex_readClassDataMethod(const u1 **, dexMethod *);
 
 // Methods to access Dex file primitive types
 const dexStringId *dex_getStringId(const u1 *, u2);

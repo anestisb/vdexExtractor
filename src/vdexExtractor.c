@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
   for (size_t f = 0; f < pFiles.fileCnt; f++) {
     off_t fileSz = 0;
     int srcfd = -1;
-    uint8_t *buf = NULL;
+    u1 *buf = NULL;
 
     LOGMSG(l_DEBUG, "Processing '%s'", pFiles.files[f]);
 
@@ -201,8 +201,8 @@ int main(int argc, char **argv) {
       }
     }
 
-    const uint8_t *current_data = NULL;
-    uint32_t offset = 0;
+    const u1 *current_data = NULL;
+    u4 offset = 0;
     for (size_t i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
       current_data = vdex_GetNextDexFileData(buf, &offset);
       if (current_data == NULL) {

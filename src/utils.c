@@ -129,7 +129,7 @@ bool utils_init(infiles_t *pFiles) {
   return true;
 }
 
-bool utils_writeToFd(int fd, const uint8_t *buf, off_t fileSz) {
+bool utils_writeToFd(int fd, const u1 *buf, off_t fileSz) {
   off_t written = 0;
   while (written < fileSz) {
     ssize_t sz = write(fd, &buf[written], fileSz - written);
@@ -143,7 +143,7 @@ bool utils_writeToFd(int fd, const uint8_t *buf, off_t fileSz) {
   return true;
 }
 
-uint8_t *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
+u1 *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
   if ((*fd = open(fileName, O_RDONLY)) == -1) {
     LOGMSG_P(l_WARN, "Couldn't open() '%s' file in R/O mode", fileName);
     return NULL;
@@ -156,7 +156,7 @@ uint8_t *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
     return NULL;
   }
 
-  uint8_t *buf;
+  u1 *buf;
   if ((buf = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, *fd, 0)) == MAP_FAILED) {
     LOGMSG_P(l_WARN, "Couldn't mmap() the '%s' file", fileName);
     close(*fd);
@@ -167,7 +167,7 @@ uint8_t *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
   return buf;
 }
 
-void utils_hexDump(char *desc, const uint8_t *addr, int len) {
+void utils_hexDump(char *desc, const u1 *addr, int len) {
   int i;
   unsigned char buff[17];
   unsigned char *pc = (unsigned char *)addr;

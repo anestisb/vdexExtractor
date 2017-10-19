@@ -148,7 +148,7 @@ typedef enum {
 
 // clang-format off
 
-static const uint32_t kMaxVarArgRegs = 5;
+static const u4 kMaxVarArgRegs = 5;
 
 static const char* const kInstructionNames[] = {
 #define INSTRUCTION_NAME(o, c, pname, f, i, a, v) pname,
@@ -178,96 +178,96 @@ static int const kInstructionSizeInCodeUnits[] = {
 // clang-format on
 
 // Instruction opcode functions
-Code dexInstr_getOpcode(uint16_t *);
-const char *dexInst_getOpcodeStr(uint16_t *);
-void dexInstr_SetOpcode(uint16_t *, Code);
+Code dexInstr_getOpcode(u2 *);
+const char *dexInst_getOpcodeStr(u2 *);
+void dexInstr_SetOpcode(u2 *, Code);
 
 // VRegA
-bool dexInstr_hasVRegA(uint16_t *);
-int32_t dexInstr_getVRegA(uint16_t *);
-int8_t dexInstr_getVRegA_10t(uint16_t *);
-uint8_t dexInstr_getVRegA_10x(uint16_t *);
-uint8_t dexInstr_getVRegA_11n(uint16_t *);
-uint8_t dexInstr_getVRegA_11x(uint16_t *);
-uint8_t dexInstr_getVRegA_12x(uint16_t *);
-int16_t dexInstr_getVRegA_20t(uint16_t *);
-uint8_t dexInstr_getVRegA_21c(uint16_t *);
-uint8_t dexInstr_getVRegA_21h(uint16_t *);
-uint8_t dexInstr_getVRegA_21s(uint16_t *);
-uint8_t dexInstr_getVRegA_21t(uint16_t *);
-uint8_t dexInstr_getVRegA_22b(uint16_t *);
-uint8_t dexInstr_getVRegA_22c(uint16_t *);
-uint8_t dexInstr_getVRegA_22s(uint16_t *);
-uint8_t dexInstr_getVRegA_22t(uint16_t *);
-uint8_t dexInstr_getVRegA_22x(uint16_t *);
-uint8_t dexInstr_getVRegA_23x(uint16_t *);
-int32_t dexInstr_getVRegA_30t(uint16_t *);
-uint8_t dexInstr_getVRegA_31c(uint16_t *);
-uint8_t dexInstr_getVRegA_31i(uint16_t *);
-uint8_t dexInstr_getVRegA_31t(uint16_t *);
-uint16_t dexInstr_getVRegA_32x(uint16_t *);
-uint8_t dexInstr_getVRegA_35c(uint16_t *);
-uint8_t dexInstr_getVRegA_3rc(uint16_t *);
-uint8_t dexInstr_getVRegA_51l(uint16_t *);
-uint8_t dexInstr_getVRegA_45cc(uint16_t *);
-uint8_t dexInstr_getVRegA_4rcc(uint16_t *);
+bool dexInstr_hasVRegA(u2 *);
+s4 dexInstr_getVRegA(u2 *);
+s1 dexInstr_getVRegA_10t(u2 *);
+u1 dexInstr_getVRegA_10x(u2 *);
+u1 dexInstr_getVRegA_11n(u2 *);
+u1 dexInstr_getVRegA_11x(u2 *);
+u1 dexInstr_getVRegA_12x(u2 *);
+s2 dexInstr_getVRegA_20t(u2 *);
+u1 dexInstr_getVRegA_21c(u2 *);
+u1 dexInstr_getVRegA_21h(u2 *);
+u1 dexInstr_getVRegA_21s(u2 *);
+u1 dexInstr_getVRegA_21t(u2 *);
+u1 dexInstr_getVRegA_22b(u2 *);
+u1 dexInstr_getVRegA_22c(u2 *);
+u1 dexInstr_getVRegA_22s(u2 *);
+u1 dexInstr_getVRegA_22t(u2 *);
+u1 dexInstr_getVRegA_22x(u2 *);
+u1 dexInstr_getVRegA_23x(u2 *);
+s4 dexInstr_getVRegA_30t(u2 *);
+u1 dexInstr_getVRegA_31c(u2 *);
+u1 dexInstr_getVRegA_31i(u2 *);
+u1 dexInstr_getVRegA_31t(u2 *);
+u2 dexInstr_getVRegA_32x(u2 *);
+u1 dexInstr_getVRegA_35c(u2 *);
+u1 dexInstr_getVRegA_3rc(u2 *);
+u1 dexInstr_getVRegA_51l(u2 *);
+u1 dexInstr_getVRegA_45cc(u2 *);
+u1 dexInstr_getVRegA_4rcc(u2 *);
 
 // VRegB
-bool dexInstr_hasVRegB(uint16_t *);
-int32_t dexInstr_getVRegB(uint16_t *);
-uint64_t dexInstr_getWideVRegB(uint16_t *);
-int8_t dexInstr_getVRegB_11n(uint16_t *);
-uint8_t dexInstr_getVRegB_12x(uint16_t *);
-uint16_t dexInstr_getVRegB_21c(uint16_t *);
-uint16_t dexInstr_getVRegB_21h(uint16_t *);
-int16_t dexInstr_getVRegB_21s(uint16_t *);
-int16_t dexInstr_getVRegB_21t(uint16_t *);
-uint8_t dexInstr_getVRegB_22b(uint16_t *);
-uint8_t dexInstr_getVRegB_22c(uint16_t *);
-uint8_t dexInstr_getVRegB_22s(uint16_t *);
-uint8_t dexInstr_getVRegB_22t(uint16_t *);
-uint16_t dexInstr_getVRegB_22x(uint16_t *);
-uint8_t dexInstr_getVRegB_23x(uint16_t *);
-uint32_t dexInstr_getVRegB_31c(uint16_t *);
-int32_t dexInstr_getVRegB_31i(uint16_t *);
-int32_t dexInstr_getVRegB_31t(uint16_t *);
-uint16_t dexInstr_getVRegB_32x(uint16_t *);
-uint16_t dexInstr_getVRegB_35c(uint16_t *);
-uint16_t dexInstr_getVRegB_3rc(uint16_t *);
-uint16_t dexInstr_getVRegB_45cc(uint16_t *);
-uint16_t dexInstr_getVRegB_4rcc(uint16_t *);
-uint64_t dexInstr_getVRegB_51l(uint16_t *);
+bool dexInstr_hasVRegB(u2 *);
+s4 dexInstr_getVRegB(u2 *);
+u8 dexInstr_getWideVRegB(u2 *);
+s1 dexInstr_getVRegB_11n(u2 *);
+u1 dexInstr_getVRegB_12x(u2 *);
+u2 dexInstr_getVRegB_21c(u2 *);
+u2 dexInstr_getVRegB_21h(u2 *);
+s2 dexInstr_getVRegB_21s(u2 *);
+s2 dexInstr_getVRegB_21t(u2 *);
+u1 dexInstr_getVRegB_22b(u2 *);
+u1 dexInstr_getVRegB_22c(u2 *);
+u1 dexInstr_getVRegB_22s(u2 *);
+u1 dexInstr_getVRegB_22t(u2 *);
+u2 dexInstr_getVRegB_22x(u2 *);
+u1 dexInstr_getVRegB_23x(u2 *);
+u4 dexInstr_getVRegB_31c(u2 *);
+s4 dexInstr_getVRegB_31i(u2 *);
+s4 dexInstr_getVRegB_31t(u2 *);
+u2 dexInstr_getVRegB_32x(u2 *);
+u2 dexInstr_getVRegB_35c(u2 *);
+u2 dexInstr_getVRegB_3rc(u2 *);
+u2 dexInstr_getVRegB_45cc(u2 *);
+u2 dexInstr_getVRegB_4rcc(u2 *);
+u8 dexInstr_getVRegB_51l(u2 *);
 
 // VRegC
-bool dexInstr_hasVRegC(uint16_t *);
-int32_t dexInstr_getVRegC(uint16_t *);
-int8_t dexInstr_getVRegC_22b(uint16_t *);
-uint16_t dexInstr_getVRegC_22c(uint16_t *);
-int16_t dexInstr_getVRegC_22s(uint16_t *);
-int16_t dexInstr_getVRegC_22t(uint16_t *);
-uint8_t dexInstr_getVRegC_23x(uint16_t *);
-uint8_t dexInstr_getVRegC_35c(uint16_t *);
-uint16_t dexInstr_getVRegC_3rc(uint16_t *);
-uint8_t dexInstr_getVRegC_45cc(uint16_t *);
-uint16_t dexInstr_getVRegC_4rcc(uint16_t *);
+bool dexInstr_hasVRegC(u2 *);
+s4 dexInstr_getVRegC(u2 *);
+s1 dexInstr_getVRegC_22b(u2 *);
+u2 dexInstr_getVRegC_22c(u2 *);
+s2 dexInstr_getVRegC_22s(u2 *);
+s2 dexInstr_getVRegC_22t(u2 *);
+u1 dexInstr_getVRegC_23x(u2 *);
+u1 dexInstr_getVRegC_35c(u2 *);
+u2 dexInstr_getVRegC_3rc(u2 *);
+u1 dexInstr_getVRegC_45cc(u2 *);
+u2 dexInstr_getVRegC_4rcc(u2 *);
 
 // VRegH
-bool dexInstr_hasVRegH(uint16_t *);
-int32_t dexInstr_getVRegH(uint16_t *);
-uint16_t dexInstr_getVRegH_45cc(uint16_t *);
-uint16_t dexInstr_getVRegH_4rcc(uint16_t *);
-bool dexInstr_hasVarArgs(uint16_t *);
-void dexInstr_getVarArgs(uint16_t *, uint32_t[]);
+bool dexInstr_hasVRegH(u2 *);
+s4 dexInstr_getVRegH(u2 *);
+u2 dexInstr_getVRegH_45cc(u2 *);
+u2 dexInstr_getVRegH_4rcc(u2 *);
+bool dexInstr_hasVarArgs(u2 *);
+void dexInstr_getVarArgs(u2 *, u4[]);
 
 // Set register functions
-void dexInstr_SetVRegA_10x(uint16_t *, uint8_t);
-void dexInstr_SetVRegB_3rc(uint16_t *, uint16_t);
-void dexInstr_SetVRegB_35c(uint16_t *, uint16_t);
-void dexInstr_SetVRegC_22c(uint16_t *, uint16_t);
-void dexInstr_SetVRegA_21c(uint16_t *, uint8_t);
-void dexInstr_SetVRegB_21c(uint16_t *, uint16_t);
+void dexInstr_SetVRegA_10x(u2 *, u1);
+void dexInstr_SetVRegB_3rc(u2 *, u2);
+void dexInstr_SetVRegB_35c(u2 *, u2);
+void dexInstr_SetVRegC_22c(u2 *, u2);
+void dexInstr_SetVRegA_21c(u2 *, u1);
+void dexInstr_SetVRegB_21c(u2 *, u2);
 
 // Returns the size (in 2 byte code units) of this instruction.
-uint32_t dexInstr_SizeInCodeUnits(uint16_t *);
+u4 dexInstr_SizeInCodeUnits(u2 *);
 
 #endif

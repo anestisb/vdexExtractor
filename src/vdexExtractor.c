@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
 
     const u1 *current_data = NULL;
     u4 offset = 0;
-    for (size_t i = 0; i < pVdexHeader->number_of_dex_files_; ++i) {
+    for (size_t i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
       current_data = vdex_GetNextDexFileData(buf, &offset);
       if (current_data == NULL) {
         LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", i);

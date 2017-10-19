@@ -41,12 +41,12 @@ static const u1 kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
 typedef u4 VdexChecksum;
 
 typedef struct __attribute__((packed)) {
-  u1 magic_[4];
-  u1 version_[4];
-  u4 number_of_dex_files_;
-  u4 dex_size_;
-  u4 verifier_deps_size_;
-  u4 quickening_info_size_;
+  u1 magic[4];
+  u1 version[4];
+  u4 numberOfDexFiles;
+  u4 dexSize;
+  u4 verifierDepsSize;
+  u4 quickeningInfoSize;
 } vdexHeader;
 
 // Vdex files contain extracted Dex files.

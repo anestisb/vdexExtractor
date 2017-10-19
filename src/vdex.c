@@ -297,7 +297,7 @@ bool vdex_Unquicken(const u1 *cursor) {
   }
 
   if (quickening_info_ptr != quickening_info_end) {
-    LOGMSG(l_ERROR, "Failed to process all outer quickening info");
+    LOGMSG(l_ERROR, "Failed to process all quickening info data");
     return false;
   }
 

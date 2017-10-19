@@ -48,7 +48,7 @@ cat <<_EOF
       -o|--output <dir>  : Output directory to save extracted data (default is '.')
       -d|--device <devID>: Device serial to use instead of default interactive selection
       --system-apps      : Extract system apps too (default is user apps only)
-      --apks             : Extract apks (default is optimized Dex)
+      --apks             : Extract apks (default is optimized files only)
       -h|--help          : This help message
 _EOF
   abort 1

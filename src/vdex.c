@@ -153,11 +153,11 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
   LOGMSG(l_VDEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")",
          pVdexHeader->dexSize, pVdexHeader->dexSize);
   LOGMSG(l_VDEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
-         pVdexHeader->verifierDepsSize, pVdexHeader->verifierDepsSize);
+         vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
   LOGMSG(l_VDEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
          vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
   LOGMSG(l_VDEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")",
-         pVdexHeader->quickeningInfoSize, pVdexHeader->quickeningInfoSize);
+         vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
   LOGMSG(l_VDEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")",
          vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
   LOGMSG(l_VDEBUG, "dex files info              :")

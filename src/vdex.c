@@ -150,8 +150,8 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
          pVdexHeader->version);
   LOGMSG(l_VDEBUG, "number of dex files         : %" PRIx32 " (%" PRIu32 ")",
          pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
-  LOGMSG(l_VDEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")",
-         pVdexHeader->dexSize, pVdexHeader->dexSize);
+  LOGMSG(l_VDEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")", pVdexHeader->dexSize,
+         pVdexHeader->dexSize);
   LOGMSG(l_VDEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
          vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
   LOGMSG(l_VDEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
@@ -166,7 +166,7 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
     LOGMSG(l_VDEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
            vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
-  LOGMSG(l_VDEBUG, "------------------------------");
+  LOGMSG(l_VDEBUG, "---- EOF Vdex Header Info ----");
 }
 
 bool vdex_Unquicken(const u1 *cursor) {

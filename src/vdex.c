@@ -72,6 +72,8 @@ u4 vdex_DexEndOffset(const u1 *cursor) {
   return vdex_DexBeginOffset(cursor) + pVdexHeader->dexSize;
 }
 
+// TODO: Cache embedded Dex file offsets so that we don't have to parse from scratch when we
+// want to iterate over all files.
 const u1 *vdex_GetNextDexFileData(const u1 *cursor, u4 *offset) {
   if (*offset == 0) {
     if (vdex_hasDexSection(cursor)) {

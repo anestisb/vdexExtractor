@@ -260,6 +260,12 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
 }
 
 vdexDeps *vdex_initDepsInfo(const u1 *vdexFileBuf) {
+  if (vdex_GetVerifierDepsDataSize(vdexFileBuf) == 0) {
+    // Return eagerly, as the first thing we expect from VerifierDeps data is
+    // the number of created strings, even if there is no dependency.
+    return NULL;
+  }
+
   vdexDeps *pVdexDeps = utils_malloc(sizeof(vdexDeps));
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)vdexFileBuf;

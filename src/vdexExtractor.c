@@ -197,8 +197,12 @@ int main(int argc, char **argv) {
 
     if (dumpDeps) {
       vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
-      vdex_dumpDepsInfo(buf, pVdexDeps);
-      vdex_destroyDepsInfo(pVdexDeps);
+      if (pVdexDeps == NULL) {
+        LOGMSG(l_WARN, "Empty verified dependencies")
+      } else {
+        vdex_dumpDepsInfo(buf, pVdexDeps);
+        vdex_destroyDepsInfo(pVdexDeps);
+      }
     }
 
     if (unquicken) {

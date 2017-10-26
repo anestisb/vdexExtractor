@@ -39,6 +39,7 @@ static void usage(bool exit_success) {
              " -o, --output=<path>  : output path (default is same as input)\n"
              " -f, --file-override  : allow output file override if already exists\n"
              " -u, --unquicken      : enable unquicken bytecode decompiler\n"
+             " -D, --dump-deps      : dump verified dependencies information (experimental)\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save output to log file (default is STDOUT)\n"
@@ -90,6 +91,7 @@ int main(int argc, char **argv) {
   const char *logFile = NULL;
   char *outputDir = NULL;
   bool unquicken = false;
+  bool dumpDeps = false;
   bool fileOverride = false;
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
@@ -97,17 +99,15 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = { { "input", required_argument, 0, 'i' },
-                               { "output", required_argument, 0, 'o' },
-                               { "file-override", no_argument, 0, 'f' },
-                               { "unquicken", no_argument, 0, 'u' },
-                               { "disassemble", no_argument, 0, 'd' },
-                               { "debug", required_argument, 0, 'v' },
-                               { "log-file", required_argument, 0, 'l' },
-                               { "help", no_argument, 0, 'h' },
-                               { 0, 0, 0, 0 } };
+  struct option longopts[] = {
+    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
+    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
+    { "disassemble", no_argument, 0, 'd' },   { "dump-deps", no_argument, 0, 'D' },
+    { "debug", required_argument, 0, 'v' },   { "log-file", required_argument, 0, 'l' },
+    { "help", no_argument, 0, 'h' },          { 0, 0, 0, 0 }
+  };
 
-  while ((c = getopt_long(argc, argv, "i:o:fudv:l:h", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fudDv:l:h", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -123,6 +123,9 @@ int main(int argc, char **argv) {
         break;
       case 'd':
         log_enableVerbDebug();
+        break;
+      case 'D':
+        dumpDeps = true;
         break;
       case 'v':
         logLevel = atoi(optarg);
@@ -191,6 +194,12 @@ int main(int argc, char **argv) {
       continue;
     }
     vdex_dumpHeaderInfo(buf);
+
+    if (dumpDeps) {
+      vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
+      vdex_dumpDepsInfo(buf, pVdexDeps);
+      vdex_destroyDepsInfo(pVdexDeps);
+    }
 
     if (unquicken) {
       if (vdex_Unquicken(buf) == false) {

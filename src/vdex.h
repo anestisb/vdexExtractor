@@ -63,6 +63,73 @@ typedef struct __attribute__((packed)) {
   dexHeader *pDexFiles;
 } vdexFile;
 
+typedef struct __attribute__((packed)) {
+  u4 numberOfStrings;
+  const char **strings;
+} vdexDepStrings;
+
+typedef struct __attribute__((packed)) {
+  u4 dstIndex;
+  u4 srcIndex;
+} vdexDepSet;
+
+typedef struct __attribute__((packed)) {
+  u2 typeIdx;
+  u2 accessFlags;
+} vdexDepClassRes;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepSet *pVdexDepSets;
+} vdexDepTypeSet;
+
+typedef struct __attribute__((packed)) {
+  u4 fieldIdx;
+  u2 accessFlags;
+  u4 declaringClassIdx;
+} vdexDepFieldRes;
+
+typedef struct __attribute__((packed)) {
+  u4 methodIdx;
+  u2 accessFlags;
+  u4 declaringClassIdx;
+} vdexDepMethodRes;
+
+typedef struct __attribute__((packed)) { u2 typeIdx; } vdexDepUnvfyClass;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepClassRes *pVdexDepClasses;
+} vdexDepClassResSet;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepFieldRes *pVdexDepFields;
+} vdexDepFieldResSet;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepMethodRes *pVdexDepMethods;
+} vdexDepMethodResSet;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepUnvfyClass *pVdexDepUnvfyClasses;
+} vdexDepUnvfyClassesSet;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepStrings extraStrings;
+  vdexDepTypeSet assignTypeSets;
+  vdexDepTypeSet unassignTypeSets;
+  vdexDepClassResSet classes;
+  vdexDepFieldResSet fields;
+  vdexDepMethodResSet directMethods;
+  vdexDepMethodResSet virtualMethods;
+  vdexDepMethodResSet interfaceMethods;
+  vdexDepUnvfyClassesSet unvfyClasses;
+} vdexDeps;
+
 // Verify if valid Vdex file
 bool vdex_isValidVdex(const u1 *);
 bool vdex_isMagicValid(const u1 *);
@@ -84,6 +151,11 @@ u4 vdex_GetQuickeningInfoSize(const u1 *);
 u4 vdex_GetQuickeningInfoOffset(const u1 *);
 
 void vdex_dumpHeaderInfo(const u1 *);
+
+vdexDeps *vdex_initDepsInfo(const u1 *);
+void vdex_destroyDepsInfo(const vdexDeps *);
+void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
+
 bool vdex_Unquicken(const u1 *);
 
 #endif

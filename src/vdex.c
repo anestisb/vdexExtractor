@@ -428,6 +428,14 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
                          "virtual");
       dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->interfaceMethods,
                          "interface");
+
+      LOGMSG(l_VDEBUG, " unverified classes: number_of_classes=%" PRIu32,
+             pVdexDeps->unvfyClasses.numberOfEntries);
+      for (u4 i = 0; i < pVdexDeps->unvfyClasses.numberOfEntries; ++i) {
+        LOGMSG(l_VDEBUG, "  %04" PRIu32 ": %s is expected to be verified at runtime", i,
+               dex_getStringByTypeIdx(dexFileBuf,
+                                      pVdexDeps->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
+      }
     }
   }
   LOGMSG(l_VDEBUG, "----- EOF Vdex Deps Info -----");

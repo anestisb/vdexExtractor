@@ -239,6 +239,8 @@ const char *dex_getFieldDeclaringClassDescriptor(const u1 *, const dexFieldId *)
 const char *dex_getTypeDescriptor(const u1 *, const dexTypeId *);
 const char *dex_getFieldName(const u1 *, const dexFieldId *);
 const char *dex_getFieldTypeDescriptor(const u1 *, const dexFieldId *);
+const char *dex_getMethodDeclaringClassDescriptor(const u1 *, const dexMethodId *);
+const char *dex_getMethodName(const u1 *, const dexMethodId *);
 
 // Functions to print information of primitive types (mainly used by disassembler)
 void dex_dumpClassInfo(const u1 *, u4);

@@ -613,6 +613,16 @@ const char *dex_getFieldTypeDescriptor(const u1 *dexFileBuf, const dexFieldId *p
   return dex_getTypeDescriptor(dexFileBuf, pDexTypeId);
 }
 
+const char *dex_getMethodDeclaringClassDescriptor(const u1 *dexFileBuf,
+                                                  const dexMethodId *pDexMethodId) {
+  const dexTypeId *pDexTypeId = dex_getTypeId(dexFileBuf, pDexMethodId->classIdx);
+  return dex_getTypeDescriptor(dexFileBuf, pDexTypeId);
+}
+
+const char *dex_getMethodName(const u1 *dexFileBuf, const dexMethodId *pDexMethodId) {
+  return dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
+}
+
 void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
   const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, idx);
   const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);

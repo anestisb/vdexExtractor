@@ -53,7 +53,9 @@ static void decodeDepTypeSet(const u1 **in, const u1 *end, vdexDepTypeSet *pVdex
   }
 }
 
-static void decodeDepClasses(const u1 **in, const u1 *end, vdexDepClassResSet *pVdexDepClassResSet) {
+static void decodeDepClasses(const u1 **in,
+                             const u1 *end,
+                             vdexDepClassResSet *pVdexDepClassResSet) {
   u4 numOfEntries = decodeUint32WithOverflowCheck(in, end);
   pVdexDepClassResSet->pVdexDepClasses = utils_malloc(numOfEntries * sizeof(vdexDepClassRes));
   pVdexDepClassResSet->numberOfEntries = numOfEntries;
@@ -75,7 +77,9 @@ static void decodeDepFields(const u1 **in, const u1 *end, vdexDepFieldResSet *pV
   }
 }
 
-static void decodeDepMethods(const u1 **in, const u1 *end, vdexDepMethodResSet *pVdexDepMethodResSet) {
+static void decodeDepMethods(const u1 **in,
+                             const u1 *end,
+                             vdexDepMethodResSet *pVdexDepMethodResSet) {
   u4 numOfEntries = decodeUint32WithOverflowCheck(in, end);
   pVdexDepMethodResSet->pVdexDepMethods = utils_malloc(numOfEntries * sizeof(vdexDepMethodRes));
   pVdexDepMethodResSet->numberOfEntries = numOfEntries;
@@ -87,9 +91,12 @@ static void decodeDepMethods(const u1 **in, const u1 *end, vdexDepMethodResSet *
   }
 }
 
-static void decodeDepUnvfyClasses(const u1 **in, const u1 *end, vdexDepUnvfyClassesSet *pVdexDepUnvfyClassesSet) {
+static void decodeDepUnvfyClasses(const u1 **in,
+                                  const u1 *end,
+                                  vdexDepUnvfyClassesSet *pVdexDepUnvfyClassesSet) {
   u4 numOfEntries = decodeUint32WithOverflowCheck(in, end);
-  pVdexDepUnvfyClassesSet->pVdexDepUnvfyClasses = utils_malloc(numOfEntries * sizeof(vdexDepUnvfyClass));
+  pVdexDepUnvfyClassesSet->pVdexDepUnvfyClasses =
+      utils_malloc(numOfEntries * sizeof(vdexDepUnvfyClass));
   pVdexDepUnvfyClassesSet->numberOfEntries = numOfEntries;
   for (u4 i = 0; i < pVdexDepUnvfyClassesSet->numberOfEntries; ++i) {
     pVdexDepUnvfyClassesSet->pVdexDepUnvfyClasses[i].typeIdx =

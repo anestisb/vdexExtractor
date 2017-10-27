@@ -594,6 +594,25 @@ const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId
   }
 }
 
+const char *dex_getFieldDeclaringClassDescriptor(const u1 *dexFileBuf,
+                                                 const dexFieldId *pDexFieldId) {
+  const dexTypeId *pDexTypeId = dex_getTypeId(dexFileBuf, pDexFieldId->classIdx);
+  return dex_getTypeDescriptor(dexFileBuf, pDexTypeId);
+}
+
+const char *dex_getTypeDescriptor(const u1 *dexFileBuf, const dexTypeId *pDexTypeId) {
+  return dex_getStringDataByIdx(dexFileBuf, pDexTypeId->descriptorIdx);
+}
+
+const char *dex_getFieldName(const u1 *dexFileBuf, const dexFieldId *pDexField) {
+  return dex_getStringDataByIdx(dexFileBuf, pDexField->nameIdx);
+}
+
+const char *dex_getFieldTypeDescriptor(const u1 *dexFileBuf, const dexFieldId *pDexFieldId) {
+  const dexTypeId *pDexTypeId = dex_getTypeId(dexFileBuf, pDexFieldId->typeIdx);
+  return dex_getTypeDescriptor(dexFileBuf, pDexTypeId);
+}
+
 void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
   const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, idx);
   const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);

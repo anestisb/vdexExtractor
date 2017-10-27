@@ -119,6 +119,31 @@ static const char *getStringFromId(const vdexDepStrings *pVdexDepStrings,
   }
 }
 
+static void dumpDepsMethodInfo(const u1 *dexFileBuf,
+                               const vdexDepStrings *extraStrings,
+                               const vdexDepMethodResSet *pMethods,
+                               const char *kind) {
+  LOGMSG(l_VDEBUG, " %s method dependencies: number_of_methods=%" PRIu32, kind,
+         pMethods->numberOfEntries);
+  for (u4 i = 0; i < pMethods->numberOfEntries; ++i) {
+    const dexMethodId *pDexMethodId =
+        dex_getMethodId(dexFileBuf, pMethods->pVdexDepMethods[i].methodIdx);
+    u2 accessFlags = pMethods->pVdexDepMethods[i].accessFlags;
+    LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": %s -> %s: %s is expected to be ", i,
+               dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
+               dex_getMethodName(dexFileBuf, pDexMethodId),
+               dex_getMethodSignature(dexFileBuf, pDexMethodId));
+    if (accessFlags == kUnresolvedMarker) {
+      LOGMSG_RAW(l_VDEBUG, "unresolved\n");
+    } else {
+      LOGMSG_RAW(
+          l_VDEBUG, "in class %s, have the access flags %" PRIu16 ", and be of kind %s\n",
+          getStringFromId(extraStrings, pMethods->pVdexDepMethods[i].declaringClassIdx, dexFileBuf),
+          accessFlags, kind);
+    }
+  }
+}
+
 bool vdex_isMagicValid(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return (memcmp(pVdexHeader->magic, kVdexMagic, sizeof(kVdexMagic)) == 0);
@@ -346,13 +371,13 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     }
 
     vdexDepStrings strings = pVdexDeps->extraStrings;
-    LOGMSG(l_VDEBUG, " Extra strings: number_of_strings=%" PRIu32, strings.numberOfStrings);
+    LOGMSG(l_VDEBUG, " extra strings: number_of_strings=%" PRIu32, strings.numberOfStrings);
     for (u4 i = 0; i < strings.numberOfStrings; ++i) {
       LOGMSG(l_VDEBUG, "  %04" PRIu32 ": %s", i, strings.strings[i]);
     }
 
     vdexDepTypeSet aTypes = pVdexDeps->assignTypeSets;
-    LOGMSG(l_VDEBUG, " Assignable type sets: number_of_sets=%" PRIu32, aTypes.numberOfEntries);
+    LOGMSG(l_VDEBUG, " assignable type sets: number_of_sets=%" PRIu32, aTypes.numberOfEntries);
     for (u4 i = 0; i < aTypes.numberOfEntries; ++i) {
       LOGMSG(
           l_VDEBUG, "  %04" PRIu32 ": %s must be assignable to %s", i,
@@ -361,7 +386,7 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     }
 
     vdexDepTypeSet unTypes = pVdexDeps->unassignTypeSets;
-    LOGMSG(l_VDEBUG, " Unassignable type sets: number_of_sets=%" PRIu32, unTypes.numberOfEntries);
+    LOGMSG(l_VDEBUG, " unassignable type sets: number_of_sets=%" PRIu32, unTypes.numberOfEntries);
     for (u4 i = 0; i < unTypes.numberOfEntries; ++i) {
       LOGMSG(
           l_VDEBUG, "  %04" PRIu32 ": %s must not be assignable to %s", i,
@@ -369,7 +394,7 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
           getStringFromId(&pVdexDeps->extraStrings, unTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
     }
 
-    LOGMSG(l_VDEBUG, " Class dependencies: number_of_classes=%" PRIu32,
+    LOGMSG(l_VDEBUG, " class dependencies: number_of_classes=%" PRIu32,
            pVdexDeps->classes.numberOfEntries);
     for (u4 i = 0; i < pVdexDeps->classes.numberOfEntries; ++i) {
       u2 accessFlags = pVdexDeps->classes.pVdexDepClasses[i].accessFlags;
@@ -378,7 +403,7 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
              accessFlags == kUnresolvedMarker ? "must not" : "must", accessFlags);
     }
 
-    LOGMSG(l_VDEBUG, " Field dependencies: number_of_fields=%" PRIu32,
+    LOGMSG(l_VDEBUG, " field dependencies: number_of_fields=%" PRIu32,
            pVdexDeps->fields.numberOfEntries);
     for (u4 i = 0; i < pVdexDeps->fields.numberOfEntries; ++i) {
       const dexFieldId *pDexFieldId =
@@ -397,6 +422,12 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
                             pVdexDeps->fields.pVdexDepFields[i].declaringClassIdx, dexFileBuf),
             accessFlags);
       }
+
+      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->directMethods, "direct");
+      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->virtualMethods,
+                         "virtual");
+      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->interfaceMethods,
+                         "interface");
     }
   }
   LOGMSG(l_VDEBUG, "----- EOF Vdex Deps Info -----");

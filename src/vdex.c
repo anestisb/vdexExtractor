@@ -377,6 +377,27 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
              dex_getStringByTypeIdx(dexFileBuf, pVdexDeps->classes.pVdexDepClasses[i].typeIdx),
              accessFlags == kUnresolvedMarker ? "must not" : "must", accessFlags);
     }
+
+    LOGMSG(l_VDEBUG, " Field dependencies: number_of_fields=%" PRIu32,
+           pVdexDeps->fields.numberOfEntries);
+    for (u4 i = 0; i < pVdexDeps->fields.numberOfEntries; ++i) {
+      const dexFieldId *pDexFieldId =
+          dex_getFieldId(dexFileBuf, pVdexDeps->fields.pVdexDepFields[i].fieldIdx);
+      u2 accessFlags = pVdexDeps->fields.pVdexDepFields[i].accessFlags;
+      LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": %s -> %s: %s is expected to be ", i,
+                 dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
+                 dex_getFieldName(dexFileBuf, pDexFieldId),
+                 dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
+      if (accessFlags == kUnresolvedMarker) {
+        LOGMSG_RAW(l_VDEBUG, "unresolved\n");
+      } else {
+        LOGMSG_RAW(
+            l_VDEBUG, "in class %s and have the access flags %" PRIu16 "\n",
+            getStringFromId(&pVdexDeps->extraStrings,
+                            pVdexDeps->fields.pVdexDepFields[i].declaringClassIdx, dexFileBuf),
+            accessFlags);
+      }
+    }
   }
   LOGMSG(l_VDEBUG, "----- EOF Vdex Deps Info -----");
 }

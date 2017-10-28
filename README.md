@@ -26,7 +26,7 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.2.3
+              vdexExtractor ver. 0.3.0
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 

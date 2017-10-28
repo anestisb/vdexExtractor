@@ -583,6 +583,9 @@ bool vdex_Unquicken(const u1 *cursor, bool enableDisassembler) {
 void vdex_walkDex(const u1 *cursor, bool enableDisassembler) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(enableDisassembler);
+  if (enableDisassembler == false) {
+    return;
+  }
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   const u1 *dexFileBuf = NULL;

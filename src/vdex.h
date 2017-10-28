@@ -118,7 +118,6 @@ typedef struct __attribute__((packed)) {
 } vdexDepUnvfyClassesSet;
 
 typedef struct __attribute__((packed)) {
-  u4 numberOfDexFiles;
   vdexDepStrings extraStrings;
   vdexDepTypeSet assignTypeSets;
   vdexDepTypeSet unassignTypeSets;
@@ -128,6 +127,11 @@ typedef struct __attribute__((packed)) {
   vdexDepMethodResSet virtualMethods;
   vdexDepMethodResSet interfaceMethods;
   vdexDepUnvfyClassesSet unvfyClasses;
+} vdexDepData;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepData *pVdexDepData;
 } vdexDeps;
 
 // Verify if valid Vdex file

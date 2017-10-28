@@ -104,23 +104,22 @@ static void decodeDepUnvfyClasses(const u1 **in,
   }
 }
 
-static const char *getStringFromId(const vdexDepStrings *pVdexDepStrings,
-                                   u4 stringId,
-                                   const u1 *dexFileBuf) {
+static const char *getStringFromId(const vdexDeps *pVdexDeps, u4 stringId, const u1 *dexFileBuf) {
   const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
+  vdexDepStrings extraStrings = pVdexDeps->extraStrings;
   u4 numIdsInDex = pDexHeader->stringIdsSize;
   if (stringId < numIdsInDex) {
     return dex_getStringDataByIdx(dexFileBuf, stringId);
   } else {
     // Adjust offset
     stringId -= numIdsInDex;
-    CHECK_LT(stringId, pVdexDepStrings->numberOfStrings);
-    return pVdexDepStrings->strings[stringId];
+    CHECK_LT(stringId, extraStrings.numberOfStrings);
+    return extraStrings.strings[stringId];
   }
 }
 
 static void dumpDepsMethodInfo(const u1 *dexFileBuf,
-                               const vdexDepStrings *extraStrings,
+                               const vdexDeps *pVdexDeps,
                                const vdexDepMethodResSet *pMethods,
                                const char *kind) {
   LOGMSG(l_VDEBUG, " %s method dependencies: number_of_methods=%" PRIu32, kind,
@@ -129,7 +128,7 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
     const dexMethodId *pDexMethodId =
         dex_getMethodId(dexFileBuf, pMethods->pVdexDepMethods[i].methodIdx);
     u2 accessFlags = pMethods->pVdexDepMethods[i].accessFlags;
-    LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": %s -> %s: %s is expected to be ", i,
+    LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
                dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
                dex_getMethodName(dexFileBuf, pDexMethodId),
                dex_getMethodSignature(dexFileBuf, pDexMethodId));
@@ -137,8 +136,8 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
       LOGMSG_RAW(l_VDEBUG, "unresolved\n");
     } else {
       LOGMSG_RAW(
-          l_VDEBUG, "in class %s, have the access flags %" PRIu16 ", and be of kind %s\n",
-          getStringFromId(extraStrings, pMethods->pVdexDepMethods[i].declaringClassIdx, dexFileBuf),
+          l_VDEBUG, "in class '%s', have the access flags '%" PRIu16 "', and be of kind '%s'\n",
+          getStringFromId(pVdexDeps, pMethods->pVdexDepMethods[i].declaringClassIdx, dexFileBuf),
           accessFlags, kind);
     }
   }
@@ -373,32 +372,30 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     vdexDepStrings strings = pVdexDeps->extraStrings;
     LOGMSG(l_VDEBUG, " extra strings: number_of_strings=%" PRIu32, strings.numberOfStrings);
     for (u4 i = 0; i < strings.numberOfStrings; ++i) {
-      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": %s", i, strings.strings[i]);
+      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": '%s'", i, strings.strings[i]);
     }
 
     vdexDepTypeSet aTypes = pVdexDeps->assignTypeSets;
     LOGMSG(l_VDEBUG, " assignable type sets: number_of_sets=%" PRIu32, aTypes.numberOfEntries);
     for (u4 i = 0; i < aTypes.numberOfEntries; ++i) {
-      LOGMSG(
-          l_VDEBUG, "  %04" PRIu32 ": %s must be assignable to %s", i,
-          getStringFromId(&pVdexDeps->extraStrings, aTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
-          getStringFromId(&pVdexDeps->extraStrings, aTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
+      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": '%s' must be assignable to '%s'", i,
+             getStringFromId(pVdexDeps, aTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
+             getStringFromId(pVdexDeps, aTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
     }
 
     vdexDepTypeSet unTypes = pVdexDeps->unassignTypeSets;
     LOGMSG(l_VDEBUG, " unassignable type sets: number_of_sets=%" PRIu32, unTypes.numberOfEntries);
     for (u4 i = 0; i < unTypes.numberOfEntries; ++i) {
-      LOGMSG(
-          l_VDEBUG, "  %04" PRIu32 ": %s must not be assignable to %s", i,
-          getStringFromId(&pVdexDeps->extraStrings, unTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
-          getStringFromId(&pVdexDeps->extraStrings, unTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
+      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": '%s' must not be assignable to '%s'", i,
+             getStringFromId(pVdexDeps, unTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
+             getStringFromId(pVdexDeps, unTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
     }
 
     LOGMSG(l_VDEBUG, " class dependencies: number_of_classes=%" PRIu32,
            pVdexDeps->classes.numberOfEntries);
     for (u4 i = 0; i < pVdexDeps->classes.numberOfEntries; ++i) {
       u2 accessFlags = pVdexDeps->classes.pVdexDepClasses[i].accessFlags;
-      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": %s %s be resolved with access flags %" PRIu16, i,
+      LOGMSG(l_VDEBUG, "  %04" PRIu32 ": '%s' '%s' be resolved with access flags '%" PRIu16 "'", i,
              dex_getStringByTypeIdx(dexFileBuf, pVdexDeps->classes.pVdexDepClasses[i].typeIdx),
              accessFlags == kUnresolvedMarker ? "must not" : "must", accessFlags);
     }
@@ -409,30 +406,27 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
       const dexFieldId *pDexFieldId =
           dex_getFieldId(dexFileBuf, pVdexDeps->fields.pVdexDepFields[i].fieldIdx);
       u2 accessFlags = pVdexDeps->fields.pVdexDepFields[i].accessFlags;
-      LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": %s -> %s: %s is expected to be ", i,
+      LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
                  dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
                  dex_getFieldName(dexFileBuf, pDexFieldId),
                  dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
       if (accessFlags == kUnresolvedMarker) {
         LOGMSG_RAW(l_VDEBUG, "unresolved\n");
       } else {
-        LOGMSG_RAW(
-            l_VDEBUG, "in class %s and have the access flags %" PRIu16 "\n",
-            getStringFromId(&pVdexDeps->extraStrings,
-                            pVdexDeps->fields.pVdexDepFields[i].declaringClassIdx, dexFileBuf),
-            accessFlags);
+        LOGMSG_RAW(l_VDEBUG, "in class '%s' and have the access flags '%" PRIu16 "'\n",
+                   getStringFromId(pVdexDeps, pVdexDeps->fields.pVdexDepFields[i].declaringClassIdx,
+                                   dexFileBuf),
+                   accessFlags);
       }
 
-      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->directMethods, "direct");
-      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->virtualMethods,
-                         "virtual");
-      dumpDepsMethodInfo(dexFileBuf, &pVdexDeps->extraStrings, &pVdexDeps->interfaceMethods,
-                         "interface");
+      dumpDepsMethodInfo(dexFileBuf, pVdexDeps, &pVdexDeps->directMethods, "direct");
+      dumpDepsMethodInfo(dexFileBuf, pVdexDeps, &pVdexDeps->virtualMethods, "virtual");
+      dumpDepsMethodInfo(dexFileBuf, pVdexDeps, &pVdexDeps->interfaceMethods, "interface");
 
       LOGMSG(l_VDEBUG, " unverified classes: number_of_classes=%" PRIu32,
              pVdexDeps->unvfyClasses.numberOfEntries);
       for (u4 i = 0; i < pVdexDeps->unvfyClasses.numberOfEntries; ++i) {
-        LOGMSG(l_VDEBUG, "  %04" PRIu32 ": %s is expected to be verified at runtime", i,
+        LOGMSG(l_VDEBUG, "  %04" PRIu32 ": '%s' is expected to be verified at runtime", i,
                dex_getStringByTypeIdx(dexFileBuf,
                                       pVdexDeps->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
       }

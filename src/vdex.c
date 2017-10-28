@@ -130,10 +130,11 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
     const dexMethodId *pDexMethodId =
         dex_getMethodId(dexFileBuf, pMethods->pVdexDepMethods[i].methodIdx);
     u2 accessFlags = pMethods->pVdexDepMethods[i].accessFlags;
+    const char *methodSig = dex_getMethodSignature(dexFileBuf, pDexMethodId);
     LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
                dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
-               dex_getMethodName(dexFileBuf, pDexMethodId),
-               dex_getMethodSignature(dexFileBuf, pDexMethodId));
+               dex_getMethodName(dexFileBuf, pDexMethodId), methodSig);
+    free((void *)methodSig);
     if (accessFlags == kUnresolvedMarker) {
       LOGMSG_RAW(l_VDEBUG, "unresolved\n");
     } else {

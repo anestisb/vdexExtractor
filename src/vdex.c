@@ -435,12 +435,15 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
   LOGMSG(l_VDEBUG, "----- EOF Vdex Deps Info -----");
 }
 
-bool vdex_Unquicken(const u1 *cursor) {
+bool vdex_Unquicken(const u1 *cursor, bool enableDisassembler) {
   if (vdex_GetQuickeningInfoSize(cursor) == 0) {
     // If there is no quickening info, we bail early, as the code below expects at
     // least the size of quickening data for each method that has a code item.
     return true;
   }
+
+  // Update Dex disassembler engine status
+  dex_setDisassemblerStatus(enableDisassembler);
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
@@ -568,4 +571,98 @@ bool vdex_Unquicken(const u1 *cursor) {
   }
 
   return true;
+}
+
+void vdex_walkDex(const u1 *cursor, bool enableDisassembler) {
+  // Update Dex disassembler engine status
+  dex_setDisassemblerStatus(enableDisassembler);
+
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+  const u1 *dexFileBuf = NULL;
+  u4 offset = 0;
+
+  // For each Dex file
+  for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
+    dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
+    if (dexFileBuf == NULL) {
+      LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", dex_file_idx);
+      continue;
+    }
+
+    const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
+
+    // Check if valid Dex file
+    dex_dumpHeaderInfo(pDexHeader);
+    if (!dex_isValidDexMagic(pDexHeader)) {
+      LOGMSG(l_ERROR, "'classes%zu.dex' is an invalid Dex file - skipping", dex_file_idx);
+      continue;
+    }
+
+    // For each class
+    LOGMSG(l_VDEBUG, "file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
+    for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
+      const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
+      dex_dumpClassInfo(dexFileBuf, i);
+
+      // Cursor for currently processed class data item
+      const u1 *curClassDataCursor;
+      if (pDexClassDef->classDataOff == 0) {
+        continue;
+      } else {
+        curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
+      }
+
+      dexClassDataHeader pDexClassDataHeader;
+      memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
+      dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
+
+      // Skip static fields
+      for (u4 j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
+        dexField pDexField;
+        memset(&pDexField, 0, sizeof(dexField));
+        dex_readClassDataField(&curClassDataCursor, &pDexField);
+      }
+
+      // Skip instance fields
+      for (u4 j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
+        dexField pDexField;
+        memset(&pDexField, 0, sizeof(dexField));
+        dex_readClassDataField(&curClassDataCursor, &pDexField);
+      }
+
+      // For each direct method
+      for (u4 j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
+        dexMethod curDexMethod;
+        memset(&curDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "direct");
+
+        // Skip empty methods
+        if (curDexMethod.codeOff == 0) {
+          continue;
+        }
+
+        // Get method code offset and revert quickened instructions
+        dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
+        dexDecompiler_walk(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod));
+      }
+
+      // For each virtual method
+      for (u4 j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
+        dexMethod curDexMethod;
+        memset(&curDexMethod, 0, sizeof(dexMethod));
+        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "virtual");
+
+        // Skip native or abstract methods
+        if (curDexMethod.codeOff == 0) {
+          continue;
+        }
+
+        // Get method code offset and revert quickened instructions
+        dexCode *pDexCode = (dexCode *)(dexFileBuf + curDexMethod.codeOff);
+        dexDecompiler_walk(dexFileBuf, pDexCode, dex_getFirstInstrOff(&curDexMethod));
+      }
+    }
+  }
 }

@@ -156,6 +156,7 @@ vdexDeps *vdex_initDepsInfo(const u1 *);
 void vdex_destroyDepsInfo(const vdexDeps *);
 void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
 
-bool vdex_Unquicken(const u1 *);
+bool vdex_Unquicken(const u1 *, bool);
+void vdex_walkDex(const u1 *, bool);
 
 #endif

@@ -91,6 +91,7 @@ int main(int argc, char **argv) {
   const char *logFile = NULL;
   char *outputDir = NULL;
   bool unquicken = false;
+  bool enableDisassembler = false;
   bool dumpDeps = false;
   bool fileOverride = false;
   infiles_t pFiles = {
@@ -122,6 +123,7 @@ int main(int argc, char **argv) {
         unquicken = true;
         break;
       case 'd':
+        enableDisassembler = true;
         log_enableVerbDebug();
         break;
       case 'D':
@@ -206,12 +208,14 @@ int main(int argc, char **argv) {
     }
 
     if (unquicken) {
-      if (vdex_Unquicken(buf) == false) {
+      if (vdex_Unquicken(buf, enableDisassembler) == false) {
         LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
         munmap(buf, fileSz);
         close(srcfd);
         continue;
       }
+    } else {
+      vdex_walkDex(buf, enableDisassembler);
     }
 
     const u1 *current_data = NULL;

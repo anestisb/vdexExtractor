@@ -112,7 +112,6 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
 
   while (isCodeIteratorDone() == false) {
     bool hasCodeChange = true;
-    // LOGMSG(l_VDEBUG, "     %" PRIx32 ": %s", cur_code_off, dexInst_getOpcodeStr(code_ptr));
     dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
@@ -194,4 +193,12 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
   }
 
   return true;
+}
+
+void dexDecompiler_walk(const u1 *dexFileBuf, dexCode *pDexCode, u4 startCodeOff) {
+  initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
+  while (isCodeIteratorDone() == false) {
+    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
+    codeIteratorAdvance();
+  }
 }

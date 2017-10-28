@@ -23,6 +23,8 @@
 #include "dex.h"
 #include "utils.h"
 
+static bool enableDisassembler = false;
+
 static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }
 
 // Helper for dex_dumpInstruction(), which builds the string representation
@@ -676,7 +678,7 @@ void dex_dumpMethodInfo(const u1 *dexFileBuf,
 
 void dex_dumpInstruction(
     const u1 *dexFileBuf, u2 *codePtr, u4 codeOffset, u4 insnIdx, bool highlight) {
-  if (log_isVerbDebug() == false) return;  // Save time if no disassemble
+  if (enableDisassembler == false) return;  // Save time if no disassemble
 
   // Highlight decompile instructions
   if (highlight) {
@@ -945,3 +947,7 @@ char *dex_descriptorClassToDot(const char *str) {
   newStr[targetLen - 1] = '\0';
   return newStr;
 }
+
+bool dex_getDisassemblerStatus(void) { return enableDisassembler; }
+
+void dex_setDisassemblerStatus(bool status) { enableDisassembler = status; }

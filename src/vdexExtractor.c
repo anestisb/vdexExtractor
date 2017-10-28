@@ -39,7 +39,7 @@ static void usage(bool exit_success) {
              " -o, --output=<path>  : output path (default is same as input)\n"
              " -f, --file-override  : allow output file override if already exists\n"
              " -u, --unquicken      : enable unquicken bytecode decompiler\n"
-             " -D, --dump-deps      : dump verified dependencies information (experimental)\n"
+             " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save output to log file (default is STDOUT)\n"
@@ -128,6 +128,7 @@ int main(int argc, char **argv) {
         break;
       case 'D':
         dumpDeps = true;
+        log_enableVerbDebug();
         break;
       case 'v':
         logLevel = atoi(optarg);

@@ -198,6 +198,7 @@ int main(int argc, char **argv) {
     }
     vdex_dumpHeaderInfo(buf);
 
+    // Dump Vdex verified dependencies info
     if (dumpDeps) {
       vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
       if (pVdexDeps == NULL) {
@@ -208,6 +209,7 @@ int main(int argc, char **argv) {
       }
     }
 
+    // Unquicken Dex bytecode or simply walk optimized Dex files
     if (unquicken) {
       if (vdex_Unquicken(buf, enableDisassembler) == false) {
         LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
@@ -221,6 +223,9 @@ int main(int argc, char **argv) {
 
     const u1 *current_data = NULL;
     u4 offset = 0;
+
+    // TODO: Implement a function callback in previous iterators so that we don't have to walk twice
+    // for all Dex files included in each processed Vdex file
     for (size_t i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
       current_data = vdex_GetNextDexFileData(buf, &offset);
       if (current_data == NULL) {

@@ -360,6 +360,7 @@ void vdex_destroyDepsInfo(const vdexDeps *pVdexDeps) {
     free((void *)pVdexDeps->pVdexDepData[i].interfaceMethods.pVdexDepMethods);
     free((void *)pVdexDeps->pVdexDepData[i].unvfyClasses.pVdexDepUnvfyClasses);
   }
+  free((void *)pVdexDeps->pVdexDepData);
   free((void *)pVdexDeps);
 }
 

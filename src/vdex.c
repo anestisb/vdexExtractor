@@ -410,21 +410,18 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     LOGMSG(l_VDEBUG, " field dependencies: number_of_fields=%" PRIu32,
            pVdexDepData->fields.numberOfEntries);
     for (u4 i = 0; i < pVdexDepData->fields.numberOfEntries; ++i) {
-      const dexFieldId *pDexFieldId =
-          dex_getFieldId(dexFileBuf, pVdexDepData->fields.pVdexDepFields[i].fieldIdx);
-      u2 accessFlags = pVdexDepData->fields.pVdexDepFields[i].accessFlags;
+      vdexDepFieldRes fieldRes = pVdexDepData->fields.pVdexDepFields[i];
+      const dexFieldId *pDexFieldId = dex_getFieldId(dexFileBuf, fieldRes.fieldIdx);
       LOGMSG_RAW(l_VDEBUG, "   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
                  dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
                  dex_getFieldName(dexFileBuf, pDexFieldId),
                  dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
-      if (accessFlags == kUnresolvedMarker) {
+      if (fieldRes.accessFlags == kUnresolvedMarker) {
         LOGMSG_RAW(l_VDEBUG, "unresolved\n");
       } else {
-        LOGMSG_RAW(
-            l_VDEBUG, "in class '%s' and have the access flags '%" PRIu16 "'\n",
-            getStringFromId(pVdexDepData, pVdexDepData->fields.pVdexDepFields[i].declaringClassIdx,
-                            dexFileBuf),
-            accessFlags);
+        LOGMSG_RAW(l_VDEBUG, "in class '%s' and have the access flags '%" PRIu16 "'\n",
+                   getStringFromId(pVdexDepData, fieldRes.declaringClassIdx, dexFileBuf),
+                   fieldRes.accessFlags);
       }
 
       dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->directMethods, "direct");

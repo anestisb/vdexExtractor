@@ -27,7 +27,7 @@ readonly TOOL_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly TMP_WORK_DIR=$(mktemp -d /tmp/vdex-extractor.XXXXXX) || exit 1
 
 declare -ar SYS_TOOLS=("mkdir" "dirname" "sed" "grep" "adb")
-declare -ar ART_FILE_FORMATS=("art" "dex" "vdex")
+declare -ar ART_FILE_FORMATS=("art" "dex" "vdex" "odex")
 
 info()   { echo -e  "[INFO]: $*" 1>&2; }
 warn()   { echo -e  "[WARN]: $*" 1>&2; }
@@ -83,14 +83,19 @@ getDevFingerprint() {
   }
 }
 
-getDevFirstISA() {
+getDevSupportedISAs() {
   local serial="$1"
 
-  local cpuAbi=""
-  cpuAbi=$(getDevFirstCpuAbi "$serial")
+  local -a abiList=()
+  IFS=',' read -r -a abiList <<< "$(getDevCpuAbiList "$serial")"
+  (
+   for abi in "${abiList[@]}"; do getFormattedISA "$abi"; done
+  ) | uniq | tr '\n' ' '
+}
 
-  case $cpuAbi in
-  armeabi-v7a)
+getFormattedISA() {
+  case $1 in
+  armeabi|armeabi-v7a)
     echo "arm"
     ;;
   arm64-v8a)
@@ -103,16 +108,16 @@ getDevFirstISA() {
     echo "x86-64"
     ;;
   *)
-    error "Invalid CPU ABI '$cpuAbi'"
+    error "Invalid CPU ABI '$1'"
     usage
     ;;
   esac
 }
 
-getDevFirstCpuAbi() {
+getDevCpuAbiList() {
   local serial="$1"
 
-  "$ADB_BIN" -s "$serial" shell "getprop ro.product.cpu.abi" | tr -d '\r' || {
+  "$ADB_BIN" -s "$serial" shell "getprop ro.product.cpu.abilist" | tr -d '\r' || {
     error "Failed to extract Android device fingerprint"
     abort 1
   }
@@ -280,8 +285,8 @@ extractInstalledApps() {
   local package="" packageName="" packagePath=""
   while read -r package
   do
-    packageName=$(echo "$package" | cut -d ':' -f2 | cut -d '=' -f2)
-    packagePath=$(echo "$package" | cut -d ':' -f2 | cut -d '=' -f1)
+    packageName=$(echo "$package" | cut -d ':' -f2 | awk -F'.apk=' '{print $2}')
+    packagePath=$(echo "$package" | cut -d ':' -f2 | awk -F'.apk=' '{print $1".apk"}')
 
     installed_apps+=("$packageName")
     installed_app_paths+=("$packagePath")
@@ -294,26 +299,36 @@ extractInstalledApps() {
 
   info "Trying to extract data from '${#installed_apps[@]}' packages"
 
-  for appPath in "${installed_app_paths[@]}"
+  for (( i=0; i<${#installed_app_paths[@]}; i++ ))
   do
-    local remoteSrc="" localDst=""
+    local appPath="" remoteSrc="" localDst="" formatedBaseSuffix="" remoteSrcRoot=""
+    appPath="${installed_app_paths[i]}"
     if [ "$EXTRACT_APKS" = true ]; then
-      localDst="$OUTPUT_DIR/$(basename "$appPath")"
+      localDst="$OUTPUT_DIR/${installed_apps[i]}.apk"
       downloadFileOverAdb "$targetDev" "$appPath" "$localDst"
     fi
 
-    formatedBaseSuffix="$(echo "$appPath" | tr / @)@classes"
+    if [[ "$appPath" == /data/app/* ]]; then
+      formatedBaseSuffix="base"
+      remoteSrcRoot="$(dirname "$appPath")/oat"
+    else
+      formatedBaseSuffix="$(echo "${appPath:1}" | tr / @)@classes"
+      remoteSrcRoot="/data/dalvik-cache"
+    fi
     for artFile in "${ART_FILE_FORMATS[@]}"
     do
-      remoteSrc="/data/dalvik-cache/$(getDevFirstISA "$targetDev")/${formatedBaseSuffix:1}.$artFile"
-      if [[ "$artFile" == "dex" ]]; then
-        localDst="$OUTPUT_DIR/${formatedBaseSuffix:1}.oat"
-      else
-        localDst="$OUTPUT_DIR/${formatedBaseSuffix:1}.$artFile"
-      fi
-      if remoteFileReadable "$targetDev" "$remoteSrc"; then
-        downloadFileOverAdb "$targetDev" "$remoteSrc" "$localDst"
-      fi
+      for abi in $(getDevSupportedISAs "$targetDev")
+      do
+        remoteSrc="$remoteSrcRoot/$abi/$formatedBaseSuffix.$artFile"
+        if [[ "$artFile" == *dex ]]; then
+          localDst="$OUTPUT_DIR/${installed_apps[i]}.$abi.oat"
+        else
+          localDst="$OUTPUT_DIR/${installed_apps[i]}.$abi.$artFile"
+        fi
+        if remoteFileReadable "$targetDev" "$remoteSrc"; then
+          downloadFileOverAdb "$targetDev" "$remoteSrc" "$localDst"
+        fi
+      done
     done
   done
 }
@@ -377,9 +392,9 @@ if [ ! -d "$OUTPUT_DIR" ]; then
   }
 fi
 
-# Only releases >= Oreo are supported
+# Only releases >= Nougat are supported
 apiVersion=$(getDevApi "$TARGET_DEVICE")
-if [ "$apiVersion" -lt 26 ]; then
+if [ "$apiVersion" -lt 24 ]; then
   error "Unsupported old API-$apiVersion"
   abort 1
 fi

@@ -452,6 +452,10 @@ bool vdex_Unquicken(const u1 *cursor, bool enableDisassembler) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(enableDisassembler);
 
+  // Measure time spend to unquicken all Dex files of a Vdex file
+  struct timespec timer;
+  utils_startTimer(&timer);
+
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
   const u1 *const quickening_info_end =
@@ -576,6 +580,10 @@ bool vdex_Unquicken(const u1 *cursor, bool enableDisassembler) {
     LOGMSG(l_ERROR, "Failed to process all quickening info data");
     return false;
   }
+
+  // Get elapsed time in ns
+  long timeSpend = utils_endTimer(&timer);
+  LOGMSG(l_DEBUG, "Took %ld ms to decompile file", timeSpend / 1000000);
 
   return true;
 }

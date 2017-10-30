@@ -310,3 +310,14 @@ void utils_pseudoStrAppend(const char **charBuf,
   // Update reference before returning
   *charBuf = buf;
 }
+
+void utils_startTimer(struct timespec *pTimeSpec) {
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, pTimeSpec);
+}
+
+long utils_endTimer(struct timespec *pTimeSpec) {
+  struct timespec endTime;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
+  long diffInNanos = endTime.tv_nsec - pTimeSpec->tv_nsec;
+  return diffInNanos;
+}

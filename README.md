@@ -327,6 +327,8 @@ $ head -110 /tmp/dis.log
 
 ## Changelog
 
+* __0.3.1__ - TBC
+  * Add timer utility functions to measure time spend to unquicken each input Vdex file
 * __0.3.0__ - 28 October 2017
   * Implement Vdex verified dependencies information iterator (`-D, --dump-deps`)
   * Enable Dex disassembler without requiring to unquicken bytecode

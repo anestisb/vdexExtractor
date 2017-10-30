@@ -39,4 +39,7 @@ void *utils_crealloc(void *ptr, size_t, size_t);
 // To simplify api, all errors are treated as fatal
 void utils_pseudoStrAppend(const char **, size_t *, size_t *, const char *);
 
+void utils_startTimer(struct timespec *);
+long utils_endTimer(struct timespec *);
+
 #endif

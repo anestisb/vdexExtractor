@@ -146,6 +146,74 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
   }
 }
 
+static char *fileBasename(char const *path) {
+  char *s = strrchr(path, '/');
+  if (!s) {
+    return strdup(path);
+  } else {
+    return strdup(s + 1);
+  }
+}
+
+static void formatName(char *outBuf,
+                       size_t outBufLen,
+                       const char *rootPath,
+                       const char *fName,
+                       size_t classId,
+                       const char *suffix) {
+  // Trim Vdex extension and replace with Apk
+  char *fileExt = strrchr(fName, '.');
+  if (fileExt) {
+    *fileExt = '\0';
+  }
+  char formattedName[PATH_MAX] = { 0 };
+  if (classId == 0) {
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.%s", fName, suffix);
+  } else {
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.%s", fName, classId, suffix);
+  }
+
+  if (rootPath == NULL) {
+    // Save to same directory as input file
+    snprintf(outBuf, outBufLen, "%s", formattedName);
+  } else {
+    const char *pFileBaseName = fileBasename(formattedName);
+    snprintf(outBuf, outBufLen, "%s/%s", rootPath, pFileBaseName);
+    free((void *)pFileBaseName);
+  }
+}
+
+static bool writeDexFile(const runArgs_t *pRunArgs,
+                         const char *VdexFileName,
+                         size_t dexIdx,
+                         const u1 *buf,
+                         size_t bufSize) {
+  char outFile[PATH_MAX] = { 0 };
+  formatName(outFile, sizeof(outFile), pRunArgs->outputDir, VdexFileName, dexIdx, "dex");
+
+  // Write Dex file
+  int fileFlags = O_CREAT | O_RDWR;
+  if (pRunArgs->fileOverride == false) {
+    fileFlags |= O_EXCL;
+  }
+  int dstfd = -1;
+  dstfd = open(outFile, fileFlags, 0644);
+  if (dstfd == -1) {
+    LOGMSG_P(l_ERROR, "Couldn't create output file '%s' - skipping 'classes%zu.dex'", outFile,
+             dexIdx);
+    return false;
+  }
+
+  if (!utils_writeToFd(dstfd, buf, bufSize)) {
+    close(dstfd);
+    LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'", outFile, dexIdx);
+    return false;
+  }
+
+  close(dstfd);
+  return true;
+}
+
 bool vdex_isMagicValid(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return (memcmp(pVdexHeader->magic, kVdexMagic, sizeof(kVdexMagic)) == 0);
@@ -270,25 +338,24 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
 
   log_dis("------ Vdex Header Info ------\n");
-  log_dis("magic header & version      : %.4s-%.4s\n", pVdexHeader->magic,
-         pVdexHeader->version);
+  log_dis("magic header & version      : %.4s-%.4s\n", pVdexHeader->magic, pVdexHeader->version);
   log_dis("number of dex files         : %" PRIx32 " (%" PRIu32 ")\n",
-         pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
+          pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
   log_dis("dex size (overall)          : %" PRIx32 " (%" PRIu32 ")\n", pVdexHeader->dexSize,
-         pVdexHeader->dexSize);
+          pVdexHeader->dexSize);
   log_dis("verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n",
-         vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
+          vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
   log_dis("verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n",
-         vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
+          vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
   log_dis("quickening info size        : %" PRIx32 " (%" PRIu32 ")\n",
-         vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
+          vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
   log_dis("quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n",
-         vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
+          vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
   log_dis("dex files info              :\n");
 
   for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
     log_dis("  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")\n", i,
-           vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
+            vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
   log_dis("---- EOF Vdex Header Info ----\n");
 }
@@ -442,26 +509,13 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
   log_dis("----- EOF Vdex Deps Info -----\n");
 }
 
-bool vdex_process(const u1 *cursor,
-                  bool unquicken,
-                  bool enableDisassembler,
-                  const char *recoverFile) {
-  if (unquicken && vdex_GetQuickeningInfoSize(cursor) == 0) {
-    // If there is no quickening info, we bail early, as the code below expects at
-    // least the size of quickening data for each method that has a code item.
-    return true;
-  }
-
+int vdex_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
   // Update Dex disassembler engine status
-  bool classNameRecoverEnabled = recoverFile != NULL;
-  dex_setDisassemblerStatus(enableDisassembler);
-  dex_setClassRecover(classNameRecoverEnabled);
-  if (unquicken == false && enableDisassembler == false && recoverFile == NULL) {
-    return true;  // no reason to iterate
-  }
+  dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
+  dex_setClassRecover(pRunArgs->classRecover);
 
   bool *pFoundLogUtilCall = NULL;
-  if (classNameRecoverEnabled) {
+  if (pRunArgs->classRecover) {
     bool foundLogUtilCall = false;
     pFoundLogUtilCall = &foundLogUtilCall;
   }
@@ -495,9 +549,12 @@ bool vdex_process(const u1 *cursor,
       continue;
     }
 
-    if (recoverFile) {
-      if (!log_initRecoverFile(recoverFile)) {
-        return false;
+    if (pRunArgs->classRecover) {
+      char outClsJsonFile[PATH_MAX] = { 0 };
+      formatName(outClsJsonFile, sizeof(outClsJsonFile), pRunArgs->outputDir, VdexFileName, 0,
+                 "json");
+      if (!log_initRecoverFile(outClsJsonFile)) {
+        return -1;
       }
       log_clsRecWrite("{\n  \"classes\": [\n");
     }
@@ -546,14 +603,14 @@ bool vdex_process(const u1 *cursor,
           continue;
         }
 
-        if (unquicken) {
+        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
           if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
                                        quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
-            return false;
+            return -1;
           }
           quickening_info_ptr += quickening_size;
         } else {
@@ -573,14 +630,14 @@ bool vdex_process(const u1 *cursor,
           continue;
         }
 
-        if (unquicken) {
+        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
           if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
                                        quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
-            return false;
+            return -1;
           }
           quickening_info_ptr += quickening_size;
         } else {
@@ -589,7 +646,7 @@ bool vdex_process(const u1 *cursor,
       }
 
     processClassEnd:
-      if (classNameRecoverEnabled) {
+      if (pRunArgs->classRecover) {
         if (*pFoundLogUtilCall == false) {
           log_clsRecWrite("\"callsLogUtil\": false");
         }
@@ -598,30 +655,37 @@ bool vdex_process(const u1 *cursor,
       }
     }
 
-    if (unquicken) {
+    if (pRunArgs->unquicken) {
       // If unquicken was successful original checksum should verify
       u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
       if (curChecksum != pDexHeader->checksum) {
         LOGMSG(l_ERROR,
                "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
                curChecksum, pDexHeader->checksum);
-        return false;
+        return -1;
       }
+    } else {
+      // Repair CRC if not decompiling so we can still run Dex parsing tools against output
+      dex_repairDexCRC(dexFileBuf, pDexHeader->fileSize);
     }
 
-    if (classNameRecoverEnabled) {
+    if (!writeDexFile(pRunArgs, VdexFileName, dex_file_idx, dexFileBuf, pDexHeader->fileSize)) {
+      return -1;
+    }
+
+    if (pRunArgs->classRecover) {
       log_clsRecWrite("  ]\n}\n");
     }
   }
 
-  if (unquicken && (quickening_info_ptr != quickening_info_end)) {
+  if (pRunArgs->unquicken && (quickening_info_ptr != quickening_info_end)) {
     LOGMSG(l_ERROR, "Failed to process all quickening info data");
-    return false;
+    return -1;
   }
 
   // Get elapsed time in ns
   long timeSpend = utils_endTimer(&timer);
   LOGMSG(l_DEBUG, "Took %ld ms to process Vdex file", timeSpend / 1000000);
 
-  return true;
+  return pVdexHeader->numberOfDexFiles;
 }

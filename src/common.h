@@ -123,6 +123,15 @@ typedef struct {
   size_t fileCnt;
 } infiles_t;
 
+typedef struct {
+  char *outputDir;
+  bool fileOverride;
+  bool unquicken;
+  bool enableDisassembler;
+  bool dumpDeps;
+  bool classRecover;
+} runArgs_t;
+
 extern void exitWrapper(int);
 
 #endif

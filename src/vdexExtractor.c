@@ -61,53 +61,18 @@ static void usage(bool exit_success) {
 }
 // clang-format on
 
-static char *fileBasename(char const *path) {
-  char *s = strrchr(path, '/');
-  if (!s) {
-    return strdup(path);
-  } else {
-    return strdup(s + 1);
-  }
-}
-
-static void formatName(char *outBuf,
-                       size_t outBufLen,
-                       char *rootPath,
-                       char *fName,
-                       size_t classId,
-                       const char *suffix) {
-  // Trim Vdex extension and replace with Apk
-  char *fileExt = strrchr(fName, '.');
-  if (fileExt) {
-    *fileExt = '\0';
-  }
-  char formattedName[PATH_MAX] = { 0 };
-  if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.%s", fName, suffix);
-  } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.%s", fName, classId, suffix);
-  }
-
-  if (rootPath == NULL) {
-    // Save to same directory as input file
-    snprintf(outBuf, outBufLen, "%s", formattedName);
-  } else {
-    const char *pFileBaseName = fileBasename(formattedName);
-    snprintf(outBuf, outBufLen, "%s/%s", rootPath, pFileBaseName);
-    free((void *)pFileBaseName);
-  }
-}
-
 int main(int argc, char **argv) {
   int c;
   int logLevel = l_INFO;
   const char *logFile = NULL;
-  char *outputDir = NULL;
-  bool unquicken = false;
-  bool enableDisassembler = false;
-  bool dumpDeps = false;
-  bool classRecover = false;
-  bool fileOverride = false;
+  runArgs_t pRunArgs = {
+    .outputDir = NULL,
+    .fileOverride = false,
+    .unquicken = false,
+    .enableDisassembler = false,
+    .dumpDeps = false,
+    .classRecover = false,
+  };
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
@@ -132,25 +97,25 @@ int main(int argc, char **argv) {
         pFiles.inputFile = optarg;
         break;
       case 'o':
-        outputDir = optarg;
+        pRunArgs.outputDir = optarg;
         break;
       case 'f':
-        fileOverride = true;
+        pRunArgs.fileOverride = true;
         break;
       case 'u':
-        unquicken = true;
+        pRunArgs.unquicken = true;
         break;
       case 'd':
-        enableDisassembler = true;
+        pRunArgs.enableDisassembler = true;
         log_setDisStatus(true);
         break;
       case 'D':
-        dumpDeps = true;
+        pRunArgs.dumpDeps = true;
         log_setDisStatus(true);
         break;
       case 'r':
-        classRecover = true;
-        enableDisassembler = true;
+        pRunArgs.classRecover = true;
+        pRunArgs.enableDisassembler = true;
         break;
       case 'v':
         logLevel = atoi(optarg);
@@ -169,7 +134,7 @@ int main(int argc, char **argv) {
 
   // We don't want to increase the complexity of the unquicken decompiler, so offer class name
   // recover checks only when simply walking the Vdex file
-  if (unquicken && classRecover) {
+  if (pRunArgs.unquicken && pRunArgs.classRecover) {
     LOGMSG(l_FATAL, "Class name recover cannot be used in parallel with unquicken decompiler");
   }
 
@@ -217,7 +182,6 @@ int main(int argc, char **argv) {
     }
 
     // Validate Vdex magic header
-    const vdexHeader *pVdexHeader = (const vdexHeader *)buf;
     if (!vdex_isValidVdex(buf)) {
       LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
@@ -227,7 +191,7 @@ int main(int argc, char **argv) {
     vdex_dumpHeaderInfo(buf);
 
     // Dump Vdex verified dependencies info
-    if (dumpDeps) {
+    if (pRunArgs.dumpDeps) {
       vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
       if (pVdexDeps == NULL) {
         LOGMSG(l_WARN, "Empty verified dependency data")
@@ -237,69 +201,16 @@ int main(int argc, char **argv) {
       }
     }
 
-    char *pRecoverFile = NULL;
-    if (classRecover) {
-      char outClsJsonFile[PATH_MAX] = { 0 };
-      formatName(outClsJsonFile, sizeof(outClsJsonFile), outputDir, pFiles.files[f], 0, "json");
-      pRecoverFile = outClsJsonFile;
-    }
-
     // Unquicken Dex bytecode or simply walk optimized Dex files
-    if (vdex_process(buf, unquicken, enableDisassembler, pRecoverFile) == false) {
-      LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
+    int ret = vdex_process(pFiles.files[f], buf, &pRunArgs);
+    if (ret == -1) {
+      LOGMSG(l_ERROR, "Failed to process Dex files - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
       continue;
     }
 
-    const u1 *current_data = NULL;
-    u4 offset = 0;
-
-    // TODO: Implement a function callback in previous iterators so that we don't have to walk twice
-    // for all Dex files included in each processed Vdex file
-    for (size_t i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
-      current_data = vdex_GetNextDexFileData(buf, &offset);
-      if (current_data == NULL) {
-        LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", i);
-        continue;
-      }
-      dexHeader *pDexHeader = (dexHeader *)current_data;
-
-      // If unquickening  Dex files, they should be already verified
-      if (unquicken == false && dex_isValidDexMagic(pDexHeader) == false) {
-        LOGMSG(l_ERROR, "Invalid Dex file 'classes%zu.dex' - skipping", i);
-        continue;
-      }
-
-      // Repair CRC
-      dex_repairDexCRC(current_data, pDexHeader->fileSize);
-
-      char outFile[PATH_MAX] = { 0 };
-      formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i, "dex");
-
-      // Write Dex file
-      int fileFlags = O_CREAT | O_RDWR;
-      if (fileOverride == false) {
-        fileFlags |= O_EXCL;
-      }
-      int dstfd = -1;
-      dstfd = open(outFile, fileFlags, 0644);
-      if (dstfd == -1) {
-        LOGMSG_P(l_ERROR, "Couldn't create output file '%s' - skipping 'classes%zu.dex'", outFile,
-                 i);
-        continue;
-      }
-
-      if (!utils_writeToFd(dstfd, current_data, pDexHeader->fileSize)) {
-        close(dstfd);
-        LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'", outFile, i);
-        continue;
-      }
-
-      processedDexCnt++;
-      close(dstfd);
-    }
-
+    processedDexCnt += ret;
     processedVdexCnt++;
 
     // Clean-up
@@ -312,7 +223,7 @@ int main(int argc, char **argv) {
   DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
-          outputDir ? outputDir : dirname(pFiles.inputFile));
+          pRunArgs.outputDir ? pRunArgs.outputDir : dirname(pFiles.inputFile));
 
   exitWrapper(EXIT_SUCCESS);
 }

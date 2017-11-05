@@ -160,6 +160,6 @@ vdexDeps *vdex_initDepsInfo(const u1 *);
 void vdex_destroyDepsInfo(const vdexDeps *);
 void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
 
-bool vdex_process(const u1 *, bool, bool, const char *);
+int vdex_process(const char *, const u1 *, const runArgs_t *);
 
 #endif

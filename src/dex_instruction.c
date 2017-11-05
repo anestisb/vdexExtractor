@@ -41,7 +41,7 @@ static u4 SizeInCodeUnitsComplexOpcode(u2 *code_ptr) {
       } else {
         LOGMSG(l_FATAL, "Error when decoding complex opcode");
         exitWrapper(EXIT_FAILURE);
-        return 0; // Silence "-Wreturn-type"
+        return 0;  // Silence "-Wreturn-type"
       }
   }
 }
@@ -180,7 +180,7 @@ s4 dexInstr_getVRegA(u2 *code_ptr) {
       LOGMSG(l_FATAL, "Tried to access vA of instruction '%s' which has no A operand.",
              dexInst_getOpcodeStr(code_ptr));
       exitWrapper(EXIT_FAILURE);
-      return 0; // Silence "-Wreturn-type"
+      return 0;  // Silence "-Wreturn-type"
   }
 }
 
@@ -411,7 +411,7 @@ s4 dexInstr_getVRegB(u2 *code_ptr) {
       LOGMSG(l_FATAL, "Tried to access vB of instruction '%s' which has no B operand.",
              dexInst_getOpcodeStr(code_ptr));
       exitWrapper(EXIT_FAILURE);
-      return 0; // Silence "-Wreturn-type"
+      return 0;  // Silence "-Wreturn-type"
   }
 }
 
@@ -573,7 +573,7 @@ s4 dexInstr_getVRegC(u2 *code_ptr) {
       LOGMSG(l_FATAL, "Tried to access vC of instruction '%s' which has no C operand.",
              dexInst_getOpcodeStr(code_ptr));
       exitWrapper(EXIT_FAILURE);
-      return 0; // Silence "-Wreturn-type"
+      return 0;  // Silence "-Wreturn-type"
   }
 }
 
@@ -643,7 +643,7 @@ s4 dexInstr_getVRegH(u2 *code_ptr) {
       LOGMSG(l_FATAL, "Tried to access vH of instruction '%s' which has no H operand.",
              dexInst_getOpcodeStr(code_ptr));
       exitWrapper(EXIT_FAILURE);
-      return 0; // Silence "-Wreturn-type"
+      return 0;  // Silence "-Wreturn-type"
   }
 }
 

@@ -47,9 +47,11 @@ static void usage(bool exit_success) {
              " -u, --unquicken      : enable unquicken bytecode decompiler\n"
              " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
-             " -r, --class-recover  : dump information useful to recover original class name (json file to output path)\n"
+             " -r, --class-recover  : dump information useful to recover original class name (json "
+                                     "file to output path)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
-             " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)\n"
+             " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log "
+                                     "file (default is STDOUT)\n"
              " -h, --help           : this help\n");
 
   if (exit_success)

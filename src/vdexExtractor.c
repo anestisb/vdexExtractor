@@ -124,11 +124,11 @@ int main(int argc, char **argv) {
         break;
       case 'd':
         enableDisassembler = true;
-        log_enableVerbDebug();
+        log_setDisStatus(true);
         break;
       case 'D':
         dumpDeps = true;
-        log_enableVerbDebug();
+        log_setDisStatus(true);
         break;
       case 'v':
         logLevel = atoi(optarg);

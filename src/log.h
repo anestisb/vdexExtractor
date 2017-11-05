@@ -23,15 +23,15 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-typedef enum { l_FATAL = 0, l_ERROR, l_WARN, l_INFO, l_DEBUG, l_VDEBUG, l_MAX_LEVEL } log_level_t;
+typedef enum { l_FATAL = 0, l_ERROR, l_WARN, l_INFO, l_DEBUG, l_MAX_LEVEL } log_level_t;
 
 void log_setMinLevel(log_level_t);
-void log_enableVerbDebug();
-void log_disableVerbDebug();
-bool log_isVerbDebug();
+void log_setDisStatus(bool);
+bool log_getDisStatus();
 bool log_initLogFile(const char *);
 
 void log_msg(log_level_t, bool, bool, bool, const char *, const char *, int, const char *, ...);
+void log_dis(const char *fmt, ...);
 
 #define LOGMSG(ll, ...) \
   log_msg(ll, false, false, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);

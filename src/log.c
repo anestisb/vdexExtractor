@@ -32,19 +32,20 @@
 static unsigned int log_minLevel;
 static bool log_isTTY;
 static bool inside_line;
-static bool verb_debug;
+static bool dis_enabled;
 static int log_fd;
+static FILE* log_disOut;
 
 __attribute__((constructor)) void log_init(void) {
   log_minLevel = l_INFO;
   log_fd = STDOUT_FILENO;
   log_isTTY = isatty(log_fd);
+  log_disOut = stdout;
 }
 
 void log_setMinLevel(log_level_t dl) { log_minLevel = dl; }
-void log_enableVerbDebug() { verb_debug = true; }
-void log_disableVerbDebug() { verb_debug = true; }
-bool log_isVerbDebug() { return verb_debug; }
+void log_setDisStatus(bool status) { dis_enabled = status; }
+bool log_getDisStatus() { return dis_enabled; }
 
 bool log_initLogFile(const char *logFile) {
   if (logFile == NULL) {
@@ -75,18 +76,14 @@ void log_msg(log_level_t dl,
     char *prefix;
   } logLevels[] = { { "[FATAL]", "\033[1;31m" },   { "[ERROR]", "\033[1;35m" },
                     { "[WARNING]", "\033[1;33m" }, { "[INFO]", "\033[1m" },
-                    { "[DEBUG]", "\033[0;36m" },   { "", "\033[0;37m" } };
+                    { "[DEBUG]", "\033[0;37m" }};
 
   char strerr[512];
   if (perr) {
     snprintf(strerr, sizeof(strerr), "%s", strerror(errno));
   }
 
-  if (dl == l_VDEBUG) {
-    if (verb_debug == false) return;
-  } else {
-    if (dl > log_minLevel) return;
-  }
+  if (dl > log_minLevel) return;
 
   // Explicitly print display messages always to stdout and not to log file (if set)
   int curLogFd = log_fd;
@@ -116,7 +113,7 @@ void log_msg(log_level_t dl,
       inside_line = true;
     }
   } else {
-    if (dl != l_VDEBUG && !is_display && (log_minLevel >= l_DEBUG || !log_isTTY)) {
+    if (!is_display && (log_minLevel >= l_DEBUG || !log_isTTY)) {
       dprintf(curLogFd, "%s [%d] %d/%02d/%02d %02d:%02d:%02d (%s:%d %s) ", logLevels[dl].descr,
               getpid(), tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
               tm.tm_sec, file, line, func);
@@ -143,4 +140,13 @@ void log_msg(log_level_t dl,
   if (dl == l_FATAL) {
     exit(EXIT_FAILURE);
   }
+}
+
+void log_dis(const char *fmt, ...) {
+  if (!dis_enabled) return;
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(log_disOut, fmt, args);
+  va_end(args);
+  fflush(log_disOut);
 }

@@ -306,7 +306,9 @@ file #0: classDefsSize=8840
 This feature is an attempt to assist bytecode reverse engineering by extracting information that
 might be useful to recover / guess original class names of minified class identifiers. The current
 information gather logic performs the following actions:
-* Process class srcFileName info in case it has not be stripped / altered
+* Process class srcFileName info in case it has not be stripped / altered. Be careful in case the
+  extracted filenames do not end with ".java". They're most probably manually modified, thus not
+  reliable.
 * Examine all methods of each class to identify if they call `android.util.Log`. For most cases the
   tag string (arg0) indicates the actual class name or something very close to it. Unfortunately,
   extracting this information from a static offline tool is an extremely complex task that is not

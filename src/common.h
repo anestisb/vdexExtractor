@@ -122,4 +122,6 @@ typedef struct {
   size_t fileCnt;
 } infiles_t;
 
+extern void exitWrapper(int);
+
 #endif

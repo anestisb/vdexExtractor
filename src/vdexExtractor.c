@@ -30,6 +30,12 @@
 #include "utils.h"
 #include "vdex.h"
 
+// exit() wrapper
+void exitWrapper(int errCode) {
+  log_closeLogFile();
+  exit(errCode);
+}
+
 // clang-format off
 static void usage(bool exit_success) {
   LOGMSG_RAW(l_INFO, "              " PROG_NAME " ver. " PROG_VERSION "\n");
@@ -46,9 +52,9 @@ static void usage(bool exit_success) {
              " -h, --help           : this help\n");
 
   if (exit_success)
-    exit(EXIT_SUCCESS);
+    exitWrapper(EXIT_SUCCESS);
   else
-    exit(EXIT_FAILURE);
+    exitWrapper(EXIT_FAILURE);
 }
 // clang-format on
 
@@ -140,7 +146,7 @@ int main(int argc, char **argv) {
         usage(true);
         break;
       default:
-        exit(EXIT_FAILURE);
+        exitWrapper(EXIT_FAILURE);
         break;
     }
   }
@@ -154,13 +160,13 @@ int main(int argc, char **argv) {
   // Set log file
   if (log_initLogFile(logFile) == false) {
     LOGMSG(l_FATAL, "Failed to initialize log file");
-    exit(EXIT_FAILURE);
+    exitWrapper(EXIT_FAILURE);
   }
 
   // Initialize input files
   if (!utils_init(&pFiles)) {
     LOGMSG(l_FATAL, "Couldn't load input files");
-    exit(EXIT_FAILURE);
+    exitWrapper(EXIT_FAILURE);
   }
 
   size_t processedVdexCnt = 0, processedDexCnt = 0;
@@ -279,5 +285,5 @@ int main(int argc, char **argv) {
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
           outputDir ? outputDir : dirname(pFiles.inputFile));
 
-  return EXIT_SUCCESS;
+  exitWrapper(EXIT_SUCCESS);
 }

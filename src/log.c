@@ -61,6 +61,13 @@ bool log_initLogFile(const char *logFile) {
   return true;
 }
 
+void log_closeLogFile() {
+  fflush(log_disOut);
+  if (log_disOut != stdout) {
+    fclose(log_disOut);
+  }
+}
+
 void log_msg(log_level_t dl,
              bool perr,
              bool raw_print,
@@ -139,7 +146,7 @@ void log_msg(log_level_t dl,
   if (!raw_print) dprintf(curLogFd, "\n");
 
   if (dl == l_FATAL) {
-    exit(EXIT_FAILURE);
+    exitWrapper(EXIT_FAILURE);
   }
 }
 

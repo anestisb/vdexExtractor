@@ -29,6 +29,7 @@ void log_setMinLevel(log_level_t);
 void log_setDisStatus(bool);
 bool log_getDisStatus();
 bool log_initLogFile(const char *);
+void log_closeLogFile();
 
 void log_msg(log_level_t, bool, bool, bool, const char *, const char *, int, const char *, ...);
 void log_dis(const char *fmt, ...);

@@ -304,8 +304,8 @@ file #0: classDefsSize=8840
 ## Original Class Name Recover Info
 
 This feature is an attempt to assist bytecode reverse engineering by extracting information that
-might be useful to recover / guess original class names or minified class identifiers. The current
-logic parses performs the following actions:
+might be useful to recover / guess original class names of minified class identifiers. The current
+information gather logic performs the following actions:
 * Process class srcFileName info in case it has not be stripped / altered
 * Examine all methods of each class to identify if they call `android.util.Log`. For most cases the
   tag string (arg0) indicates the actual class name or something very close to it. Unfortunately,

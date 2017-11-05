@@ -34,7 +34,7 @@ static bool log_isTTY;
 static bool inside_line;
 static bool dis_enabled;
 static int log_fd;
-static FILE* log_disOut;
+static FILE *log_disOut;
 
 __attribute__((constructor)) void log_init(void) {
   log_minLevel = l_INFO;
@@ -73,9 +73,11 @@ void log_msg(log_level_t dl,
   struct {
     char *descr;
     char *prefix;
-  } logLevels[] = { { "[FATAL]", "\033[1;31m" },   { "[ERROR]", "\033[1;35m" },
-                    { "[WARNING]", "\033[1;33m" }, { "[INFO]", "\033[1m" },
-                    { "[DEBUG]", "\033[0;37m" }};
+  } logLevels[] = { { "[FATAL]", "\033[1;31m" },
+                    { "[ERROR]", "\033[1;35m" },
+                    { "[WARNING]", "\033[1;33m" },
+                    { "[INFO]", "\033[1m" },
+                    { "[DEBUG]", "\033[0;37m" } };
 
   char strerr[512];
   if (perr) {

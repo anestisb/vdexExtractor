@@ -125,20 +125,21 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
                                const vdexDepMethodResSet *pMethods,
                                const char *kind) {
   log_dis(" %s method dependencies: number_of_methods=%" PRIu32 "\n", kind,
-         pMethods->numberOfEntries);
+          pMethods->numberOfEntries);
   for (u4 i = 0; i < pMethods->numberOfEntries; ++i) {
     const dexMethodId *pDexMethodId =
         dex_getMethodId(dexFileBuf, pMethods->pVdexDepMethods[i].methodIdx);
     u2 accessFlags = pMethods->pVdexDepMethods[i].accessFlags;
     const char *methodSig = dex_getMethodSignature(dexFileBuf, pDexMethodId);
     log_dis("   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
-               dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
-               dex_getMethodName(dexFileBuf, pDexMethodId), methodSig);
+            dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
+            dex_getMethodName(dexFileBuf, pDexMethodId), methodSig);
     free((void *)methodSig);
     if (accessFlags == kUnresolvedMarker) {
       log_dis("unresolved\n");
     } else {
-      log_dis("in class '%s', have the access flags '%" PRIu16 "', and be of kind '%s'\n",
+      log_dis(
+          "in class '%s', have the access flags '%" PRIu16 "', and be of kind '%s'\n",
           getStringFromId(pVdexDepData, pMethods->pVdexDepMethods[i].declaringClassIdx, dexFileBuf),
           accessFlags, kind);
     }
@@ -387,42 +388,42 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     log_dis(" assignable type sets: number_of_sets=%" PRIu32 "\n", aTypes.numberOfEntries);
     for (u4 i = 0; i < aTypes.numberOfEntries; ++i) {
       log_dis("  %04" PRIu32 ": '%s' must be assignable to '%s'\n", i,
-             getStringFromId(pVdexDepData, aTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
-             getStringFromId(pVdexDepData, aTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
+              getStringFromId(pVdexDepData, aTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
+              getStringFromId(pVdexDepData, aTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
     }
 
     vdexDepTypeSet unTypes = pVdexDepData->unassignTypeSets;
     log_dis(" unassignable type sets: number_of_sets=%" PRIu32 "\n", unTypes.numberOfEntries);
     for (u4 i = 0; i < unTypes.numberOfEntries; ++i) {
       log_dis("  %04" PRIu32 ": '%s' must not be assignable to '%s'\n", i,
-             getStringFromId(pVdexDepData, unTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
-             getStringFromId(pVdexDepData, unTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
+              getStringFromId(pVdexDepData, unTypes.pVdexDepSets[i].srcIndex, dexFileBuf),
+              getStringFromId(pVdexDepData, unTypes.pVdexDepSets[i].dstIndex, dexFileBuf));
     }
 
     log_dis(" class dependencies: number_of_classes=%" PRIu32 "\n",
-           pVdexDepData->classes.numberOfEntries);
+            pVdexDepData->classes.numberOfEntries);
     for (u4 i = 0; i < pVdexDepData->classes.numberOfEntries; ++i) {
       u2 accessFlags = pVdexDepData->classes.pVdexDepClasses[i].accessFlags;
       log_dis("  %04" PRIu32 ": '%s' '%s' be resolved with access flags '%" PRIu16 "'\n", i,
-             dex_getStringByTypeIdx(dexFileBuf, pVdexDepData->classes.pVdexDepClasses[i].typeIdx),
-             accessFlags == kUnresolvedMarker ? "must not" : "must", accessFlags);
+              dex_getStringByTypeIdx(dexFileBuf, pVdexDepData->classes.pVdexDepClasses[i].typeIdx),
+              accessFlags == kUnresolvedMarker ? "must not" : "must", accessFlags);
     }
 
     log_dis(" field dependencies: number_of_fields=%" PRIu32 "\n",
-           pVdexDepData->fields.numberOfEntries);
+            pVdexDepData->fields.numberOfEntries);
     for (u4 i = 0; i < pVdexDepData->fields.numberOfEntries; ++i) {
       vdexDepFieldRes fieldRes = pVdexDepData->fields.pVdexDepFields[i];
       const dexFieldId *pDexFieldId = dex_getFieldId(dexFileBuf, fieldRes.fieldIdx);
       log_dis("   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
-                 dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
-                 dex_getFieldName(dexFileBuf, pDexFieldId),
-                 dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
+              dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
+              dex_getFieldName(dexFileBuf, pDexFieldId),
+              dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
       if (fieldRes.accessFlags == kUnresolvedMarker) {
         log_dis("unresolved\n");
       } else {
         log_dis("in class '%s' and have the access flags '%" PRIu16 "'\n",
-                   getStringFromId(pVdexDepData, fieldRes.declaringClassIdx, dexFileBuf),
-                   fieldRes.accessFlags);
+                getStringFromId(pVdexDepData, fieldRes.declaringClassIdx, dexFileBuf),
+                fieldRes.accessFlags);
       }
 
       dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->directMethods, "direct");
@@ -430,11 +431,11 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
       dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->interfaceMethods, "interface");
 
       log_dis(" unverified classes: number_of_classes=%" PRIu32 "\n",
-             pVdexDepData->unvfyClasses.numberOfEntries);
+              pVdexDepData->unvfyClasses.numberOfEntries);
       for (u4 i = 0; i < pVdexDepData->unvfyClasses.numberOfEntries; ++i) {
         log_dis("  %04" PRIu32 ": '%s' is expected to be verified at runtime\n", i,
-               dex_getStringByTypeIdx(dexFileBuf,
-                                      pVdexDepData->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
+                dex_getStringByTypeIdx(dexFileBuf,
+                                       pVdexDepData->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
       }
     }
   }
@@ -451,7 +452,7 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(enableDisassembler);
   if (unquicken == false && enableDisassembler == false) {
-    return true; // no reason to iterate
+    return true;  // no reason to iterate
   }
 
   // Measure time spend to process all Dex files of a Vdex file
@@ -531,7 +532,8 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
-          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr, quickening_size, true)) {
+          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
+                                       quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return false;
           }
@@ -557,7 +559,8 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
-          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr, quickening_size, true)) {
+          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
+                                       quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return false;
           }

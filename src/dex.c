@@ -336,49 +336,42 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
 
   log_dis("------ Dex Header Info ------\n");
   log_dis("magic        : %.3s-%.3s\n", pDexHeader->magic.dex, pDexHeader->magic.ver);
-  log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->checksum,
-         pDexHeader->checksum);
+  log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->checksum, pDexHeader->checksum);
   log_dis("signature    : %s", sigHex);
-  log_dis("fileSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fileSize,
-         pDexHeader->fileSize);
+  log_dis("fileSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fileSize, pDexHeader->fileSize);
   log_dis("headerSize   : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->headerSize,
-         pDexHeader->headerSize);
+          pDexHeader->headerSize);
   log_dis("endianTag    : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->endianTag,
-         pDexHeader->endianTag);
-  log_dis("linkSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkSize,
-         pDexHeader->linkSize);
-  log_dis("linkOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkOff,
-         pDexHeader->linkOff);
-  log_dis("mapOff       : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->mapOff,
-         pDexHeader->mapOff);
+          pDexHeader->endianTag);
+  log_dis("linkSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkSize, pDexHeader->linkSize);
+  log_dis("linkOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkOff, pDexHeader->linkOff);
+  log_dis("mapOff       : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->mapOff, pDexHeader->mapOff);
   log_dis("stringIdsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->stringIdsSize,
-         pDexHeader->stringIdsSize);
+          pDexHeader->stringIdsSize);
   log_dis("stringIdsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->stringIdsOff,
-         pDexHeader->stringIdsOff);
+          pDexHeader->stringIdsOff);
   log_dis("typeIdsSize  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->typeIdsSize,
-         pDexHeader->typeIdsSize);
+          pDexHeader->typeIdsSize);
   log_dis("typeIdsOff   : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->typeIdsOff,
-         pDexHeader->typeIdsOff);
+          pDexHeader->typeIdsOff);
   log_dis("protoIdsSize : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->protoIdsSize,
-         pDexHeader->protoIdsSize);
+          pDexHeader->protoIdsSize);
   log_dis("protoIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->protoIdsOff,
-         pDexHeader->protoIdsOff);
+          pDexHeader->protoIdsOff);
   log_dis("fieldIdsSize : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fieldIdsSize,
-         pDexHeader->fieldIdsSize);
+          pDexHeader->fieldIdsSize);
   log_dis("fieldIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fieldIdsOff,
-         pDexHeader->fieldIdsOff);
+          pDexHeader->fieldIdsOff);
   log_dis("methodIdsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->methodIdsSize,
-         pDexHeader->methodIdsSize);
+          pDexHeader->methodIdsSize);
   log_dis("methodIdsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->methodIdsOff,
-         pDexHeader->methodIdsOff);
+          pDexHeader->methodIdsOff);
   log_dis("classDefsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->classDefsSize,
-         pDexHeader->classDefsSize);
+          pDexHeader->classDefsSize);
   log_dis("classDefsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->classDefsOff,
-         pDexHeader->classDefsOff);
-  log_dis("dataSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataSize,
-         pDexHeader->dataSize);
-  log_dis("dataOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataOff,
-         pDexHeader->dataOff);
+          pDexHeader->classDefsOff);
+  log_dis("dataSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataSize, pDexHeader->dataSize);
+  log_dis("dataOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataOff, pDexHeader->dataOff);
   log_dis("-----------------------------\n");
 
   free((void *)sigHex);
@@ -635,20 +628,20 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
     srcFileName = dex_getStringDataByIdx(dexFileBuf, pDexClassDef->sourceFileIdx);
   }
 
-  log_dis("  class #%" PRIu32 ": %s ('%s')\n", idx, classDescriptorFormated,
-             classDescriptor);
+  log_dis("  class #%" PRIu32 ": %s ('%s')\n", idx, classDescriptorFormated, classDescriptor);
   log_dis("   access=%04" PRIx32 " (%s)\n", pDexClassDef->accessFlags, classAccessStr);
   log_dis("   source_file=%s, class_data_off=%" PRIx32 " (%" PRIu32 ")\n", srcFileName,
-             pDexClassDef->classDataOff, pDexClassDef->classDataOff);
+          pDexClassDef->classDataOff, pDexClassDef->classDataOff);
 
   if (pDexClassDef->classDataOff != 0) {
     dexClassDataHeader pDexClassDataHeader;
     const u1 *curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
     memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
     dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
-    log_dis("   static_fields=%" PRIu32 ", instance_fields=%" PRIu32 ", direct_methods=%" PRIu32 ", virtual_methods=%" PRIu32 "\n",
-               pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
-               pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
+    log_dis("   static_fields=%" PRIu32 ", instance_fields=%" PRIu32 ", direct_methods=%" PRIu32
+            ", virtual_methods=%" PRIu32 "\n",
+            pDexClassDataHeader.staticFieldsSize, pDexClassDataHeader.instanceFieldsSize,
+            pDexClassDataHeader.directMethodsSize, pDexClassDataHeader.virtualMethodsSize);
   }
 
   free((void *)classAccessStr);
@@ -667,8 +660,7 @@ void dex_dumpMethodInfo(const u1 *dexFileBuf,
 
   log_dis("   %s_method #%" PRIu32 ": %s %s\n", type, localIdx, methodName, typeDesc);
   log_dis("    access=%04" PRIx32 " (%s)\n", pDexMethod->accessFlags, methodAccessStr);
-  log_dis("    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff,
-             pDexMethod->codeOff);
+  log_dis("    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff, pDexMethod->codeOff);
 
   free((void *)methodAccessStr);
   free((void *)typeDesc);
@@ -735,8 +727,8 @@ void dex_dumpInstruction(
       log_dis(" v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr));
       break;
     case k11n:  // op vA, #+B
-      log_dis(" v%d, #int %d // #%x", dexInstr_getVRegA(codePtr),
-                 (s4)dexInstr_getVRegB(codePtr), (u1)dexInstr_getVRegB(codePtr));
+      log_dis(" v%d, #int %d // #%x", dexInstr_getVRegA(codePtr), (s4)dexInstr_getVRegB(codePtr),
+              (u1)dexInstr_getVRegB(codePtr));
       break;
     case k11x:  // op vAA
       log_dis(" v%d", dexInstr_getVRegA(codePtr));
@@ -744,8 +736,7 @@ void dex_dumpInstruction(
     case k10t:    // op +AA
     case k20t: {  // op +AAAA
       const s4 targ = (s4)dexInstr_getVRegA(codePtr);
-      log_dis(" %04x // %c%04x", insnIdx + targ, (targ < 0) ? '-' : '+',
-                 (targ < 0) ? -targ : targ);
+      log_dis(" %04x // %c%04x", insnIdx + targ, (targ < 0) ? '-' : '+', (targ < 0) ? -targ : targ);
       break;
     }
     case k22x:  // op vAA, vBBBB
@@ -754,23 +745,23 @@ void dex_dumpInstruction(
     case k21t: {  // op vAA, +BBBB
       const s4 targ = (s4)dexInstr_getVRegB(codePtr);
       log_dis(" v%d, %04x // %c%04x", dexInstr_getVRegA(codePtr), insnIdx + targ,
-                 (targ < 0) ? '-' : '+', (targ < 0) ? -targ : targ);
+              (targ < 0) ? '-' : '+', (targ < 0) ? -targ : targ);
       break;
     }
     case k21s:  // op vAA, #+BBBB
-      log_dis(" v%d, #int %d // #%x", dexInstr_getVRegA(codePtr),
-                 (s4)dexInstr_getVRegB(codePtr), (u2)dexInstr_getVRegB(codePtr));
+      log_dis(" v%d, #int %d // #%x", dexInstr_getVRegA(codePtr), (s4)dexInstr_getVRegB(codePtr),
+              (u2)dexInstr_getVRegB(codePtr));
       break;
     case k21h:  // op vAA, #+BBBB0000[00000000]
       // The printed format varies a bit based on the actual opcode.
       if (dexInstr_getOpcode(codePtr) == CONST_HIGH16) {
         const s4 value = dexInstr_getVRegB(codePtr) << 16;
         log_dis(" v%d, #int %d // #%x", dexInstr_getVRegA(codePtr), value,
-                   (u2)dexInstr_getVRegB(codePtr));
+                (u2)dexInstr_getVRegB(codePtr));
       } else {
         const s8 value = ((s8)dexInstr_getVRegB(codePtr)) << 48;
         log_dis(" v%d, #long %" PRId64 " // #%x", dexInstr_getVRegA(codePtr), value,
-                   (u2)dexInstr_getVRegB(codePtr));
+                (u2)dexInstr_getVRegB(codePtr));
       }
       break;
     case k21c:  // op vAA, thing@BBBB
@@ -779,30 +770,26 @@ void dex_dumpInstruction(
       break;
     case k23x:  // op vAA, vBB, vCC
       log_dis(" v%d, v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
-                 dexInstr_getVRegC(codePtr));
+              dexInstr_getVRegC(codePtr));
       break;
     case k22b:  // op vAA, vBB, #+CC
-      log_dis(" v%d, v%d, #int %d // #%02x", dexInstr_getVRegA(codePtr),
-                 dexInstr_getVRegB(codePtr), (s4)dexInstr_getVRegC(codePtr),
-                 (u1)dexInstr_getVRegC(codePtr));
+      log_dis(" v%d, v%d, #int %d // #%02x", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
+              (s4)dexInstr_getVRegC(codePtr), (u1)dexInstr_getVRegC(codePtr));
       break;
     case k22t: {  // op vA, vB, +CCCC
       const s4 targ = (s4)dexInstr_getVRegC(codePtr);
-      log_dis(" v%d, v%d, %04x // %c%04x", dexInstr_getVRegA(codePtr),
-                 dexInstr_getVRegB(codePtr), insnIdx + targ, (targ < 0) ? '-' : '+',
-                 (targ < 0) ? -targ : targ);
+      log_dis(" v%d, v%d, %04x // %c%04x", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
+              insnIdx + targ, (targ < 0) ? '-' : '+', (targ < 0) ? -targ : targ);
       break;
     }
     case k22s:  // op vA, vB, #+CCCC
-      log_dis(" v%d, v%d, #int %d // #%04x", dexInstr_getVRegA(codePtr),
-                 dexInstr_getVRegB(codePtr), (s4)dexInstr_getVRegC(codePtr),
-                 (u2)dexInstr_getVRegC(codePtr));
+      log_dis(" v%d, v%d, #int %d // #%04x", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
+              (s4)dexInstr_getVRegC(codePtr), (u2)dexInstr_getVRegC(codePtr));
       break;
     case k22c:  // op vA, vB, thing@CCCC
                 // NOT SUPPORTED:
                 // case k22cs:    // [opt] op vA, vB, field offset CCCC
-      log_dis(" v%d, v%d, %s", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr),
-                 indexBuf);
+      log_dis(" v%d, v%d, %s", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr), indexBuf);
       break;
     case k30t:
       log_dis(" #%08x", dexInstr_getVRegA(codePtr));
@@ -815,12 +802,12 @@ void dex_dumpInstruction(
       } conv;
       conv.i = dexInstr_getVRegB(codePtr);
       log_dis(" v%d, #float %g // #%08x", dexInstr_getVRegA(codePtr), conv.f,
-                 dexInstr_getVRegB(codePtr));
+              dexInstr_getVRegB(codePtr));
       break;
     }
     case k31t:  // op vAA, offset +BBBBBBBB
       log_dis(" v%d, %08x // +%08x", dexInstr_getVRegA(codePtr),
-                 insnIdx + dexInstr_getVRegB(codePtr), dexInstr_getVRegA(codePtr));
+              insnIdx + dexInstr_getVRegB(codePtr), dexInstr_getVRegA(codePtr));
       break;
     case k32x:  // op vAAAA, vBBBB
       log_dis(" v%d, v%d", dexInstr_getVRegA(codePtr), dexInstr_getVRegB(codePtr));
@@ -868,7 +855,7 @@ void dex_dumpInstruction(
       } conv;
       conv.j = dexInstr_getWideVRegB(codePtr);
       log_dis(" v%d, #double %g // #%016" PRIx64, dexInstr_getVRegA(codePtr), conv.d,
-                 dexInstr_getWideVRegB(codePtr));
+              dexInstr_getWideVRegB(codePtr));
       break;
     }
     // NOT SUPPORTED:

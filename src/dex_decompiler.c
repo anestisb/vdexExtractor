@@ -108,8 +108,7 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
 
   quickening_info_ptr = quickening_info;
   quickening_info_end = quickening_info + quickening_size;
-  log_dis("    quickening_size=%" PRIx32 " (%" PRIu32 ")\n", quickening_size,
-         quickening_size);
+  log_dis("    quickening_size=%" PRIx32 " (%" PRIu32 ")\n", quickening_size, quickening_size);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {

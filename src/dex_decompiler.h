@@ -28,9 +28,9 @@
 #include "dex_instruction.h"
 
 // Dex decompiler driver function using quicken_info data
-bool dexDecompiler_decompile(const u1 *, dexCode *, u4, const u1 *, u4, bool);
+bool dexDecompiler_decompile(const u1 *, dexMethod *, const u1 *, u4, bool);
 
 // Dex decompiler walk method that simply disassembles code blocks
-void dexDecompiler_walk(const u1 *, dexCode *, u4);
+void dexDecompiler_walk(const u1 *, dexMethod *);
 
 #endif

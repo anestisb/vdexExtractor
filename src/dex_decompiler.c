@@ -95,14 +95,16 @@ static void DecompileInvokeVirtual(u2 *insns, u4 dex_pc, Code new_opcode, bool i
 }
 
 bool dexDecompiler_decompile(const u1 *dexFileBuf,
-                             dexCode *pDexCode,
-                             u4 startCodeOff,
+                             dexMethod *pDexMethod,
                              const u1 *quickening_info,
                              u4 quickening_size,
                              bool decompile_return_instruction) {
   if (quickening_size == 0 && !decompile_return_instruction) {
     return true;
   }
+
+  dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod->codeOff);
+  u4 startCodeOff = dex_getFirstInstrOff(pDexMethod);
 
   quickening_info_ptr = quickening_info;
   quickening_info_end = quickening_info + quickening_size;
@@ -195,7 +197,9 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
   return true;
 }
 
-void dexDecompiler_walk(const u1 *dexFileBuf, dexCode *pDexCode, u4 startCodeOff) {
+void dexDecompiler_walk(const u1 *dexFileBuf, dexMethod *pDexMethod) {
+  dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod->codeOff);
+  u4 startCodeOff = dex_getFirstInstrOff(pDexMethod);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
   while (isCodeIteratorDone() == false) {
     dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);

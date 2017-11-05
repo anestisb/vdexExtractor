@@ -210,15 +210,11 @@ int main(int argc, char **argv) {
     }
 
     // Unquicken Dex bytecode or simply walk optimized Dex files
-    if (unquicken) {
-      if (vdex_Unquicken(buf, enableDisassembler) == false) {
-        LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
-        munmap(buf, fileSz);
-        close(srcfd);
-        continue;
-      }
-    } else {
-      vdex_walkDex(buf, enableDisassembler);
+    if (vdex_process(buf, unquicken, enableDisassembler) == false) {
+      LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
+      munmap(buf, fileSz);
+      close(srcfd);
+      continue;
     }
 
     const u1 *current_data = NULL;

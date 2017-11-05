@@ -624,7 +624,7 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
   const char *classDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexClassDef->classIdx);
   const char *classDescriptorFormated = dex_descriptorClassToDot(classDescriptor);
   const char *classAccessStr = createAccessFlagStr(pDexClassDef->accessFlags, kDexAccessForClass);
-  const char *srcFileName = "<striped src file>";
+  const char *srcFileName = "null";
   if (pDexClassDef->sourceFileIdx < USHRT_MAX) {
     srcFileName = dex_getStringDataByIdx(dexFileBuf, pDexClassDef->sourceFileIdx);
   }

@@ -360,6 +360,7 @@ $ cat /tmp/CarrierConfig.apk_classes.json
   * Implement class name recover information gather feature (`-r, --class-recover`)
   * Add timer utility functions to measure time spend to unquicken each input Vdex file
   * Use external log file only for disassembler & verified dependencies information output
+  * Disassembler output performance improvements
   * Logging facility improvements
   * Improve code quality by removing duplicate code
 * __0.3.0__ - 28 October 2017

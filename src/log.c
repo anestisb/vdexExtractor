@@ -115,6 +115,9 @@ void log_msg(log_level_t dl,
 
   if (dl > log_minLevel) return;
 
+  // stdout might be used from disassembler output. If so, flush before writing generic log entry
+  if (dis_enabled && log_disOut == stdout) fflush(log_disOut);
+
   // Explicitly print display messages always to stdout and not to log file (if set)
   int curLogFd = log_fd;
   if (is_display) {
@@ -178,7 +181,6 @@ void log_dis(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(log_disOut, fmt, args);
   va_end(args);
-  fflush(log_disOut);
 }
 
 void log_clsRecWrite(const char *fmt, ...) {

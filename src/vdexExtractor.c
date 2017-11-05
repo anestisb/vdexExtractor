@@ -196,6 +196,9 @@ int main(int argc, char **argv) {
       if (pVdexDeps == NULL) {
         LOGMSG(l_WARN, "Empty verified dependency data")
       } else {
+        // TODO: Migrate this to vdex_process to avoid iterating Dex files twice. For now it's not
+        // a priority since the two flags offer different functionalities thus no point using them
+        // at the same time.
         vdex_dumpDepsInfo(buf, pVdexDeps);
         vdex_destroyDepsInfo(pVdexDeps);
       }

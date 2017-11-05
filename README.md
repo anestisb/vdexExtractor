@@ -26,7 +26,7 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.3.0
+              vdexExtractor ver. 0.3.1 (beta)
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
@@ -36,6 +36,7 @@ $ bin/vdexExtractor -h
  -u, --unquicken      : enable unquicken bytecode decompiler
  -D, --dump-deps      : dump verified dependencies information
  -d, --disassemble    : enable bytecode disassembler
+ -r, --class-recover  : dump information useful to recover original class name (json file to output path)
  -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
  -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
  -h, --help           : this help
@@ -76,93 +77,93 @@ demonstrates a dependencies dump example of a sample Vdex file.
 ```
 $ bin/vdexExtractor -i /tmp/CarrierConfig.vdex -o /tmp -D -f
 [INFO] Processing 1 file(s) from /tmp/CarrierConfig.vdex
- ------ Vdex Header Info ------
- magic header & version      : vdex-006
- number of dex files         : 1 (1)
- dex size (overall)          : 1300 (4864)
- verifier dependencies size  : f8 (248)
- verifier dependencies offset: 131c (4892)
- quickening info size        : 86 (134)
- quickening info offset      : 1414 (5140)
- dex files info              :
-   [0] location checksum : 788135e0 (2021733856)
- ---- EOF Vdex Header Info ----
- ------- Vdex Deps Info -------
- dex file #0
-  extra strings: number_of_strings=3
-   0000: 'Landroid/os/BaseBundle;'
-   0001: 'Landroid/content/ContextWrapper;'
-   0002: 'Ljava/lang/Throwable;'
-  assignable type sets: number_of_sets=7
-   0000: 'Ljava/io/IOException;' must be assignable to 'Ljava/lang/Exception;'
-   0001: 'Lorg/xmlpull/v1/XmlPullParserException;' must be assignable to 'Ljava/lang/Exception;'
-   0002: 'Landroid/os/PersistableBundle;' must be assignable to 'Landroid/os/BaseBundle;'
-   0003: 'Landroid/service/carrier/CarrierService;' must be assignable to 'Landroid/content/ContextWrapper;'
-   0004: 'Ljava/io/IOException;' must be assignable to 'Ljava/lang/Throwable;'
-   0005: 'Ljava/lang/Exception;' must be assignable to 'Ljava/lang/Throwable;'
-   0006: 'Lorg/xmlpull/v1/XmlPullParserException;' must be assignable to 'Ljava/lang/Throwable;'
-  unassignable type sets: number_of_sets=0
-  class dependencies: number_of_classes=18
-   0000: 'Landroid/content/Context;' 'must' be resolved with access flags '1'
-   0001: 'Landroid/content/res/AssetManager;' 'must' be resolved with access flags '1'
-   0002: 'Landroid/content/res/Resources;' 'must' be resolved with access flags '1'
-   0003: 'Landroid/os/Build;' 'must' be resolved with access flags '1'
-   0004: 'Landroid/os/PersistableBundle;' 'must' be resolved with access flags '1'
-   0005: 'Landroid/service/carrier/CarrierIdentifier;' 'must' be resolved with access flags '1'
-   0006: 'Landroid/service/carrier/CarrierService;' 'must' be resolved with access flags '1'
-   0007: 'Landroid/text/TextUtils;' 'must' be resolved with access flags '1'
-   0008: 'Landroid/util/Log;' 'must' be resolved with access flags '1'
-   0009: 'Ljava/io/IOException;' 'must' be resolved with access flags '1'
-   0010: 'Ljava/lang/Exception;' 'must' be resolved with access flags '1'
-   0011: 'Ljava/lang/String;' 'must' be resolved with access flags '1'
-   0012: 'Ljava/lang/StringBuilder;' 'must' be resolved with access flags '1'
-   0013: 'Ljava/util/regex/Matcher;' 'must' be resolved with access flags '1'
-   0014: 'Ljava/util/regex/Pattern;' 'must' be resolved with access flags '1'
-   0015: 'Lorg/xmlpull/v1/XmlPullParser;' 'must' be resolved with access flags '513'
-   0016: 'Lorg/xmlpull/v1/XmlPullParserException;' 'must' be resolved with access flags '1'
-   0017: 'Lorg/xmlpull/v1/XmlPullParserFactory;' 'must' be resolved with access flags '1'
-  field dependencies: number_of_fields=1
-   0000: 'Landroid/os/Build;'->'DEVICE':'Ljava/lang/String;' is expected to be in class 'Landroid/os/Build;' and have the access flags '9'
-  direct method dependencies: number_of_methods=9
-   0000: 'Landroid/os/PersistableBundle;'->'<init>':'()V' is expected to be in class 'Landroid/os/PersistableBundle;', have the access flags '1', and be of kind 'direct'
-   0001: 'Landroid/os/PersistableBundle;'->'restoreFromXml':'(Lorg/xmlpull/v1/XmlPullParser;)Landroid/os/PersistableBundle;' is expected to be in class 'Landroid/os/PersistableBundle;', have the access flags '9', and be of kind 'direct'
-   0002: 'Landroid/service/carrier/CarrierService;'->'<init>':'()V' is expected to be in class 'Landroid/service/carrier/CarrierService;', have the access flags '1', and be of kind 'direct'
-   0003: 'Landroid/text/TextUtils;'->'isEmpty':'(Ljava/lang/CharSequence;)Z' is expected to be in class 'Landroid/text/TextUtils;', have the access flags '9', and be of kind 'direct'
-   0004: 'Landroid/util/Log;'->'d':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9', and be of kind 'direct'
-   0005: 'Landroid/util/Log;'->'e':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9', and be of kind 'direct'
-   0006: 'Ljava/lang/StringBuilder;'->'<init>':'()V' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'direct'
-   0007: 'Ljava/util/regex/Pattern;'->'compile':'(Ljava/lang/String;I)Ljava/util/regex/Pattern;' is expected to be in class 'Ljava/util/regex/Pattern;', have the access flags '9', and be of kind 'direct'
-   0008: 'Lorg/xmlpull/v1/XmlPullParserFactory;'->'newInstance':'()Lorg/xmlpull/v1/XmlPullParserFactory;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParserFactory;', have the access flags '9', and be of kind 'direct'
-  virtual method dependencies: number_of_methods=20
-   0000: 'Landroid/content/Context;'->'getAssets':'()Landroid/content/res/AssetManager;' is expected to be in class 'Landroid/content/Context;', have the access flags '1', and be of kind 'virtual'
-   0001: 'Landroid/content/Context;'->'getResources':'()Landroid/content/res/Resources;' is expected to be in class 'Landroid/content/Context;', have the access flags '1', and be of kind 'virtual'
-   0002: 'Landroid/content/res/AssetManager;'->'open':'(Ljava/lang/String;)Ljava/io/InputStream;' is expected to be in class 'Landroid/content/res/AssetManager;', have the access flags '1', and be of kind 'virtual'
-   0003: 'Landroid/content/res/Resources;'->'getXml':'(I)Landroid/content/res/XmlResourceParser;' is expected to be in class 'Landroid/content/res/Resources;', have the access flags '1', and be of kind 'virtual'
-   0004: 'Landroid/os/PersistableBundle;'->'putAll':'(Landroid/os/PersistableBundle;)V' is expected to be in class 'Landroid/os/BaseBundle;', have the access flags '1', and be of kind 'virtual'
-   0005: 'Landroid/service/carrier/CarrierIdentifier;'->'getGid1':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0006: 'Landroid/service/carrier/CarrierIdentifier;'->'getGid2':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0007: 'Landroid/service/carrier/CarrierIdentifier;'->'getImsi':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0008: 'Landroid/service/carrier/CarrierIdentifier;'->'getMcc':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0009: 'Landroid/service/carrier/CarrierIdentifier;'->'getMnc':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0010: 'Landroid/service/carrier/CarrierIdentifier;'->'getSpn':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
-   0011: 'Lcom/android/carrierconfig/DefaultCarrierConfigService;'->'getApplicationContext':'()Landroid/content/Context;' is expected to be in class 'Landroid/content/ContextWrapper;', have the access flags '1', and be of kind 'virtual'
-   0012: 'Ljava/lang/Exception;'->'toString':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/Throwable;', have the access flags '1', and be of kind 'virtual'
-   0013: 'Ljava/lang/String;'->'equals':'(Ljava/lang/Object;)Z' is expected to be in class 'Ljava/lang/String;', have the access flags '1', and be of kind 'virtual'
-   0014: 'Ljava/lang/String;'->'equalsIgnoreCase':'(Ljava/lang/String;)Z' is expected to be in class 'Ljava/lang/String;', have the access flags '1', and be of kind 'virtual'
-   0015: 'Ljava/lang/StringBuilder;'->'append':'(Ljava/lang/String;)Ljava/lang/StringBuilder;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'virtual'
-   0016: 'Ljava/lang/StringBuilder;'->'toString':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'virtual'
-   0017: 'Ljava/util/regex/Matcher;'->'matches':'()Z' is expected to be in class 'Ljava/util/regex/Matcher;', have the access flags '1', and be of kind 'virtual'
-   0018: 'Ljava/util/regex/Pattern;'->'matcher':'(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;' is expected to be in class 'Ljava/util/regex/Pattern;', have the access flags '1', and be of kind 'virtual'
-   0019: 'Lorg/xmlpull/v1/XmlPullParserFactory;'->'newPullParser':'()Lorg/xmlpull/v1/XmlPullParser;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParserFactory;', have the access flags '1', and be of kind 'virtual'
-  interface method dependencies: number_of_methods=6
-   0000: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeCount':'()I' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-   0001: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeName':'(I)Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-   0002: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeValue':'(I)Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-   0003: 'Lorg/xmlpull/v1/XmlPullParser;'->'getName':'()Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-   0004: 'Lorg/xmlpull/v1/XmlPullParser;'->'next':'()I' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-   0005: 'Lorg/xmlpull/v1/XmlPullParser;'->'setInput':'(Ljava/io/InputStream;Ljava/lang/String;)V' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
-  unverified classes: number_of_classes=0
- ----- EOF Vdex Deps Info -----
+------ Vdex Header Info ------
+magic header & version      : vdex-006
+number of dex files         : 1 (1)
+dex size (overall)          : 1300 (4864)
+verifier dependencies size  : f8 (248)
+verifier dependencies offset: 131c (4892)
+quickening info size        : 86 (134)
+quickening info offset      : 1414 (5140)
+dex files info              :
+  [0] location checksum : 788135e0 (2021733856)
+---- EOF Vdex Header Info ----
+------- Vdex Deps Info -------
+dex file #0
+ extra strings: number_of_strings=3
+  0000: 'Landroid/os/BaseBundle;'
+  0001: 'Landroid/content/ContextWrapper;'
+  0002: 'Ljava/lang/Throwable;'
+ assignable type sets: number_of_sets=7
+  0000: 'Ljava/io/IOException;' must be assignable to 'Ljava/lang/Exception;'
+  0001: 'Lorg/xmlpull/v1/XmlPullParserException;' must be assignable to 'Ljava/lang/Exception;'
+  0002: 'Landroid/os/PersistableBundle;' must be assignable to 'Landroid/os/BaseBundle;'
+  0003: 'Landroid/service/carrier/CarrierService;' must be assignable to 'Landroid/content/ContextWrapper;'
+  0004: 'Ljava/io/IOException;' must be assignable to 'Ljava/lang/Throwable;'
+  0005: 'Ljava/lang/Exception;' must be assignable to 'Ljava/lang/Throwable;'
+  0006: 'Lorg/xmlpull/v1/XmlPullParserException;' must be assignable to 'Ljava/lang/Throwable;'
+ unassignable type sets: number_of_sets=0
+ class dependencies: number_of_classes=18
+  0000: 'Landroid/content/Context;' 'must' be resolved with access flags '1'
+  0001: 'Landroid/content/res/AssetManager;' 'must' be resolved with access flags '1'
+  0002: 'Landroid/content/res/Resources;' 'must' be resolved with access flags '1'
+  0003: 'Landroid/os/Build;' 'must' be resolved with access flags '1'
+  0004: 'Landroid/os/PersistableBundle;' 'must' be resolved with access flags '1'
+  0005: 'Landroid/service/carrier/CarrierIdentifier;' 'must' be resolved with access flags '1'
+  0006: 'Landroid/service/carrier/CarrierService;' 'must' be resolved with access flags '1'
+  0007: 'Landroid/text/TextUtils;' 'must' be resolved with access flags '1'
+  0008: 'Landroid/util/Log;' 'must' be resolved with access flags '1'
+  0009: 'Ljava/io/IOException;' 'must' be resolved with access flags '1'
+  0010: 'Ljava/lang/Exception;' 'must' be resolved with access flags '1'
+  0011: 'Ljava/lang/String;' 'must' be resolved with access flags '1'
+  0012: 'Ljava/lang/StringBuilder;' 'must' be resolved with access flags '1'
+  0013: 'Ljava/util/regex/Matcher;' 'must' be resolved with access flags '1'
+  0014: 'Ljava/util/regex/Pattern;' 'must' be resolved with access flags '1'
+  0015: 'Lorg/xmlpull/v1/XmlPullParser;' 'must' be resolved with access flags '513'
+  0016: 'Lorg/xmlpull/v1/XmlPullParserException;' 'must' be resolved with access flags '1'
+  0017: 'Lorg/xmlpull/v1/XmlPullParserFactory;' 'must' be resolved with access flags '1'
+ field dependencies: number_of_fields=1
+  0000: 'Landroid/os/Build;'->'DEVICE':'Ljava/lang/String;' is expected to be in class 'Landroid/os/Build;' and have the access flags '9'
+ direct method dependencies: number_of_methods=9
+  0000: 'Landroid/os/PersistableBundle;'->'<init>':'()V' is expected to be in class 'Landroid/os/PersistableBundle;', have the access flags '1', and be of kind 'direct'
+  0001: 'Landroid/os/PersistableBundle;'->'restoreFromXml':'(Lorg/xmlpull/v1/XmlPullParser;)Landroid/os/PersistableBundle;' is expected to be in class 'Landroid/os/PersistableBundle;', have the access flags '9', and be of kind 'direct'
+  0002: 'Landroid/service/carrier/CarrierService;'->'<init>':'()V' is expected to be in class 'Landroid/service/carrier/CarrierService;', have the access flags '1', and be of kind 'direct'
+  0003: 'Landroid/text/TextUtils;'->'isEmpty':'(Ljava/lang/CharSequence;)Z' is expected to be in class 'Landroid/text/TextUtils;', have the access flags '9', and be of kind 'direct'
+  0004: 'Landroid/util/Log;'->'d':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9', and be of kind 'direct'
+  0005: 'Landroid/util/Log;'->'e':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9', and be of kind 'direct'
+  0006: 'Ljava/lang/StringBuilder;'->'<init>':'()V' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'direct'
+  0007: 'Ljava/util/regex/Pattern;'->'compile':'(Ljava/lang/String;I)Ljava/util/regex/Pattern;' is expected to be in class 'Ljava/util/regex/Pattern;', have the access flags '9', and be of kind 'direct'
+  0008: 'Lorg/xmlpull/v1/XmlPullParserFactory;'->'newInstance':'()Lorg/xmlpull/v1/XmlPullParserFactory;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParserFactory;', have the access flags '9', and be of kind 'direct'
+ virtual method dependencies: number_of_methods=20
+  0000: 'Landroid/content/Context;'->'getAssets':'()Landroid/content/res/AssetManager;' is expected to be in class 'Landroid/content/Context;', have the access flags '1', and be of kind 'virtual'
+  0001: 'Landroid/content/Context;'->'getResources':'()Landroid/content/res/Resources;' is expected to be in class 'Landroid/content/Context;', have the access flags '1', and be of kind 'virtual'
+  0002: 'Landroid/content/res/AssetManager;'->'open':'(Ljava/lang/String;)Ljava/io/InputStream;' is expected to be in class 'Landroid/content/res/AssetManager;', have the access flags '1', and be of kind 'virtual'
+  0003: 'Landroid/content/res/Resources;'->'getXml':'(I)Landroid/content/res/XmlResourceParser;' is expected to be in class 'Landroid/content/res/Resources;', have the access flags '1', and be of kind 'virtual'
+  0004: 'Landroid/os/PersistableBundle;'->'putAll':'(Landroid/os/PersistableBundle;)V' is expected to be in class 'Landroid/os/BaseBundle;', have the access flags '1', and be of kind 'virtual'
+  0005: 'Landroid/service/carrier/CarrierIdentifier;'->'getGid1':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0006: 'Landroid/service/carrier/CarrierIdentifier;'->'getGid2':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0007: 'Landroid/service/carrier/CarrierIdentifier;'->'getImsi':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0008: 'Landroid/service/carrier/CarrierIdentifier;'->'getMcc':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0009: 'Landroid/service/carrier/CarrierIdentifier;'->'getMnc':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0010: 'Landroid/service/carrier/CarrierIdentifier;'->'getSpn':'()Ljava/lang/String;' is expected to be in class 'Landroid/service/carrier/CarrierIdentifier;', have the access flags '1', and be of kind 'virtual'
+  0011: 'Lcom/android/carrierconfig/DefaultCarrierConfigService;'->'getApplicationContext':'()Landroid/content/Context;' is expected to be in class 'Landroid/content/ContextWrapper;', have the access flags '1', and be of kind 'virtual'
+  0012: 'Ljava/lang/Exception;'->'toString':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/Throwable;', have the access flags '1', and be of kind 'virtual'
+  0013: 'Ljava/lang/String;'->'equals':'(Ljava/lang/Object;)Z' is expected to be in class 'Ljava/lang/String;', have the access flags '1', and be of kind 'virtual'
+  0014: 'Ljava/lang/String;'->'equalsIgnoreCase':'(Ljava/lang/String;)Z' is expected to be in class 'Ljava/lang/String;', have the access flags '1', and be of kind 'virtual'
+  0015: 'Ljava/lang/StringBuilder;'->'append':'(Ljava/lang/String;)Ljava/lang/StringBuilder;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'virtual'
+  0016: 'Ljava/lang/StringBuilder;'->'toString':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1', and be of kind 'virtual'
+  0017: 'Ljava/util/regex/Matcher;'->'matches':'()Z' is expected to be in class 'Ljava/util/regex/Matcher;', have the access flags '1', and be of kind 'virtual'
+  0018: 'Ljava/util/regex/Pattern;'->'matcher':'(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;' is expected to be in class 'Ljava/util/regex/Pattern;', have the access flags '1', and be of kind 'virtual'
+  0019: 'Lorg/xmlpull/v1/XmlPullParserFactory;'->'newPullParser':'()Lorg/xmlpull/v1/XmlPullParser;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParserFactory;', have the access flags '1', and be of kind 'virtual'
+ interface method dependencies: number_of_methods=6
+  0000: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeCount':'()I' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+  0001: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeName':'(I)Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+  0002: 'Lorg/xmlpull/v1/XmlPullParser;'->'getAttributeValue':'(I)Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+  0003: 'Lorg/xmlpull/v1/XmlPullParser;'->'getName':'()Ljava/lang/String;' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+  0004: 'Lorg/xmlpull/v1/XmlPullParser;'->'next':'()I' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+  0005: 'Lorg/xmlpull/v1/XmlPullParser;'->'setInput':'(Ljava/io/InputStream;Ljava/lang/String;)V' is expected to be in class 'Lorg/xmlpull/v1/XmlPullParser;', have the access flags '1', and be of kind 'interface'
+ unverified classes: number_of_classes=0
+----- EOF Vdex Deps Info -----
 [INFO] 1 out of 1 Vdex files have been processed
 [INFO] 1 Dex files have been extracted in total
 [INFO] Extracted Dex files are available in '/tmp'
@@ -182,54 +183,50 @@ quickened offsets and vtable references have been reverted back to original sign
 prototypes.
 
 ```
-$ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -v5 -d -l /tmp/dis.log
+$ bin/vdexExtractor -i /tmp/Videos.vdex -o /tmp -f -u -d -l /tmp/dis.log
 [INFO] Processing 1 file(s) from /tmp/Videos.vdex
 [INFO] 1 out of 1 Vdex files have been processed
 [INFO] 2 Dex files have been extracted in total
 [INFO] Extracted Dex files are available in '/tmp'
 $ head -110 /tmp/dis.log
-[DEBUG] [1185] 2017/10/18 16:30:04 (vdexExtractor.c:168 main) Processing '/tmp/Videos.vdex'
-[DEBUG] [1185] 2017/10/18 16:30:04 (vdex.c:36 vdex_isVersionValid) Vdex version '006' detected
- ------ Vdex Header Info ------
- magic header & version      : vdex-006
- number of dex files         : 2 (2)
- dex size (overall)          : 8f0e4c (9375308)
- verifier dependencies size  : df5c (57180)
- verifier dependencies offset: 8f0e6c (9375340)
- quickening info size        : 100843 (1050691)
- quickening info offset      : 8fedc8 (9432520)
- dex files info              :
-   [0] location checksum : 34315154 (875647316)
-   [1] location checksum : 1e8f2991 (512698769)
- ------------------------------
-[DEBUG] [1185] 2017/10/18 16:30:04 (vdex.c:80 vdex_GetNextDexFileData) Processing first Dex file at offset:0x20
- ------ Dex Header Info ------
- magic        : dex-035
- checksum     : e14de163 (3779977571)
- signature    : 9a91f8e5f2afe2c6b5c2b4853832d3c5ed01aef8
- fileSize     : 8ca638 (9217592)
- headerSize   : 70 (112)
- endianTag    : 12345678 (305419896)
- linkSize     : 0 (0)
- linkOff      : 0 (0)
- mapOff       : 8ca568 (9217384)
- stringIdsSize: ef06 (61190)
- stringIdsOff : 70 (112)
- typeIdsSize  : 29f4 (10740)
- typeIdsOff   : 3bc88 (244872)
- protoIdsSize : 3df9 (15865)
- protoIdsOff  : 46458 (287832)
- fieldIdsSize : a79d (42909)
- fieldIdsOff  : 74c04 (478212)
- methodIdsSize: fed7 (65239)
- methodIdsOff : c88ec (821484)
- classDefsSize: 2288 (8840)
- classDefsOff : 147fa4 (1343396)
- dataSize     : 73d594 (7591316)
- dataOff      : 18d0a4 (1626276)
- -----------------------------
-[DEBUG] [1185] 2017/10/18 16:30:04 (dex.c:313 dex_isValidDexMagic) Dex version '035' detected
- file #0: classDefsSize=8840
+------ Vdex Header Info ------
+magic header & version      : vdex-006
+number of dex files         : 2 (2)
+dex size (overall)          : 8f0e4c (9375308)
+verifier dependencies size  : df5c (57180)
+verifier dependencies offset: 8f0e6c (9375340)
+quickening info size        : 100843 (1050691)
+quickening info offset      : 8fedc8 (9432520)
+dex files info              :
+  [0] location checksum : 34315154 (875647316)
+  [1] location checksum : 1e8f2991 (512698769)
+---- EOF Vdex Header Info ----
+------ Dex Header Info ------
+magic        : dex-035
+checksum     : e14de163 (3779977571)
+signature    : 9a91f8e5f2afe2c6b5c2b4853832d3c5ed01aef8
+fileSize     : 8ca638 (9217592)
+headerSize   : 70 (112)
+endianTag    : 12345678 (305419896)
+linkSize     : 0 (0)
+linkOff      : 0 (0)
+mapOff       : 8ca568 (9217384)
+stringIdsSize: ef06 (61190)
+stringIdsOff : 70 (112)
+typeIdsSize  : 29f4 (10740)
+typeIdsOff   : 3bc88 (244872)
+protoIdsSize : 3df9 (15865)
+protoIdsOff  : 46458 (287832)
+fieldIdsSize : a79d (42909)
+fieldIdsOff  : 74c04 (478212)
+methodIdsSize: fed7 (65239)
+methodIdsOff : c88ec (821484)
+classDefsSize: 2288 (8840)
+classDefsOff : 147fa4 (1343396)
+dataSize     : 73d594 (7591316)
+dataOff      : 18d0a4 (1626276)
+-----------------------------
+file #0: classDefsSize=8840
   class #0: a.a ('La$a;')
    access=0601 (PUBLIC INTERFACE ABSTRACT)
    source_file=SourceFile, class_data_off=851907 (8722695)
@@ -298,6 +295,38 @@ $ head -110 /tmp/dis.log
       1abbe6: e910 5500 0300                         |0021: invoke-virtual-quick {v3}, [0055] // vtable #0055
 [new] 1abbe6: 6e10 6502 0300                         |0021: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@0265
       1abbec: 0c00                                   |0024: move-result-object v0
+      1abbee: e820 3400                              |0025: iput-object-quick v0, v2, [obj+0034]
+[new] 1abbee: 5b20 1400                              |0025: iput-object v0, v2, La;.mResources:Landroid/content/res/Resources; // field@0014
+      1abbf2: 2200 fe25                              |0027: new-instance v0, Ljava/util/ArrayList; // type@25fe
+      1abbf6: 7010 6bfb 0000                         |0029: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
+```
+
+## Original Class Name Recover Info
+
+This feature is an attempt to assist bytecode reverse engineering by extracting information that
+might be useful to recover / guess original class names or minified class identifiers. The current
+logic parses performs the following actions:
+* Process class srcFileName info in case it has not be stripped / altered
+* Examine all methods of each class to identify if they call `android.util.Log`. For most cases the
+  tag string (arg0) indicates the actual class name or something very close to it. Unfortunately,
+  extracting this information from a static offline tool is an extremely complex task that is not
+  planned for the time being.
+
+The collected information is stored under a JSON file in the selected output directory. A sample
+output is illustrated in the following snippet:
+
+```bash
+$ bin/vdexExtractor -i /tmp/CarrierConfig.vdex -o /tmp -f -r
+[INFO] Processing 1 file(s) from /tmp/Videos.vdex
+[INFO] 1 out of 1 Vdex files have been processed
+[INFO] 2 Dex files have been extracted in total
+[INFO] Extracted Dex files are available in '/tmp'
+$ cat /tmp/CarrierConfig.apk_classes.json
+{
+  "classes": [
+    { "name": "com.android.carrierconfig.DefaultCarrierConfigService", "srcFileName": "DefaultCarrierConfigService.java", "callsLogUtil": true }
+  ]
+}
 ```
 
 
@@ -328,6 +357,7 @@ $ head -110 /tmp/dis.log
 ## Changelog
 
 * __0.3.1__ - TBC
+  * Implement class name recover information gather feature (`-r, --class-recover`)
   * Add timer utility functions to measure time spend to unquicken each input Vdex file
   * Use external log file only for disassembler & verified dependencies information output
   * Logging facility improvements

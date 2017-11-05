@@ -20,9 +20,7 @@
 
 */
 
-#include <fcntl.h>
 #include <stdarg.h>
-#include <string.h>
 #include <sys/time.h>
 #include <time.h>
 

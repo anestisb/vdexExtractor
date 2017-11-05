@@ -20,7 +20,6 @@
 
 */
 
-#include <fcntl.h>
 #include <getopt.h>
 #include <libgen.h>
 #include <sys/mman.h>

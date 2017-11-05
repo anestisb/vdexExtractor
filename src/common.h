@@ -24,6 +24,7 @@
 #define _COMMON_H_
 
 #include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>

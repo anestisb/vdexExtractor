@@ -131,7 +131,7 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
         dex_getMethodId(dexFileBuf, pMethods->pVdexDepMethods[i].methodIdx);
     u2 accessFlags = pMethods->pVdexDepMethods[i].accessFlags;
     const char *methodSig = dex_getMethodSignature(dexFileBuf, pDexMethodId);
-    log_dis("   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
+    log_dis("  %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
             dex_getMethodDeclaringClassDescriptor(dexFileBuf, pDexMethodId),
             dex_getMethodName(dexFileBuf, pDexMethodId), methodSig);
     free((void *)methodSig);
@@ -269,28 +269,28 @@ u4 vdex_GetQuickeningInfoSize(const u1 *cursor) {
 void vdex_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
 
-  LOGMSG(l_DEBUG, "------ Vdex Header Info ------");
-  LOGMSG(l_DEBUG, "magic header & version      : %.4s-%.4s", pVdexHeader->magic,
+  log_dis("------ Vdex Header Info ------\n");
+  log_dis("magic header & version      : %.4s-%.4s\n", pVdexHeader->magic,
          pVdexHeader->version);
-  LOGMSG(l_DEBUG, "number of dex files         : %" PRIx32 " (%" PRIu32 ")",
+  log_dis("number of dex files         : %" PRIx32 " (%" PRIu32 ")\n",
          pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
-  LOGMSG(l_DEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")", pVdexHeader->dexSize,
+  log_dis("dex size (overall)          : %" PRIx32 " (%" PRIu32 ")\n", pVdexHeader->dexSize,
          pVdexHeader->dexSize);
-  LOGMSG(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
+  log_dis("verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n",
          vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
-  LOGMSG(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
+  log_dis("verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n",
          vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
-  LOGMSG(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")",
+  log_dis("quickening info size        : %" PRIx32 " (%" PRIu32 ")\n",
          vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
-  LOGMSG(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")",
+  log_dis("quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n",
          vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
-  LOGMSG(l_DEBUG, "dex files info              :")
+  log_dis("dex files info              :\n");
 
   for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
-    LOGMSG(l_DEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
+    log_dis("  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")\n", i,
            vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
-  LOGMSG(l_DEBUG, "---- EOF Vdex Header Info ----");
+  log_dis("---- EOF Vdex Header Info ----\n");
 }
 
 vdexDeps *vdex_initDepsInfo(const u1 *vdexFileBuf) {
@@ -414,7 +414,7 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
     for (u4 i = 0; i < pVdexDepData->fields.numberOfEntries; ++i) {
       vdexDepFieldRes fieldRes = pVdexDepData->fields.pVdexDepFields[i];
       const dexFieldId *pDexFieldId = dex_getFieldId(dexFileBuf, fieldRes.fieldIdx);
-      log_dis("   %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
+      log_dis("  %04" PRIu32 ": '%s'->'%s':'%s' is expected to be ", i,
               dex_getFieldDeclaringClassDescriptor(dexFileBuf, pDexFieldId),
               dex_getFieldName(dexFileBuf, pDexFieldId),
               dex_getFieldTypeDescriptor(dexFileBuf, pDexFieldId));
@@ -439,7 +439,7 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
       }
     }
   }
-  log_dis("----- EOF Vdex Deps Info -----");
+  log_dis("----- EOF Vdex Deps Info -----\n");
 }
 
 bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
@@ -485,7 +485,7 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
     }
 
     // For each class
-    log_dis("file #%zu: classDefsSize=%" PRIu32, dex_file_idx, pDexHeader->classDefsSize);
+    log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx, pDexHeader->classDefsSize);
     for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
       dex_dumpClassInfo(dexFileBuf, i);

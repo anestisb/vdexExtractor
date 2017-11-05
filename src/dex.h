@@ -243,9 +243,9 @@ const char *dex_getMethodDeclaringClassDescriptor(const u1 *, const dexMethodId 
 const char *dex_getMethodName(const u1 *, const dexMethodId *);
 
 // Dex disassembler methods
-bool dex_getDisassemblerStatus(void);
 void dex_setDisassemblerStatus(bool);
 void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
+bool dex_getDisassemblerStatus(void);
 
 // Functions to print information of primitive types (mainly used by disassembler)
 void dex_dumpClassInfo(const u1 *, u4);
@@ -256,6 +256,7 @@ void dex_dumpMethodInfo(const u1 *, dexMethod *, u4, const char *);
 // "[I" becomes "int[]".  Also converts '$' to '.', which means this
 // form can't be converted back to a descriptor.
 char *dex_descriptorToDot(const char *);
+char *dex_descriptorClassToDotLong(const char *);
 
 // Converts the class name portion of a type descriptor to human-readable
 // "dotted" form. For example, "Ljava/lang/String;" becomes "String".

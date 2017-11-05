@@ -36,8 +36,8 @@ $ bin/vdexExtractor -h
  -u, --unquicken      : enable unquicken bytecode decompiler
  -D, --dump-deps      : dump verified dependencies information
  -d, --disassemble    : enable bytecode disassembler
- -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)
- -l, --log-file=<path>: save output to log file (default is STDOUT)
+ -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
+ -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
  -h, --help           : this help
 ```
 
@@ -329,6 +329,9 @@ $ head -110 /tmp/dis.log
 
 * __0.3.1__ - TBC
   * Add timer utility functions to measure time spend to unquicken each input Vdex file
+  * Use external log file only for disassembler & verified dependencies information output
+  * Logging facility improvements
+  * Improve code quality by removing duplicate code
 * __0.3.0__ - 28 October 2017
   * Implement Vdex verified dependencies information iterator (`-D, --dump-deps`)
   * Enable Dex disassembler without requiring to unquicken bytecode

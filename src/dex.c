@@ -923,9 +923,9 @@ char *dex_descriptorClassToDot(const char *str) {
   }
 
   // Copy class name over, trimming trailing ';'.
-  const int targetLen = strlen(lastSlash);
+  size_t targetLen = strlen(lastSlash);
   char *newStr = utils_calloc(targetLen);
-  for (int i = 0; i < targetLen - 1; i++) {
+  for (size_t i = 0; i < targetLen - 1; i++) {
     const char ch = lastSlash[i];
     newStr[i] = ch == '$' ? '.' : ch;
   }  // for

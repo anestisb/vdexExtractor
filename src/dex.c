@@ -338,7 +338,7 @@ void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
   log_dis("------ Dex Header Info ------\n");
   log_dis("magic        : %.3s-%.3s\n", pDexHeader->magic.dex, pDexHeader->magic.ver);
   log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->checksum, pDexHeader->checksum);
-  log_dis("signature    : %s", sigHex);
+  log_dis("signature    : %s\n", sigHex);
   log_dis("fileSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fileSize, pDexHeader->fileSize);
   log_dis("headerSize   : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->headerSize,
           pDexHeader->headerSize);

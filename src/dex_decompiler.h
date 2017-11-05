@@ -31,6 +31,6 @@
 bool dexDecompiler_decompile(const u1 *, dexMethod *, const u1 *, u4, bool);
 
 // Dex decompiler walk method that simply disassembles code blocks
-void dexDecompiler_walk(const u1 *, dexMethod *);
+void dexDecompiler_walk(const u1 *, dexMethod *, bool *);
 
 #endif

@@ -442,7 +442,10 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
   log_dis("----- EOF Vdex Deps Info -----\n");
 }
 
-bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
+bool vdex_process(const u1 *cursor,
+                  bool unquicken,
+                  bool enableDisassembler,
+                  const char *recoverFile) {
   if (unquicken && vdex_GetQuickeningInfoSize(cursor) == 0) {
     // If there is no quickening info, we bail early, as the code below expects at
     // least the size of quickening data for each method that has a code item.
@@ -450,9 +453,17 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
   }
 
   // Update Dex disassembler engine status
+  bool classNameRecoverEnabled = recoverFile != NULL;
   dex_setDisassemblerStatus(enableDisassembler);
-  if (unquicken == false && enableDisassembler == false) {
+  dex_setClassRecover(classNameRecoverEnabled);
+  if (unquicken == false && enableDisassembler == false && recoverFile == NULL) {
     return true;  // no reason to iterate
+  }
+
+  bool *pFoundLogUtilCall = NULL;
+  if (classNameRecoverEnabled) {
+    bool foundLogUtilCall = false;
+    pFoundLogUtilCall = &foundLogUtilCall;
   }
 
   // Measure time spend to process all Dex files of a Vdex file
@@ -484,6 +495,13 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
       continue;
     }
 
+    if (recoverFile) {
+      if (!log_initRecoverFile(recoverFile)) {
+        return false;
+      }
+      log_clsRecWrite("{\n  \"classes\": [\n");
+    }
+
     // For each class
     log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx, pDexHeader->classDefsSize);
     for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
@@ -493,7 +511,7 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
       // Cursor for currently processed class data item
       const u1 *curClassDataCursor;
       if (pDexClassDef->classDataOff == 0) {
-        continue;
+        goto processClassEnd;
       } else {
         curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
       }
@@ -539,7 +557,7 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
           }
           quickening_info_ptr += quickening_size;
         } else {
-          dexDecompiler_walk(dexFileBuf, &curDexMethod);
+          dexDecompiler_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
         }
       }
 
@@ -566,8 +584,17 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
           }
           quickening_info_ptr += quickening_size;
         } else {
-          dexDecompiler_walk(dexFileBuf, &curDexMethod);
+          dexDecompiler_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
         }
+      }
+
+    processClassEnd:
+      if (classNameRecoverEnabled) {
+        if (*pFoundLogUtilCall == false) {
+          log_clsRecWrite("\"callsLogUtil\": false");
+        }
+        *pFoundLogUtilCall = false;
+        i == (pDexHeader->classDefsSize - 1) ? log_clsRecWrite(" }\n") : log_clsRecWrite(" },\n");
       }
     }
 
@@ -580,6 +607,10 @@ bool vdex_process(const u1 *cursor, bool unquicken, bool enableDisassembler) {
                curChecksum, pDexHeader->checksum);
         return false;
       }
+    }
+
+    if (classNameRecoverEnabled) {
+      log_clsRecWrite("  ]\n}\n");
     }
   }
 

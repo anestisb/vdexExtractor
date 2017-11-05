@@ -244,8 +244,10 @@ const char *dex_getMethodName(const u1 *, const dexMethodId *);
 
 // Dex disassembler methods
 void dex_setDisassemblerStatus(bool);
-void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
 bool dex_getDisassemblerStatus(void);
+void dex_setClassRecover(bool);
+bool dex_getClassRecover(void);
+void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool, bool *);
 
 // Functions to print information of primitive types (mainly used by disassembler)
 void dex_dumpClassInfo(const u1 *, u4);

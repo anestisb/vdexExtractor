@@ -113,7 +113,7 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
 
   while (isCodeIteratorDone() == false) {
     bool hasCodeChange = true;
-    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
+    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false, NULL);
     switch (dexInstr_getOpcode(code_ptr)) {
       case RETURN_VOID_NO_BARRIER:
         if (decompile_return_instruction) {
@@ -177,7 +177,7 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
     }
 
     if (hasCodeChange) {
-      dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, true);
+      dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, true, NULL);
     }
     codeIteratorAdvance();
   }
@@ -196,12 +196,12 @@ bool dexDecompiler_decompile(const u1 *dexFileBuf,
   return true;
 }
 
-void dexDecompiler_walk(const u1 *dexFileBuf, dexMethod *pDexMethod) {
+void dexDecompiler_walk(const u1 *dexFileBuf, dexMethod *pDexMethod, bool *foundLogUtilCall) {
   dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod->codeOff);
   u4 startCodeOff = dex_getFirstInstrOff(pDexMethod);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
   while (isCodeIteratorDone() == false) {
-    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false);
+    dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false, foundLogUtilCall);
     codeIteratorAdvance();
   }
 }

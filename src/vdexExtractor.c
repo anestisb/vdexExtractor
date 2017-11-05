@@ -33,6 +33,7 @@
 // exit() wrapper
 void exitWrapper(int errCode) {
   log_closeLogFile();
+  log_closeRecoverFile();
   exit(errCode);
 }
 
@@ -47,6 +48,7 @@ static void usage(bool exit_success) {
              " -u, --unquicken      : enable unquicken bytecode decompiler\n"
              " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
+             " -r, --class-recover  : dump information useful to recover original class name (json file to output path)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)\n"
              " -h, --help           : this help\n");
@@ -67,8 +69,12 @@ static char *fileBasename(char const *path) {
   }
 }
 
-static void formatName(
-    char *outBuf, size_t outBufLen, char *rootPath, char *fName, size_t classId) {
+static void formatName(char *outBuf,
+                       size_t outBufLen,
+                       char *rootPath,
+                       char *fName,
+                       size_t classId,
+                       const char *suffix) {
   // Trim Vdex extension and replace with Apk
   char *fileExt = strrchr(fName, '.');
   if (fileExt) {
@@ -76,9 +82,9 @@ static void formatName(
   }
   char formattedName[PATH_MAX] = { 0 };
   if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.dex", fName);
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.%s", fName, suffix);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.dex", fName, classId);
+    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.%s", fName, classId, suffix);
   }
 
   if (rootPath == NULL) {
@@ -99,6 +105,7 @@ int main(int argc, char **argv) {
   bool unquicken = false;
   bool enableDisassembler = false;
   bool dumpDeps = false;
+  bool classRecover = false;
   bool fileOverride = false;
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
@@ -106,15 +113,19 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = {
-    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
-    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
-    { "disassemble", no_argument, 0, 'd' },   { "dump-deps", no_argument, 0, 'D' },
-    { "debug", required_argument, 0, 'v' },   { "log-file", required_argument, 0, 'l' },
-    { "help", no_argument, 0, 'h' },          { 0, 0, 0, 0 }
-  };
+  struct option longopts[] = { { "input", required_argument, 0, 'i' },
+                               { "output", required_argument, 0, 'o' },
+                               { "file-override", no_argument, 0, 'f' },
+                               { "unquicken", no_argument, 0, 'u' },
+                               { "disassemble", no_argument, 0, 'd' },
+                               { "dump-deps", no_argument, 0, 'D' },
+                               { "class-recover", no_argument, 0, 'r' },
+                               { "debug", required_argument, 0, 'v' },
+                               { "log-file", required_argument, 0, 'l' },
+                               { "help", no_argument, 0, 'h' },
+                               { 0, 0, 0, 0 } };
 
-  while ((c = getopt_long(argc, argv, "i:o:fudDv:l:h", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fudDrv:l:h", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -136,6 +147,10 @@ int main(int argc, char **argv) {
         dumpDeps = true;
         log_setDisStatus(true);
         break;
+      case 'r':
+        classRecover = true;
+        enableDisassembler = true;
+        break;
       case 'v':
         logLevel = atoi(optarg);
         break;
@@ -149,6 +164,12 @@ int main(int argc, char **argv) {
         exitWrapper(EXIT_FAILURE);
         break;
     }
+  }
+
+  // We don't want to increase the complexity of the unquicken decompiler, so offer class name
+  // recover checks only when simply walking the Vdex file
+  if (unquicken && classRecover) {
+    LOGMSG(l_FATAL, "Class name recover cannot be used in parallel with unquicken decompiler");
   }
 
   // Adjust log level
@@ -215,8 +236,15 @@ int main(int argc, char **argv) {
       }
     }
 
+    char *pRecoverFile = NULL;
+    if (classRecover) {
+      char outClsJsonFile[PATH_MAX] = { 0 };
+      formatName(outClsJsonFile, sizeof(outClsJsonFile), outputDir, pFiles.files[f], 0, "json");
+      pRecoverFile = outClsJsonFile;
+    }
+
     // Unquicken Dex bytecode or simply walk optimized Dex files
-    if (vdex_process(buf, unquicken, enableDisassembler) == false) {
+    if (vdex_process(buf, unquicken, enableDisassembler, pRecoverFile) == false) {
       LOGMSG(l_ERROR, "Failed to unquicken Dex files - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
@@ -246,7 +274,7 @@ int main(int argc, char **argv) {
       dex_repairDexCRC(current_data, pDexHeader->fileSize);
 
       char outFile[PATH_MAX] = { 0 };
-      formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i);
+      formatName(outFile, sizeof(outFile), outputDir, pFiles.files[f], i, "dex");
 
       // Write Dex file
       int fileFlags = O_CREAT | O_RDWR;

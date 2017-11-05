@@ -156,4 +156,5 @@ void log_dis(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(log_disOut, fmt, args);
   va_end(args);
+  fflush(log_disOut);
 }

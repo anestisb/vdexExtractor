@@ -41,8 +41,8 @@ static void usage(bool exit_success) {
              " -u, --unquicken      : enable unquicken bytecode decompiler\n"
              " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
-             " -v, --debug=LEVEL    : log level (0 - FATAL ... 5 - VDEBUG), default: '3' (INFO)\n"
-             " -l, --log-file=<path>: save output to log file (default is STDOUT)\n"
+             " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
+             " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)\n"
              " -h, --help           : this help\n");
 
   if (exit_success)

@@ -52,13 +52,12 @@ bool log_initLogFile(const char *logFile) {
     return true;
   }
 
-  log_fd = open(logFile, O_CREAT | O_RDWR | O_APPEND, 0640);
-  if (log_fd == -1) {
-    log_fd = STDOUT_FILENO;
+  log_disOut = fopen(logFile, "ab+");
+  if (log_disOut == NULL) {
+    log_disOut = stdout;
     LOGMSG_P(l_ERROR, "Couldn't open logFile '%s'", logFile);
     return false;
   }
-  log_isTTY = (isatty(log_fd) == 1 ? true : false);
   return true;
 }
 
@@ -148,5 +147,4 @@ void log_dis(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(log_disOut, fmt, args);
   va_end(args);
-  fflush(log_disOut);
 }

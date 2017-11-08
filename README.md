@@ -33,7 +33,7 @@ $ bin/vdexExtractor -h
  -i, --input=<path>   : input dir (1 max depth) or single file
  -o, --output=<path>  : output path (default is same as input)
  -f, --file-override  : allow output file override if already exists
- -u, --unquicken      : enable unquicken bytecode decompiler
+ -u, --unquicken      : enable unquicken bytecode decompiler (also known as de-odex)
  -D, --dump-deps      : dump verified dependencies information
  -d, --disassemble    : enable bytecode disassembler
  -r, --class-recover  : dump information useful to recover original class name (json file to output path)

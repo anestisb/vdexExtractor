@@ -44,7 +44,7 @@ static void usage(bool exit_success) {
              " -i, --input=<path>   : input dir (1 max depth) or single file\n"
              " -o, --output=<path>  : output path (default is same as input)\n"
              " -f, --file-override  : allow output file override if already exists\n"
-             " -u, --unquicken      : enable unquicken bytecode decompiler\n"
+             " -u, --unquicken      : enable unquicken bytecode decompiler (also known as de-odex)\n"
              " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
              " -r, --class-recover  : dump information useful to recover original class name (json "

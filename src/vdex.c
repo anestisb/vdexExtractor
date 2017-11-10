@@ -337,27 +337,27 @@ u4 vdex_GetQuickeningInfoSize(const u1 *cursor) {
 void vdex_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
 
-  log_dis("------ Vdex Header Info ------\n");
-  log_dis("magic header & version      : %.4s-%.4s\n", pVdexHeader->magic, pVdexHeader->version);
-  log_dis("number of dex files         : %" PRIx32 " (%" PRIu32 ")\n",
+  LOGMSG(l_DEBUG, "------ Vdex Header Info ------");
+  LOGMSG(l_DEBUG, "magic header & version      : %.4s-%.4s", pVdexHeader->magic, pVdexHeader->version);
+  LOGMSG(l_DEBUG, "number of dex files         : %" PRIx32 " (%" PRIu32 ")",
           pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
-  log_dis("dex size (overall)          : %" PRIx32 " (%" PRIu32 ")\n", pVdexHeader->dexSize,
+  LOGMSG(l_DEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")", pVdexHeader->dexSize,
           pVdexHeader->dexSize);
-  log_dis("verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n",
+  LOGMSG(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
           vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
-  log_dis("verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n",
+  LOGMSG(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
           vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
-  log_dis("quickening info size        : %" PRIx32 " (%" PRIu32 ")\n",
+  LOGMSG(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")",
           vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
-  log_dis("quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n",
+  LOGMSG(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")",
           vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
-  log_dis("dex files info              :\n");
+  LOGMSG(l_DEBUG, "dex files info              :");
 
   for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
-    log_dis("  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")\n", i,
+    LOGMSG(l_DEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
             vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
-  log_dis("---- EOF Vdex Header Info ----\n");
+  LOGMSG(l_DEBUG, "---- EOF Vdex Header Info ----");
 }
 
 vdexDeps *vdex_initDepsInfo(const u1 *vdexFileBuf) {

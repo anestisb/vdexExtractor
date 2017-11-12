@@ -338,24 +338,25 @@ void vdex_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
 
   LOGMSG(l_DEBUG, "------ Vdex Header Info ------");
-  LOGMSG(l_DEBUG, "magic header & version      : %.4s-%.4s", pVdexHeader->magic, pVdexHeader->version);
+  LOGMSG(l_DEBUG, "magic header & version      : %.4s-%.4s", pVdexHeader->magic,
+         pVdexHeader->version);
   LOGMSG(l_DEBUG, "number of dex files         : %" PRIx32 " (%" PRIu32 ")",
-          pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
+         pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
   LOGMSG(l_DEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")", pVdexHeader->dexSize,
-          pVdexHeader->dexSize);
+         pVdexHeader->dexSize);
   LOGMSG(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")",
-          vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
+         vdex_GetVerifierDepsDataSize(cursor), vdex_GetVerifierDepsDataSize(cursor));
   LOGMSG(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")",
-          vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
+         vdex_GetVerifierDepsDataOffset(cursor), vdex_GetVerifierDepsDataOffset(cursor));
   LOGMSG(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")",
-          vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
+         vdex_GetQuickeningInfoSize(cursor), vdex_GetQuickeningInfoSize(cursor));
   LOGMSG(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")",
-          vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
+         vdex_GetQuickeningInfoOffset(cursor), vdex_GetQuickeningInfoOffset(cursor));
   LOGMSG(l_DEBUG, "dex files info              :");
 
   for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
     LOGMSG(l_DEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")", i,
-            vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
+           vdex_GetLocationChecksum(cursor, i), vdex_GetLocationChecksum(cursor, i));
   }
   LOGMSG(l_DEBUG, "---- EOF Vdex Header Info ----");
 }

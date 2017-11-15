@@ -141,7 +141,7 @@ bool utils_writeToFd(int fd, const u1 *buf, off_t fileSz) {
   return true;
 }
 
-u1 *utils_mapFileToRead(char *fileName, off_t *fileSz, int *fd) {
+u1 *utils_mapFileToRead(const char *fileName, off_t *fileSz, int *fd) {
   if ((*fd = open(fileName, O_RDONLY)) == -1) {
     LOGMSG_P(l_WARN, "Couldn't open() '%s' file in R/O mode", fileName);
     return NULL;

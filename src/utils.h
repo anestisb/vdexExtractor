@@ -42,4 +42,6 @@ void utils_pseudoStrAppend(const char **, size_t *, size_t *, const char *);
 void utils_startTimer(struct timespec *);
 long utils_endTimer(struct timespec *);
 
+u4 *utils_processFileWithCsums(const char *, int *);
+
 #endif

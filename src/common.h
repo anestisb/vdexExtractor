@@ -130,6 +130,7 @@ typedef struct {
   bool enableDisassembler;
   bool dumpDeps;
   bool classRecover;
+  char *newCrcFile;
 } runArgs_t;
 
 extern void exitWrapper(int);

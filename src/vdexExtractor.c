@@ -49,6 +49,7 @@ static void usage(bool exit_success) {
              " -d, --disassemble    : enable bytecode disassembler\n"
              " -r, --class-recover  : dump information useful to recover original class name (json "
                                      "file to output path)\n"
+             " -n, --new-crc=<path> : Text file with extracted Apk or Dex file location checksum(s)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log "
                                      "file (default is STDOUT)\n"
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
     .enableDisassembler = false,
     .dumpDeps = false,
     .classRecover = false,
+    .newCrcFile = NULL,
   };
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
@@ -79,19 +81,16 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = { { "input", required_argument, 0, 'i' },
-                               { "output", required_argument, 0, 'o' },
-                               { "file-override", no_argument, 0, 'f' },
-                               { "unquicken", no_argument, 0, 'u' },
-                               { "disassemble", no_argument, 0, 'd' },
-                               { "dump-deps", no_argument, 0, 'D' },
-                               { "class-recover", no_argument, 0, 'r' },
-                               { "debug", required_argument, 0, 'v' },
-                               { "log-file", required_argument, 0, 'l' },
-                               { "help", no_argument, 0, 'h' },
-                               { 0, 0, 0, 0 } };
+  struct option longopts[] = {
+    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
+    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
+    { "disassemble", no_argument, 0, 'd' },   { "dump-deps", no_argument, 0, 'D' },
+    { "class-recover", no_argument, 0, 'r' }, { "new-crc", required_argument, 0, 'n' },
+    { "debug", required_argument, 0, 'v' },   { "log-file", required_argument, 0, 'l' },
+    { "help", no_argument, 0, 'h' },          { 0, 0, 0, 0 }
+  };
 
-  while ((c = getopt_long(argc, argv, "i:o:fudDrv:l:h", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fudDrn:v:l:h", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -116,6 +115,9 @@ int main(int argc, char **argv) {
       case 'r':
         pRunArgs.classRecover = true;
         pRunArgs.enableDisassembler = true;
+        break;
+      case 'n':
+        pRunArgs.newCrcFile = optarg;
         break;
       case 'v':
         logLevel = atoi(optarg);
@@ -154,6 +156,35 @@ int main(int argc, char **argv) {
   if (!utils_init(&pFiles)) {
     LOGMSG(l_FATAL, "Couldn't load input files");
     exitWrapper(EXIT_FAILURE);
+  }
+
+  int mainRet = EXIT_FAILURE;
+
+  // Parse input file with checksums (expects one per line) and update location checksum
+  if (pRunArgs.newCrcFile) {
+    if (pFiles.fileCnt != 1) {
+      LOGMSG(l_ERROR, "Exactly one input Vdex file is expected when updating location checksums");
+      goto complete;
+    }
+
+    int nSums = -1;
+    u4 *checksums = utils_processFileWithCsums(pRunArgs.newCrcFile, &nSums);
+    if (checksums == NULL || nSums < 1) {
+      LOGMSG(l_ERROR, "Failed to extract new location checksums from '%s'", pRunArgs.newCrcFile);
+      goto complete;
+    }
+
+    if (!vdex_updateChecksums(pFiles.files[0], nSums, checksums, &pRunArgs)) {
+      LOGMSG(l_ERROR, "Failed to update location checksums");
+    } else {
+      mainRet = EXIT_SUCCESS;
+      DISPLAY(l_INFO, "%d location checksums have been updated", nSums);
+      DISPLAY(l_INFO, "Update Vdex file is available in '%s'",
+              pRunArgs.outputDir ? pRunArgs.outputDir : dirname(pFiles.inputFile));
+    }
+
+    free(checksums);
+    goto complete;
   }
 
   size_t processedVdexCnt = 0, processedDexCnt = 0;
@@ -222,11 +253,13 @@ int main(int argc, char **argv) {
     close(srcfd);
   }
 
-  free(pFiles.files);
   DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
           pRunArgs.outputDir ? pRunArgs.outputDir : dirname(pFiles.inputFile));
+  mainRet = EXIT_SUCCESS;
 
-  exitWrapper(EXIT_SUCCESS);
+complete:
+  free(pFiles.files);
+  exitWrapper(mainRet);
 }

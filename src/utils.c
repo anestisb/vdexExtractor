@@ -319,3 +319,38 @@ long utils_endTimer(struct timespec *pTimeSpec) {
   long diffInNanos = endTime.tv_nsec - pTimeSpec->tv_nsec;
   return diffInNanos;
 }
+
+u4 *utils_processFileWithCsums(const char *filePath, int *nCsums) {
+  u4 *ret = NULL;
+  FILE *pFile = fopen(filePath, "rb");
+  if (pFile == NULL) {
+    LOGMSG_P(l_WARN, "Couldn't open '%s' - R/O mode", filePath);
+    return ret;
+  }
+
+  char *lineptr = NULL;
+  size_t n = 0;
+  size_t cnt = 0;
+  u4 *checksums = NULL;
+  for (;;) {
+    if (getline(&lineptr, &n, pFile) == -1) {
+      break;
+    }
+
+    if ((checksums = utils_realloc(checksums, (cnt + 1) * sizeof(u4))) == NULL) {
+      LOGMSG_P(l_WARN, "realloc failed (sz=%zu)", (cnt + 1) * sizeof(u4));
+      goto fini;
+    }
+
+    checksums[cnt] = strtoull(lineptr, 0, 16);
+    cnt += 1;
+  }
+
+  *nCsums = cnt;
+  ret = checksums;
+
+fini:
+  free(lineptr);
+  fclose(pFile);
+  return ret;
+}

@@ -147,6 +147,7 @@ const u1 *vdex_DexEnd(const u1 *);
 u4 vdex_DexEndOffset(const u1 *);
 const u1 *vdex_GetNextDexFileData(const u1 *, u4 *);
 u4 vdex_GetLocationChecksum(const u1 *, u4);
+void vdex_SetLocationChecksum(const u1 *, u4, u4);
 const u1 *vdex_GetVerifierDepsData(const u1 *);
 u4 vdex_GetVerifierDepsDataOffset(const u1 *);
 u4 vdex_GetVerifierDepsDataSize(const u1 *);
@@ -161,5 +162,7 @@ void vdex_destroyDepsInfo(const vdexDeps *);
 void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
 
 int vdex_process(const char *, const u1 *, const runArgs_t *);
+
+bool vdex_updateChecksums(const char *, int, u4 *, const runArgs_t *);
 
 #endif

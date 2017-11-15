@@ -340,7 +340,6 @@ EXTRACT_SYSTEM_APPS=false
 EXTRACT_APKS=false
 TARGET_DEVICE=""
 
-TARGET_DEVICE=""
 declare -a DEVICES_ARRAY=()
 
 for i in "${SYS_TOOLS[@]}"

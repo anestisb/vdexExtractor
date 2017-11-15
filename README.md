@@ -30,16 +30,17 @@ $ bin/vdexExtractor -h
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
- -i, --input=<path>   : input dir (1 max depth) or single file
- -o, --output=<path>  : output path (default is same as input)
- -f, --file-override  : allow output file override if already exists
- -u, --unquicken      : enable unquicken bytecode decompiler (also known as de-odex)
- -D, --dump-deps      : dump verified dependencies information
- -d, --disassemble    : enable bytecode disassembler
- -r, --class-recover  : dump information useful to recover original class name (json file to output path)
- -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
- -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
- -h, --help           : this help
+ -i, --input=<path>    : input dir (1 max depth) or single file
+ -o, --output=<path>   : output path (default is same as input)
+ -f, --file-override   : allow output file override if already exists
+ -u, --unquicken       : enable unquicken bytecode decompiler (also known as de-odex)
+ -D, --dump-deps       : dump verified dependencies information
+ -d, --disassemble     : enable bytecode disassembler
+ -r, --class-recover   : dump information useful to recover original class name (json file to output path)
+ -n, --new-crc=<path>  : Text file with extracted Apk or Dex file location checksum(s)
+ -v, --debug=LEVEL     : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
+ -l, --log-file=<path> : save disassembler and/or verified dependencies output to log file (default is STDOUT)
+ -h, --help            : this help
 ```
 
 
@@ -340,7 +341,7 @@ $ cat /tmp/CarrierConfig.apk_classes.json
   from a connected Android device. Also supports extracting APK archives of installed packages. Some
   system app data might fail to extract without root access due to applied DAC permissions.
 
-  ```
+  ```text
   $ scripts/extract-apps-from-device.sh -h
     Usage: extract-apps-from-device.sh [options]
       options:
@@ -355,10 +356,27 @@ $ cat /tmp/CarrierConfig.apk_classes.json
   [INFO]: Extracted data stored under '/tmp/art_data'
   ```
 
+* **scripts/update-vdex-location-checksums.sh**
+
+  Update Vdex file location checksums with CRCs extracted from input Apk archive file.
+
+  ```text
+  $ scripts/update-vdex-location-checksums.sh -h
+    Usage: update-vdex-location-checksums.sh [options]
+      options:
+        -i|--input <file> : Input Vdex file to repair location checksum(s) within
+        -a|--app <file>   : Input Apk file to extract location checksum(s) from
+        -o|--output <dir> : Directory to save updated Vdex file (default is '.')
+        -h|--help         : This help message
+  ```
+
 
 ## Changelog
 
 * __0.3.1__ - TBC
+  * Add option to update checksum location of Vdex file (`-n, --new-crc`). Feature mostly targets
+    use-cases were a backwards compatibility fix of the Vdex file is required without having to
+    dex2oat recompile.
   * Implement class name recover information gather feature (`-r, --class-recover`)
   * Add timer utility functions to measure time spend to unquicken each input Vdex file
   * Use external log file only for disassembler & verified dependencies information output

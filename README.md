@@ -26,7 +26,7 @@ paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.3.1 (beta)
+              vdexExtractor ver. 0.3.1
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
@@ -373,7 +373,7 @@ $ cat /tmp/CarrierConfig.apk_classes.json
 
 ## Changelog
 
-* __0.3.1__ - TBC
+* __0.3.1__ - 17 November 2017
   * Add option to update checksum location of Vdex file (`-n, --new-crc`). Feature mostly targets
     use-cases were a backwards compatibility fix of the Vdex file is required without having to
     dex2oat recompile.

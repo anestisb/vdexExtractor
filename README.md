@@ -2,10 +2,9 @@
 
 Command line tool to decompile and extract Android Dex bytecode from Vdex files that are generated
 along with Oat files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format
-has been introduced in the Oreo (API-26) build. More information is available
-[here](https://android-review.googlesource.com/#/c/264514/). It should be noted that Oat files are
-no longer storing the matching Dex files inside their `.rodata` section. Instead they're always
-paired with a matching Vdex file.
+has been introduced in the Oreo (API-26) build. More information is available [here][vdex-cr]. It
+should be noted that Oat files are no longer storing the matching Dex files inside their `.rodata`
+section. Instead they're always paired with a matching Vdex file.
 
 
 ## Compile
@@ -52,12 +51,9 @@ tool capable to revert optimized bytecode, that does not require building the en
 AOSP.
 
 The Vdex fully unquicken functionality has been also implemented as part of the AOSP oatdump libart
-tool. The upstream contribution is available
-[here](https://android.googlesource.com/platform/art/+/a1f56a8dddb88f5377a7dd4ec79640103c713d30).
-If you want to use oatdump with Oreo release you can use the corresponding patch
-[here](https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409) or fork and build (inside
-and AOSP_SRC_ROOT workspace) the oreo-release branch of the
-[oatdump++](https://github.com/anestisb/oatdump_plus/tree/oreo-release) tool.
+tool. The upstream contribution is available [here][aosp-master]. If you want to use oatdump with
+Oreo release you can use the corresponding patch [here][oatdump-oreo] or fork and build (inside and
+AOSP_SRC_ROOT workspace) the oreo-release branch of the [oatdump++][oatdump-plus] tool.
 
 
 ## Verified Dependencies Iterator
@@ -358,7 +354,9 @@ $ cat /tmp/CarrierConfig.apk_classes.json
 
 * **scripts/update-vdex-location-checksums.sh**
 
-  Update Vdex file location checksums with CRCs extracted from input Apk archive file.
+  Update Vdex file location checksums with CRCs extracted from input Apk archive file. More
+  information on how this feature was used to trick the ART runtime book keeping mechanism and
+  bypass SafetyNet application integrity checks is available [here][census-snet].
 
   ```text
   $ scripts/update-vdex-location-checksums.sh -h
@@ -433,3 +431,9 @@ $ cat /tmp/CarrierConfig.apk_classes.json
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
+
+[vdex-cr]: https://android-review.googlesource.com/#/c/264514/
+[aosp-master]: https://android.googlesource.com/platform/art/+/a1f56a8dddb88f5377a7dd4ec79640103c713d30
+[oatdump-oreo]: https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409
+[oatdump-plus]: https://github.com/anestisb/oatdump_plus/tree/oreo-release
+[census-snet]: https://census-labs.com/news/2017/11/17/examining-the-value-of-safetynet-attestation-as-an-application-integrity-security-control/

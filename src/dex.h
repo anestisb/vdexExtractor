@@ -31,6 +31,8 @@
 #define kDexVersionLen 4
 #define kSHA1Len 20
 
+static const uint16_t kDexNoIndex16 = 0xFFFF;
+
 static const u1 kDexMagic[] = { 'd', 'e', 'x', '\n' };
 static const u1 kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {
   { '0', '3', '5', '\0' },

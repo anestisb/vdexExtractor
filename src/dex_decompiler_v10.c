@@ -23,8 +23,17 @@
 #include "dex_decompiler_v10.h"
 #include "utils.h"
 
-static const u1 *quickening_info_ptr;
-static const u1 *quickening_info_end;
+static const u1 *quicken_info_ptr;
+static size_t quicken_info_number_of_indices;
+static size_t quicken_index;
+
+static u2 GetData(size_t index) {
+  return quicken_info_ptr[index * 2] | (u2)(quicken_info_ptr[index * 2 + 1] << 8);
+}
+
+static size_t NumberOfIndices(size_t bytes) {
+  return bytes / sizeof(u2);
+}
 
 static u2 *code_ptr;
 static u2 *code_end;
@@ -47,30 +56,20 @@ static void codeIteratorAdvance() {
   cur_code_off += instruction_size * sizeof(u2);
 }
 
-static u2 GetIndexAt(u4 dex_pc) {
-  // Note that as a side effect, dex_readULeb128 update the given pointer
-  // to the new position in the buffer.
-  CHECK_LT(quickening_info_ptr, quickening_info_end);
-  u4 quickened_pc = dex_readULeb128(&quickening_info_ptr);
-  CHECK_LT(quickening_info_ptr, quickening_info_end);
-  u2 index = dex_readULeb128(&quickening_info_ptr);
-  CHECK_LE(quickening_info_ptr, quickening_info_end);
-  CHECK_EQ(quickened_pc, dex_pc);
-  return index;
+static u2 NextIndex() {
+  CHECK_LT(quicken_index, quicken_info_number_of_indices);
+  const u2 ret = GetData(quicken_index);
+  quicken_index++;
+  return ret;
 }
 
-static bool DecompileNop(u2 *insns, u4 dex_pc) {
-  if (quickening_info_ptr == quickening_info_end) {
+static bool DecompileNop(u2 *insns) {
+  const u2 reference_index = NextIndex();
+  if (reference_index == kDexNoIndex16) {
+    // This means it was a normal nop and not a check-cast.
     return false;
   }
-  const u1 *temporary_pointer = quickening_info_ptr;
-  u4 quickened_pc = dex_readULeb128(&temporary_pointer);
-  if (quickened_pc != dex_pc) {
-    LOGMSG(l_FATAL, "Fatal error when decompiling NOP instruction");
-    return false;
-  }
-  u2 reference_index = GetIndexAt(dex_pc);
-  u2 type_index = GetIndexAt(dex_pc);
+  const u2 type_index = NextIndex();
   dexInstr_SetOpcode(insns, CHECK_CAST);
   dexInstr_SetVRegA_21c(insns, reference_index);
   dexInstr_SetVRegB_21c(insns, type_index);
@@ -78,14 +77,14 @@ static bool DecompileNop(u2 *insns, u4 dex_pc) {
   return true;
 }
 
-static void DecompileInstanceFieldAccess(u2 *insns, u4 dex_pc, Code new_opcode) {
-  u2 index = GetIndexAt(dex_pc);
+static void DecompileInstanceFieldAccess(u2 *insns, Code new_opcode) {
+  u2 index = NextIndex();
   dexInstr_SetOpcode(insns, new_opcode);
   dexInstr_SetVRegC_22c(insns, index);
 }
 
-static void DecompileInvokeVirtual(u2 *insns, u4 dex_pc, Code new_opcode, bool is_range) {
-  u2 index = GetIndexAt(dex_pc);
+static void DecompileInvokeVirtual(u2 *insns, Code new_opcode, bool is_range) {
+  u2 index = NextIndex();
   dexInstr_SetOpcode(insns, new_opcode);
   if (is_range) {
     dexInstr_SetVRegB_3rc(insns, index);
@@ -106,12 +105,15 @@ bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
   dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod->codeOff);
   u4 startCodeOff = dex_getFirstInstrOff(pDexMethod);
 
-  quickening_info_ptr = quickening_info;
-  quickening_info_end = quickening_info + quickening_size;
+  quicken_info_ptr = quickening_info;
+  quicken_index = 0;
+  quicken_info_number_of_indices = NumberOfIndices(quickening_size);
+
   log_dis("    quickening_size=%" PRIx32 " (%" PRIu32 ")\n", quickening_size, quickening_size);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
+    log_dis("--> %zu / %zu\n", quicken_index, quicken_info_number_of_indices);
     bool hasCodeChange = true;
     dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false, NULL);
     switch (dexInstr_getOpcode(code_ptr)) {
@@ -121,55 +123,60 @@ bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
         }
         break;
       case NOP:
-        hasCodeChange = DecompileNop(code_ptr, dex_pc);
+        if (quicken_info_number_of_indices > 0) {
+          // Only try to decompile NOP if there are more than 0 indices. Not having
+          // any index happens when we unquicken a code item that only has
+          // RETURN_VOID_NO_BARRIER as quickened instruction.
+          hasCodeChange = DecompileNop(code_ptr);
+        }
         break;
       case IGET_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET);
+        DecompileInstanceFieldAccess(code_ptr, IGET);
         break;
       case IGET_WIDE_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_WIDE);
+        DecompileInstanceFieldAccess(code_ptr, IGET_WIDE);
         break;
       case IGET_OBJECT_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_OBJECT);
+        DecompileInstanceFieldAccess(code_ptr, IGET_OBJECT);
         break;
       case IGET_BOOLEAN_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_BOOLEAN);
+        DecompileInstanceFieldAccess(code_ptr, IGET_BOOLEAN);
         break;
       case IGET_BYTE_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_BYTE);
+        DecompileInstanceFieldAccess(code_ptr, IGET_BYTE);
         break;
       case IGET_CHAR_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_CHAR);
+        DecompileInstanceFieldAccess(code_ptr, IGET_CHAR);
         break;
       case IGET_SHORT_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IGET_SHORT);
+        DecompileInstanceFieldAccess(code_ptr, IGET_SHORT);
         break;
       case IPUT_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT);
+        DecompileInstanceFieldAccess(code_ptr, IPUT);
         break;
       case IPUT_BOOLEAN_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_BOOLEAN);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_BOOLEAN);
         break;
       case IPUT_BYTE_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_BYTE);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_BYTE);
         break;
       case IPUT_CHAR_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_CHAR);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_CHAR);
         break;
       case IPUT_SHORT_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_SHORT);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_SHORT);
         break;
       case IPUT_WIDE_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_WIDE);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_WIDE);
         break;
       case IPUT_OBJECT_QUICK:
-        DecompileInstanceFieldAccess(code_ptr, dex_pc, IPUT_OBJECT);
+        DecompileInstanceFieldAccess(code_ptr, IPUT_OBJECT);
         break;
       case INVOKE_VIRTUAL_QUICK:
-        DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL, false);
+        DecompileInvokeVirtual(code_ptr, INVOKE_VIRTUAL, false);
         break;
       case INVOKE_VIRTUAL_RANGE_QUICK:
-        DecompileInvokeVirtual(code_ptr, dex_pc, INVOKE_VIRTUAL_RANGE, true);
+        DecompileInvokeVirtual(code_ptr, INVOKE_VIRTUAL_RANGE, true);
         break;
       default:
         hasCodeChange = false;
@@ -182,13 +189,13 @@ bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
     codeIteratorAdvance();
   }
 
-  if (quickening_info_ptr != quickening_info_end) {
-    if (quickening_info_ptr == quickening_info_end) {
+  if (quicken_index != quicken_info_number_of_indices) {
+    if (quicken_index == 0) {
       LOGMSG(l_ERROR,
              "Failed to use any value in quickening info, potentially due to duplicate methods.");
     } else {
       LOGMSG(l_ERROR, "Failed to use all values in quickening info, '%zx' items not processed",
-             quickening_info_end - quickening_info_ptr);
+             quicken_info_number_of_indices - quicken_index);
       return false;
     }
   }

@@ -20,30 +20,12 @@
 
 */
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef _VDEX_BACKEND_V6_H_
+#define _VDEX_BACKEND_V6_H_
 
-#include <stdint.h>
 #include "common.h"
+#include "dex.h"
 
-bool utils_init(infiles_t *);
-u1 *utils_mapFileToRead(const char *, off_t *, int *);
-bool utils_writeToFd(int, const u1 *, off_t);
-void utils_hexDump(char *, const u1 *, int);
-char *utils_bin2hex(const unsigned char *, const size_t);
-void *utils_malloc(size_t);
-void *utils_calloc(size_t);
-void *utils_realloc(void *, size_t);
-void *utils_crealloc(void *ptr, size_t, size_t);
-
-// To simplify api, all errors are treated as fatal
-void utils_pseudoStrAppend(const char **, size_t *, size_t *, const char *);
-
-void utils_startTimer(struct timespec *);
-long utils_endTimer(struct timespec *);
-
-u4 *utils_processFileWithCsums(const char *, int *);
-
-char *utils_fileBasename(char const *);
+int vdex_process_v6(const char *, const u1 *, const runArgs_t *);
 
 #endif

@@ -38,6 +38,8 @@ static const u1 kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
   { '0', '1', '0', '\0' },
 };
 
+typedef enum { kBackendV6 = 0, kBackendV10, kBackendMax } VdexBackend;
+
 typedef u4 VdexChecksum;
 
 typedef struct __attribute__((packed)) {
@@ -161,6 +163,7 @@ vdexDeps *vdex_initDepsInfo(const u1 *);
 void vdex_destroyDepsInfo(const vdexDeps *);
 void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
 
+void vdex_backendInit(VdexBackend);
 int vdex_process(const char *, const u1 *, const runArgs_t *);
 
 bool vdex_updateChecksums(const char *, int, u4 *, const runArgs_t *);

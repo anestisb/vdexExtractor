@@ -354,3 +354,12 @@ fini:
   fclose(pFile);
   return ret;
 }
+
+char *utils_fileBasename(char const *path) {
+  char *s = strrchr(path, '/');
+  if (!s) {
+    return strdup(path);
+  } else {
+    return strdup(s + 1);
+  }
+}

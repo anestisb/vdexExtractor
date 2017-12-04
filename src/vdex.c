@@ -22,11 +22,14 @@
 
 #include <sys/mman.h>
 
-#include "dex_decompiler.h"
+#include "out_writer.h"
 #include "utils.h"
 #include "vdex.h"
+#include "vdex_backend_v10.h"
+#include "vdex_backend_v6.h"
 
 static u2 kUnresolvedMarker = (u2)(-1);
+static int (*processPtr)(const char *, const u1 *, const runArgs_t *);
 
 static inline u4 decodeUint32WithOverflowCheck(const u1 **in, const u1 *end) {
   CHECK_LT(*in, end);
@@ -148,123 +151,17 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
   }
 }
 
-static char *fileBasename(char const *path) {
-  char *s = strrchr(path, '/');
-  if (!s) {
-    return strdup(path);
-  } else {
-    return strdup(s + 1);
-  }
-}
-
-static void formatName(char *outBuf,
-                       size_t outBufLen,
-                       const char *rootPath,
-                       const char *fName,
-                       size_t classId,
-                       const char *suffix) {
-  // Trim Vdex extension and replace with Apk
-  char *fileExt = strrchr(fName, '.');
-  if (fileExt) {
-    *fileExt = '\0';
-  }
-  char formattedName[PATH_MAX] = { 0 };
-  if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.%s", fName, suffix);
-  } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.%s", fName, classId, suffix);
-  }
-
-  if (rootPath == NULL) {
-    // Save to same directory as input file
-    snprintf(outBuf, outBufLen, "%s", formattedName);
-  } else {
-    const char *pFileBaseName = fileBasename(formattedName);
-    snprintf(outBuf, outBufLen, "%s/%s", rootPath, pFileBaseName);
-    free((void *)pFileBaseName);
-  }
-}
-
-static bool writeDexFile(const runArgs_t *pRunArgs,
-                         const char *VdexFileName,
-                         size_t dexIdx,
-                         const u1 *buf,
-                         size_t bufSize) {
-  char outFile[PATH_MAX] = { 0 };
-  formatName(outFile, sizeof(outFile), pRunArgs->outputDir, VdexFileName, dexIdx, "dex");
-
-  // Write Dex file
-  int fileFlags = O_CREAT | O_RDWR;
-  if (pRunArgs->fileOverride == false) {
-    fileFlags |= O_EXCL;
-  }
-  int dstfd = -1;
-  dstfd = open(outFile, fileFlags, 0644);
-  if (dstfd == -1) {
-    LOGMSG_P(l_ERROR, "Couldn't create output file '%s' - skipping 'classes%zu.dex'", outFile,
-             dexIdx);
-    return false;
-  }
-
-  if (!utils_writeToFd(dstfd, buf, bufSize)) {
-    close(dstfd);
-    LOGMSG(l_ERROR, "Couldn't write '%s' file - skipping 'classes%zu.dex'", outFile, dexIdx);
-    return false;
-  }
-
-  close(dstfd);
-  return true;
-}
-
-static bool writeVdexFile(const runArgs_t *pRunArgs,
-                          const char *VdexFileName,
-                          u1 *buf,
-                          off_t bufSz) {
-  char *fileExt = strrchr(VdexFileName, '.');
-  if (fileExt) {
-    *fileExt = '\0';
-  }
-  char outFileName[PATH_MAX] = { 0 };
-  if (pRunArgs->outputDir == NULL) {
-    snprintf(outFileName, sizeof(outFileName), "%s_updated.vdex", VdexFileName);
-  } else {
-    const char *pFileBaseName = fileBasename(VdexFileName);
-    snprintf(outFileName, sizeof(outFileName), "%s/%s_updated.vdex", pRunArgs->outputDir,
-             pFileBaseName);
-    free((void *)pFileBaseName);
-  }
-
-  int dstfd = -1;
-  dstfd = open(outFileName, O_CREAT | O_RDWR, 0644);
-  if (dstfd == -1) {
-    LOGMSG_P(l_ERROR, "Couldn't create output file '%s'", outFileName);
-    return false;
-  }
-
-  if (!utils_writeToFd(dstfd, buf, bufSz)) {
-    close(dstfd);
-    LOGMSG(l_ERROR, "Couldn't write '%s' file", outFileName);
-    return false;
-  }
-
-  close(dstfd);
-  return true;
-}
-
-static void selectDecompilerBackend(const vdexHeader *pVdexHeader) {
-  dexDecompiler_ver ver = kDecompilerMax;
-  char *end;
-  switch (strtol((char *)pVdexHeader->version, &end, 10)) {
-    case 6:
-      ver = kDecompilerV6;
+void vdex_backendInit(VdexBackend ver) {
+  switch (ver) {
+    case kBackendV6:
+      processPtr = &vdex_process_v6;
       break;
-    case 10:
-      ver = kDecompilerV10;
+    case kBackendV10:
+      processPtr = &vdex_process_v10;
       break;
     default:
-      LOGMSG(l_FATAL, "Invalid Vdex version");
+      LOGMSG(l_FATAL, "Invalid Vdex backend version");
   }
-  dexDecompiler_init(ver);
 }
 
 bool vdex_isMagicValid(const u1 *cursor) {
@@ -569,187 +466,18 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
 }
 
 int vdex_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
-  // Update Dex disassembler engine status
-  dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
-  dex_setClassRecover(pRunArgs->classRecover);
-
-  bool *pFoundLogUtilCall = NULL;
-  if (pRunArgs->classRecover) {
-    bool foundLogUtilCall = false;
-    pFoundLogUtilCall = &foundLogUtilCall;
-  }
-
   // Measure time spend to process all Dex files of a Vdex file
   struct timespec timer;
   utils_startTimer(&timer);
 
-  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
-  const u1 *const quickening_info_end =
-      vdex_GetQuickeningInfo(cursor) + vdex_GetQuickeningInfoSize(cursor);
-
-  // Select decompiler backend based on Vdex version
-  selectDecompilerBackend(pVdexHeader);
-
-  const u1 *dexFileBuf = NULL;
-  u4 offset = 0;
-
-  // For each Dex file
-  for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
-    dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
-    if (dexFileBuf == NULL) {
-      LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", dex_file_idx);
-      continue;
-    }
-
-    const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-
-    // Check if valid Dex file
-    dex_dumpHeaderInfo(pDexHeader);
-    if (!dex_isValidDexMagic(pDexHeader)) {
-      LOGMSG(l_ERROR, "'classes%zu.dex' is an invalid Dex file - skipping", dex_file_idx);
-      continue;
-    }
-
-    if (pRunArgs->classRecover) {
-      char outClsJsonFile[PATH_MAX] = { 0 };
-      formatName(outClsJsonFile, sizeof(outClsJsonFile), pRunArgs->outputDir, VdexFileName, 0,
-                 "json");
-      if (!log_initRecoverFile(outClsJsonFile)) {
-        return -1;
-      }
-      log_clsRecWrite("{\n  \"classes\": [\n");
-    }
-
-    // For each class
-    log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx, pDexHeader->classDefsSize);
-    for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
-      const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
-      dex_dumpClassInfo(dexFileBuf, i);
-
-      // Cursor for currently processed class data item
-      const u1 *curClassDataCursor;
-      if (pDexClassDef->classDataOff == 0) {
-        goto processClassEnd;
-      } else {
-        curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
-      }
-
-      dexClassDataHeader pDexClassDataHeader;
-      memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
-      dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
-
-      // Skip static fields
-      for (u4 j = 0; j < pDexClassDataHeader.staticFieldsSize; ++j) {
-        dexField pDexField;
-        memset(&pDexField, 0, sizeof(dexField));
-        dex_readClassDataField(&curClassDataCursor, &pDexField);
-      }
-
-      // Skip instance fields
-      for (u4 j = 0; j < pDexClassDataHeader.instanceFieldsSize; ++j) {
-        dexField pDexField;
-        memset(&pDexField, 0, sizeof(dexField));
-        dex_readClassDataField(&curClassDataCursor, &pDexField);
-      }
-
-      // For each direct method
-      for (u4 j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
-        dexMethod curDexMethod;
-        memset(&curDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "direct");
-
-        // Skip empty methods
-        if (curDexMethod.codeOff == 0) {
-          continue;
-        }
-
-        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
-          // For quickening info blob the first 4bytes are the inner blobs size
-          u4 quickening_size = *(u4 *)quickening_info_ptr;
-          quickening_info_ptr += sizeof(u4);
-          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
-                                       quickening_size, true)) {
-            LOGMSG(l_ERROR, "Failed to decompile Dex file");
-            return -1;
-          }
-          quickening_info_ptr += quickening_size;
-        } else {
-          dexDecompiler_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
-        }
-      }
-
-      // For each virtual method
-      for (u4 j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
-        dexMethod curDexMethod;
-        memset(&curDexMethod, 0, sizeof(dexMethod));
-        dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "virtual");
-
-        // Skip native or abstract methods
-        if (curDexMethod.codeOff == 0) {
-          continue;
-        }
-
-        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
-          // For quickening info blob the first 4bytes are the inner blobs size
-          u4 quickening_size = *(u4 *)quickening_info_ptr;
-          quickening_info_ptr += sizeof(u4);
-          if (!dexDecompiler_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
-                                       quickening_size, true)) {
-            LOGMSG(l_ERROR, "Failed to decompile Dex file");
-            return -1;
-          }
-          quickening_info_ptr += quickening_size;
-        } else {
-          dexDecompiler_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
-        }
-      }
-
-    processClassEnd:
-      if (pRunArgs->classRecover) {
-        if (*pFoundLogUtilCall == false) {
-          log_clsRecWrite("\"callsLogUtil\": false");
-        }
-        *pFoundLogUtilCall = false;
-        i == (pDexHeader->classDefsSize - 1) ? log_clsRecWrite(" }\n") : log_clsRecWrite(" },\n");
-      }
-    }
-
-    if (pRunArgs->unquicken) {
-      // If unquicken was successful original checksum should verify
-      u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
-      if (curChecksum != pDexHeader->checksum) {
-        LOGMSG(l_ERROR,
-               "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
-               curChecksum, pDexHeader->checksum);
-        return -1;
-      }
-    } else {
-      // Repair CRC if not decompiling so we can still run Dex parsing tools against output
-      dex_repairDexCRC(dexFileBuf, pDexHeader->fileSize);
-    }
-
-    if (!writeDexFile(pRunArgs, VdexFileName, dex_file_idx, dexFileBuf, pDexHeader->fileSize)) {
-      return -1;
-    }
-
-    if (pRunArgs->classRecover) {
-      log_clsRecWrite("  ]\n}\n");
-    }
-  }
-
-  if (pRunArgs->unquicken && (quickening_info_ptr != quickening_info_end)) {
-    LOGMSG(l_ERROR, "Failed to process all quickening info data");
-    return -1;
-  }
+  // Process Vdex file
+  int ret = (*processPtr)(VdexFileName, cursor, pRunArgs);
 
   // Get elapsed time in ns
   long timeSpend = utils_endTimer(&timer);
   LOGMSG(l_DEBUG, "Took %ld ms to process Vdex file", timeSpend / 1000000);
 
-  return pVdexHeader->numberOfDexFiles;
+  return ret;
 }
 
 bool vdex_updateChecksums(const char *inVdexFileName,
@@ -783,7 +511,7 @@ bool vdex_updateChecksums(const char *inVdexFileName,
     vdex_SetLocationChecksum(buf, i, checksums[i]);
   }
 
-  if (!writeVdexFile(pRunArgs, inVdexFileName, buf, fileSz)) {
+  if (!outWriter_VdexFile(pRunArgs, inVdexFileName, buf, fileSz)) {
     LOGMSG(l_ERROR, "Failed to write updated Vdex file");
     goto fini;
   }

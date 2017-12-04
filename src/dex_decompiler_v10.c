@@ -31,9 +31,7 @@ static u2 GetData(size_t index) {
   return quicken_info_ptr[index * 2] | (u2)(quicken_info_ptr[index * 2 + 1] << 8);
 }
 
-static size_t NumberOfIndices(size_t bytes) {
-  return bytes / sizeof(u2);
-}
+static size_t NumberOfIndices(size_t bytes) { return bytes / sizeof(u2); }
 
 static u2 *code_ptr;
 static u2 *code_end;

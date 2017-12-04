@@ -62,6 +62,26 @@ static void usage(bool exit_success) {
 }
 // clang-format on
 
+static bool selectVdexBackend(const u1 *cursor) {
+  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
+
+  VdexBackend ver = kBackendMax;
+  char *end;
+  switch (strtol((char *)pVdexHeader->version, &end, 10)) {
+    case 6:
+      ver = kBackendV6;
+      break;
+    case 10:
+      ver = kBackendV10;
+      break;
+    default:
+      LOGMSG(l_ERROR, "Invalid Vdex version");
+      return false;
+  }
+  vdex_backendInit(ver);
+  return true;
+}
+
 int main(int argc, char **argv) {
   int c;
   int logLevel = l_INFO;
@@ -220,6 +240,13 @@ int main(int argc, char **argv) {
       continue;
     }
     vdex_dumpHeaderInfo(buf);
+
+    if (!selectVdexBackend(buf)) {
+      LOGMSG(l_WARN, "Failed to initialize Vdex backend - skipping '%s'", pFiles.files[f]);
+      munmap(buf, fileSz);
+      close(srcfd);
+      continue;
+    }
 
     // Dump Vdex verified dependencies info
     if (pRunArgs.dumpDeps) {

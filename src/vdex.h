@@ -27,15 +27,15 @@
 #include "common.h"
 #include "dex.h"
 
-#define kNumVdexVersions 1
+#define kNumVdexVersions 2
 #define kVdexVersionLen 4
 
 static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
 static const u1 kVdexMagicVersions[kNumVdexVersions][kVdexVersionLen] = {
-  // Vdex version 006: Android "O".
+  // Vdex version 006: API-26 Android "O".
   { '0', '0', '6', '\0' },
-  // Vdex verion 010: Beyond Android "O" (current dev-master).
-  // { '0', '1', '0', '\0' },
+  // Vdex version 010: API-27 Android "O".
+  { '0', '1', '0', '\0' },
 };
 
 typedef u4 VdexChecksum;

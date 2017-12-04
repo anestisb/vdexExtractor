@@ -251,6 +251,22 @@ static bool writeVdexFile(const runArgs_t *pRunArgs,
   return true;
 }
 
+static void selectDecompilerBackend(const vdexHeader *pVdexHeader) {
+  dexDecompiler_ver ver = kDecompilerMax;
+  char *end;
+  switch (strtol((char *)pVdexHeader->version, &end, 10)) {
+    case 6:
+      ver = kDecompilerV6;
+      break;
+    case 10:
+      ver = kDecompilerV10;
+      break;
+    default:
+      LOGMSG(l_FATAL, "Invalid Vdex version");
+  }
+  dexDecompiler_init(ver);
+}
+
 bool vdex_isMagicValid(const u1 *cursor) {
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   return (memcmp(pVdexHeader->magic, kVdexMagic, sizeof(kVdexMagic)) == 0);
@@ -571,6 +587,9 @@ int vdex_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pR
   const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
   const u1 *const quickening_info_end =
       vdex_GetQuickeningInfo(cursor) + vdex_GetQuickeningInfoSize(cursor);
+
+  // Select decompiler backend based on Vdex version
+  selectDecompilerBackend(pVdexHeader);
 
   const u1 *dexFileBuf = NULL;
   u4 offset = 0;

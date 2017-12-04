@@ -32,10 +32,15 @@ typedef enum {
   kArrayDataSignature = 0x0300,
 } Signatures;
 
+// clang-format off
+
 typedef enum {
-#define INSTRUCTION_ENUM(opcode, cname, p, f, i, a, v) cname = (opcode),
-  DEX_INSTRUCTION_LIST(INSTRUCTION_ENUM) RSUB_INT_LIT16 = RSUB_INT,
+#define INSTRUCTION_ENUM(opcode, cname, p, f, i, a, e, v) cname = (opcode),
+  DEX_INSTRUCTION_LIST(INSTRUCTION_ENUM)
+  RSUB_INT_LIT16 = RSUB_INT,
 } Code;
+
+// clang-format on
 
 typedef enum {
   k10x,  // op
@@ -82,40 +87,44 @@ typedef enum {
   kIndexFieldRef,           // field reference index
   kIndexFieldOffset,        // field offset (for static linked fields)
   kIndexVtableOffset,       // vtable offset (for static linked methods)
-  kIndexMethodAndProtoRef,  // method and a proto reference index (for
-                            // invoke-polymorphic)
+  kIndexMethodAndProtoRef,  // method and a proto reference index (for invoke-polymorphic)
   kIndexCallSiteRef,        // call site reference index
+  kIndexMethodHandleRef,    // constant method handle reference index
+  kIndexProtoRef,           // prototype reference index
 } IndexType;
 
 typedef enum {
-  kBranch = 0x0000001,               // conditional or unconditional branch
-  kContinue = 0x0000002,             // flow can continue to next statement
-  kSwitch = 0x0000004,               // switch statement
-  kThrow = 0x0000008,                // could cause an exception to be thrown
-  kReturn = 0x0000010,               // returns, no additional statements
-  kInvoke = 0x0000020,               // a flavor of invoke
-  kUnconditional = 0x0000040,        // unconditional branch
-  kAdd = 0x0000080,                  // addition
-  kSubtract = 0x0000100,             // subtract
-  kMultiply = 0x0000200,             // multiply
-  kDivide = 0x0000400,               // division
-  kRemainder = 0x0000800,            // remainder
-  kAnd = 0x0001000,                  // and
-  kOr = 0x0002000,                   // or
-  kXor = 0x0004000,                  // xor
-  kShl = 0x0008000,                  // shl
-  kShr = 0x0010000,                  // shr
-  kUshr = 0x0020000,                 // ushr
-  kCast = 0x0040000,                 // cast
-  kStore = 0x0080000,                // store opcode
-  kLoad = 0x0100000,                 // load opcode
-  kClobber = 0x0200000,              // clobbers memory in a big way (not just a write)
-  kRegCFieldOrConstant = 0x0400000,  // is the third virtual register a field or
-                                     // literal constant (vC)
-  kRegBFieldOrConstant = 0x0800000,  // is the second virtual register a field
-                                     // or literal constant (vB)
-  kExperimental = 0x1000000,         // is an experimental opcode
+  kBranch = 0x01,         // conditional or unconditional branch
+  kContinue = 0x02,       // flow can continue to next statement
+  kSwitch = 0x04,         // switch statement
+  kThrow = 0x08,          // could cause an exception to be thrown
+  kReturn = 0x10,         // returns, no additional statements
+  kInvoke = 0x20,         // a flavor of invoke
+  kUnconditional = 0x40,  // unconditional branch
+  kExperimental = 0x80,   // is an experimental opcode
 } Flags;
+
+typedef enum {
+  kAdd = 0x0000080,        // addition
+  kSubtract = 0x0000100,   // subtract
+  kMultiply = 0x0000200,   // multiply
+  kDivide = 0x0000400,     // division
+  kRemainder = 0x0000800,  // remainder
+  kAnd = 0x0001000,        // and
+  kOr = 0x0002000,         // or
+  kXor = 0x0004000,        // xor
+  kShl = 0x0008000,        // shl
+  kShr = 0x0010000,        // shr
+  kUshr = 0x0020000,       // ushr
+  kCast = 0x0040000,       // cast
+  kStore = 0x0080000,      // store opcode
+  kLoad = 0x0100000,       // load opcode
+  kClobber = 0x0200000,    // clobbers memory in a big way (not just a write)
+  kRegCFieldOrConstant =
+      0x0400000,  // is the third virtual register a field or literal constant (vC)
+  kRegBFieldOrConstant =
+      0x0800000,  // is the second virtual register a field or literal constant (vB)
+} ExtendedFlags;
 
 typedef enum {
   kVerifyNone = 0x0000000,
@@ -143,38 +152,47 @@ typedef enum {
   kVerifyRuntimeOnly = 0x0200000,
   kVerifyError = 0x0400000,
   kVerifyRegHPrototype = 0x0800000,
-  kVerifyRegBCallSite = 0x1000000
+  kVerifyRegBCallSite = 0x1000000,
+  kVerifyRegBMethodHandle = 0x2000000,
+  kVerifyRegBPrototype = 0x4000000,
 } VerifyFlag;
 
-// clang-format off
+typedef struct {
+  u4 verify_flags;
+  Format format;
+  IndexType index_type;
+  u1 flags;
+  s1 size_in_code_units;
+} instrDesc_t;
 
 static const u4 kMaxVarArgRegs = 5;
 
-static const char* const kInstructionNames[] = {
-#define INSTRUCTION_NAME(o, c, pname, f, i, a, v) pname,
+// clang-format off
+
+static const char *const kInstructionNames[] = {
+#define INSTRUCTION_NAME(o, c, pname, f, i, a, e, v) pname,
   DEX_INSTRUCTION_LIST(INSTRUCTION_NAME)
 };
 
-static Format const kInstructionFormats[] = {
-#define INSTRUCTION_FORMAT(o, c, p, format, i, a, v) format,
-  DEX_INSTRUCTION_LIST(INSTRUCTION_FORMAT)
-};
-
-static IndexType const kInstructionIndexTypes[] = {
-#define INSTRUCTION_INDEX_TYPE(o, c, p, f, index, a, v) index,
-  DEX_INSTRUCTION_LIST(INSTRUCTION_INDEX_TYPE)
-};
-
-static int const kInstructionSizeInCodeUnits[] = {
-#define INSTRUCTION_SIZE(opcode, c, p, format, i, a, v) \
+#define INSTRUCTION_SIZE(opcode, format) \
     (((opcode) == NOP) ? -1 : \
      (((format) >= k10x) && ((format) <= k10t)) ?  1 : \
      (((format) >= k20t) && ((format) <= k22c)) ?  2 : \
      (((format) >= k32x) && ((format) <= k3rc)) ?  3 : \
      (((format) >= k45cc) && ((format) <= k4rcc)) ? 4 : \
-      ((format) == k51l) ?  5 : -1),
-  DEX_INSTRUCTION_LIST(INSTRUCTION_SIZE)
+      ((format) == k51l) ?  5 : -1)
+
+static instrDesc_t const kInstructionDescriptors[] = {
+#define INSTRUCTION_DESCR(opcode, c, p, format, index, flags, eflags, vflags) \
+  {  vflags, \
+     format, \
+     index, \
+     flags, \
+     INSTRUCTION_SIZE((c), (format)), \
+  },
+  DEX_INSTRUCTION_LIST(INSTRUCTION_DESCR)
 };
+
 // clang-format on
 
 // Instruction opcode functions
@@ -267,7 +285,20 @@ void dexInstr_SetVRegC_22c(u2 *, u2);
 void dexInstr_SetVRegA_21c(u2 *, u1);
 void dexInstr_SetVRegB_21c(u2 *, u2);
 
+bool dexInstr_isBranch(u2 *);
+bool dexInstr_isUnconditional(u2 *);
+bool dexInstr_isQuickened(u2 *);
+bool dexInstr_isSwitch(u2 *);
+bool dexInstr_isThrow(u2 *);
+bool dexInstr_isReturn(u2 *);
+bool dexInstr_isBasicBlockEnd(u2 *);
+bool dexInstr_isInvoke(u2 *);
+
 // Returns the size (in 2 byte code units) of this instruction.
 u4 dexInstr_SizeInCodeUnits(u2 *);
+
+// Global exported arrays with constants
+extern const char *const kInstructionNames[];
+extern instrDesc_t const kInstructionDescriptors[];
 
 #endif

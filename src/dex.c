@@ -40,7 +40,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
   u4 index = 0;
   u4 secondary_index = kInvalidIndex;
   u4 width = 4;
-  switch (kInstructionFormats[dexInstr_getOpcode(codePtr)]) {
+  switch (kInstructionDescriptors[dexInstr_getOpcode(codePtr)].format) {
     // SOME NOT SUPPORTED:
     // case k20bc:
     case k21c:
@@ -74,7 +74,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
 
   // Determine index type.
   size_t outSize = 0;
-  switch (kInstructionIndexTypes[dexInstr_getOpcode(codePtr)]) {
+  switch (kInstructionDescriptors[dexInstr_getOpcode(codePtr)].index_type) {
     case kIndexUnknown:
       // This function should never get called for this type, but do
       // something sensible here, just to help with debugging.
@@ -727,7 +727,7 @@ void dex_dumpInstruction(const u1 *dexFileBuf,
 
   // Set up additional argument.
   char *indexBuf = NULL;
-  if (kInstructionIndexTypes[(dexInstr_getOpcode(codePtr))] != kIndexNone) {
+  if (kInstructionDescriptors[dexInstr_getOpcode(codePtr)].index_type != kIndexNone) {
     const size_t kDefaultIndexStrLen = 256;
     indexBuf = indexString(dexFileBuf, codePtr, kDefaultIndexStrLen);
 
@@ -738,7 +738,7 @@ void dex_dumpInstruction(const u1 *dexFileBuf,
   }
 
   // Dump the instruction.
-  switch (kInstructionFormats[dexInstr_getOpcode(codePtr)]) {
+  switch (kInstructionDescriptors[dexInstr_getOpcode(codePtr)].format) {
     case k10x:  // op
       break;
     case k12x:  // op vA, vB

@@ -125,11 +125,9 @@ int main(int argc, char **argv) {
         break;
       case 0x102:
         pRunArgs.enableDisassembler = true;
-        log_setDisStatus(true);
         break;
       case 0x103:
         pRunArgs.dumpDeps = true;
-        log_setDisStatus(true);
         break;
       case 0x104:
         pRunArgs.newCrcFile = optarg;
@@ -240,6 +238,7 @@ int main(int argc, char **argv) {
 
     // Dump Vdex verified dependencies info
     if (pRunArgs.dumpDeps) {
+      log_setDisStatus(true);
       vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
       if (pVdexDeps == NULL) {
         LOGMSG(l_WARN, "Empty verified dependency data")
@@ -250,6 +249,11 @@ int main(int argc, char **argv) {
         vdex_dumpDepsInfo(buf, pVdexDeps);
         vdex_destroyDepsInfo(pVdexDeps);
       }
+      log_setDisStatus(false);
+    }
+
+    if (pRunArgs.enableDisassembler) {
+      log_setDisStatus(true);
     }
 
     // Unquicken Dex bytecode or simply walk optimized Dex files

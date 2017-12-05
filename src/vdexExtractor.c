@@ -42,11 +42,11 @@ static void usage(bool exit_success) {
   LOGMSG_RAW(l_INFO,"%s",
              " -i, --input=<path>   : input dir (1 max depth) or single file\n"
              " -o, --output=<path>  : output path (default is same as input)\n"
-             " -f, --file-override  : allow output file override if already exists\n"
-             " -u, --unquicken      : enable unquicken bytecode decompiler (also known as de-odex)\n"
-             " -D, --dump-deps      : dump verified dependencies information\n"
-             " -d, --disassemble    : enable bytecode disassembler\n"
-             " -n, --new-crc=<path> : Text file with extracted Apk or Dex file location checksum(s)\n"
+             " -f, --file-override  : allow output file override if already exists (default: false)\n"
+             " --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)\n"
+             " --deps               : dump verified dependencies information\n"
+             " --dis                : enable bytecode disassembler\n"
+             " --new-crc=<path>     : text file with extracted Apk or Dex file location checksum(s)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log "
                                      "file (default is STDOUT)\n"
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   runArgs_t pRunArgs = {
     .outputDir = NULL,
     .fileOverride = false,
-    .unquicken = false,
+    .unquicken = true,
     .enableDisassembler = false,
     .dumpDeps = false,
     .newCrcFile = NULL,
@@ -100,16 +100,16 @@ int main(int argc, char **argv) {
   struct option longopts[] = { { "input", required_argument, 0, 'i' },
                                { "output", required_argument, 0, 'o' },
                                { "file-override", no_argument, 0, 'f' },
-                               { "unquicken", no_argument, 0, 'u' },
-                               { "disassemble", no_argument, 0, 'd' },
-                               { "dump-deps", no_argument, 0, 'D' },
-                               { "new-crc", required_argument, 0, 'n' },
+                               { "no-unquicken", no_argument, 0, 0x101 },
+                               { "dis", no_argument, 0, 0x102 },
+                               { "deps", no_argument, 0, 0x103 },
+                               { "new-crc", required_argument, 0, 0x104 },
                                { "debug", required_argument, 0, 'v' },
                                { "log-file", required_argument, 0, 'l' },
                                { "help", no_argument, 0, 'h' },
                                { 0, 0, 0, 0 } };
 
-  while ((c = getopt_long(argc, argv, "i:o:fudDrn:v:l:h", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "i:o:fv:l:h?", longopts, NULL)) != -1) {
     switch (c) {
       case 'i':
         pFiles.inputFile = optarg;
@@ -120,18 +120,18 @@ int main(int argc, char **argv) {
       case 'f':
         pRunArgs.fileOverride = true;
         break;
-      case 'u':
-        pRunArgs.unquicken = true;
+      case 0x101:
+        pRunArgs.unquicken = false;
         break;
-      case 'd':
+      case 0x102:
         pRunArgs.enableDisassembler = true;
         log_setDisStatus(true);
         break;
-      case 'D':
+      case 0x103:
         pRunArgs.dumpDeps = true;
         log_setDisStatus(true);
         break;
-      case 'n':
+      case 0x104:
         pRunArgs.newCrcFile = optarg;
         break;
       case 'v':
@@ -140,6 +140,7 @@ int main(int argc, char **argv) {
       case 'l':
         logFile = optarg;
         break;
+      case '?':
       case 'h':
         usage(true);
         break;

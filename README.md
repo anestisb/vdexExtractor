@@ -29,16 +29,16 @@ $ bin/vdexExtractor -h
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
- -i, --input=<path>    : input dir (1 max depth) or single file
- -o, --output=<path>   : output path (default is same as input)
- -f, --file-override   : allow output file override if already exists
- -u, --unquicken       : enable unquicken bytecode decompiler (also known as de-odex)
- -D, --dump-deps       : dump verified dependencies information
- -d, --disassemble     : enable bytecode disassembler
- -n, --new-crc=<path>  : Text file with extracted Apk or Dex file location checksum(s)
- -v, --debug=LEVEL     : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
- -l, --log-file=<path> : save disassembler and/or verified dependencies output to log file (default is STDOUT)
- -h, --help            : this help
+ -i, --input=<path>   : input dir (1 max depth) or single file
+ -o, --output=<path>  : output path (default is same as input)
+ -f, --file-override  : allow output file override if already exists (default: false)
+ --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)
+ --deps               : dump verified dependencies information
+ --dis                : enable bytecode disassembler
+ --new-crc=<path>     : text file with extracted Apk or Dex file location checksum(s)
+ -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
+ -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
+ -h, --help           : this help
 ```
 
 

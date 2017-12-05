@@ -28,6 +28,37 @@
 #include "vdex.h"
 #include "vdex_backend_v10.h"
 
+static const u1 *quickening_info_ptr;
+static const unaligned_u4 *current_code_item_ptr;
+static const unaligned_u4 *current_code_item_end;
+
+static void QuickeningInfoItInit(u4 dex_file_idx,
+                                 u4 numberOfDexFiles,
+                                 const u1 *quicken_ptr,
+                                 u4 quicken_size) {
+  quickening_info_ptr = quicken_ptr;
+  const unaligned_u4 *dex_file_indices =
+      (unaligned_u4 *)(quicken_ptr + quicken_size + numberOfDexFiles * sizeof(u4));
+  current_code_item_end = (dex_file_idx == numberOfDexFiles - 1)
+                              ? dex_file_indices
+                              : (unaligned_u4 *)(quicken_ptr + dex_file_indices[dex_file_idx + 1]);
+  current_code_item_ptr = (unaligned_u4 *)(quicken_ptr + dex_file_indices[dex_file_idx]);
+}
+
+static bool QuickeningInfoItDone() { return current_code_item_ptr == current_code_item_end; }
+
+static void QuickeningInfoItAdvance() { current_code_item_ptr += 2; }
+
+static u4 QuickeningInfoItGetCurrentCodeItemOffset() { return current_code_item_ptr[0]; }
+
+static const u1 *QuickeningInfoItGetCurrentPtr() {
+  return quickening_info_ptr + current_code_item_ptr[1] + sizeof(u4);
+}
+
+static u4 QuickeningInfoItGetCurrentSize() {
+  return *(unaligned_u4 *)(quickening_info_ptr) + current_code_item_ptr[1];
+}
+
 int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
@@ -40,15 +71,14 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
   }
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-  const u1 *quickening_info_ptr = vdex_GetQuickeningInfo(cursor);
-  const u1 *const quickening_info_end =
-      vdex_GetQuickeningInfo(cursor) + vdex_GetQuickeningInfoSize(cursor);
-
   const u1 *dexFileBuf = NULL;
   u4 offset = 0;
 
   // For each Dex file
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
+    QuickeningInfoItInit(dex_file_idx, pVdexHeader->numberOfDexFiles,
+                         vdex_GetQuickeningInfo(cursor), vdex_GetQuickeningInfoSize(cursor));
+
     dexFileBuf = vdex_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
       LOGMSG(l_ERROR, "Failed to extract 'classes%zu.dex' - skipping", dex_file_idx);
@@ -118,16 +148,21 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
           continue;
         }
 
-        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
-          // For quickening info blob the first 4bytes are the inner blobs size
-          u4 quickening_size = *(u4 *)quickening_info_ptr;
-          quickening_info_ptr += sizeof(u4);
-          if (!dexDecompilerV10_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
+        if (pRunArgs->unquicken) {
+          const u1 *quickening_ptr = QuickeningInfoItGetCurrentPtr();
+          u4 quickening_size = QuickeningInfoItGetCurrentSize();
+          if (!QuickeningInfoItDone() &&
+              curDexMethod.codeOff == QuickeningInfoItGetCurrentCodeItemOffset()) {
+            QuickeningInfoItAdvance();
+          } else {
+            quickening_ptr = NULL;
+            quickening_size = 0;
+          }
+          if (!dexDecompilerV10_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
                                           quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
-          quickening_info_ptr += quickening_size;
         } else {
           dexDecompilerV10_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
         }
@@ -145,16 +180,21 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
           continue;
         }
 
-        if (pRunArgs->unquicken && vdex_GetQuickeningInfoSize(cursor) != 0) {
-          // For quickening info blob the first 4bytes are the inner blobs size
-          u4 quickening_size = *(u4 *)quickening_info_ptr;
-          quickening_info_ptr += sizeof(u4);
-          if (!dexDecompilerV10_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
+        if (pRunArgs->unquicken) {
+          const u1 *quickening_ptr = QuickeningInfoItGetCurrentPtr();
+          u4 quickening_size = QuickeningInfoItGetCurrentSize();
+          if (!QuickeningInfoItDone() &&
+              curDexMethod.codeOff == QuickeningInfoItGetCurrentCodeItemOffset()) {
+            QuickeningInfoItAdvance();
+          } else {
+            quickening_ptr = NULL;
+            quickening_size = 0;
+          }
+          if (!dexDecompilerV10_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
                                           quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
-          quickening_info_ptr += quickening_size;
         } else {
           dexDecompilerV10_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
         }
@@ -171,6 +211,11 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
     }
 
     if (pRunArgs->unquicken) {
+      // All QuickeningInfo data should have been consumed
+      if (!QuickeningInfoItDone()) {
+        LOGMSG(l_ERROR, "Failed to use all quickening info");
+        return -1;
+      }
       // If unquicken was successful original checksum should verify
       u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
       if (curChecksum != pDexHeader->checksum) {
@@ -192,11 +237,6 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
     if (pRunArgs->classRecover) {
       log_clsRecWrite("  ]\n}\n");
     }
-  }
-
-  if (pRunArgs->unquicken && (quickening_info_ptr != quickening_info_end)) {
-    LOGMSG(l_ERROR, "Failed to process all quickening info data");
-    return -1;
   }
 
   return pVdexHeader->numberOfDexFiles;

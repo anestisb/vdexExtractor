@@ -96,6 +96,9 @@ typedef int16_t s2;
 typedef int32_t s4;
 typedef int64_t s8;
 
+typedef __attribute__((__aligned__(1))) uint32_t unaligned_u4;
+typedef __attribute__((__aligned__(1))) int32_t unaligned_s4;
+
 #define CHECK_IMPL(c1, op, c2)                                                         \
   do {                                                                                 \
     u8 v1 = (u8)(c1);                                                                  \

@@ -111,7 +111,6 @@ bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);
 
   while (isCodeIteratorDone() == false) {
-    log_dis("--> %zu / %zu\n", quicken_index, quicken_info_number_of_indices);
     bool hasCodeChange = true;
     dex_dumpInstruction(dexFileBuf, code_ptr, cur_code_off, dex_pc, false, NULL);
     switch (dexInstr_getOpcode(code_ptr)) {

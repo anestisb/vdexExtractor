@@ -103,7 +103,7 @@ static void decodeDepUnvfyClasses(const u1 **in,
   pVdexDepUnvfyClassesSet->pVdexDepUnvfyClasses =
       utils_malloc(numOfEntries * sizeof(vdexDepUnvfyClass));
   pVdexDepUnvfyClassesSet->numberOfEntries = numOfEntries;
-  for (u4 i = 0; i < pVdexDepUnvfyClassesSet->numberOfEntries; ++i) {
+  for (u4 i = 0; i < numOfEntries; ++i) {
     pVdexDepUnvfyClassesSet->pVdexDepUnvfyClasses[i].typeIdx =
         decodeUint32WithOverflowCheck(in, end);
   }

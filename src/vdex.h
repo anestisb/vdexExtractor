@@ -51,7 +51,9 @@ typedef struct __attribute__((packed)) {
   u4 quickeningInfoSize;
 } vdexHeader;
 
-// Vdex files contain extracted Dex files.
+// VDEX files contain extracted DEX files. The VdexFile class maps the file to
+// memory and provides tools for accessing its individual sections.
+//
 // File format:
 //   VdexFile::Header    fixed-length header
 //
@@ -59,7 +61,15 @@ typedef struct __attribute__((packed)) {
 //   DEX[1]              the bytecode may have been quickened
 //   ...
 //   DEX[D]
-//
+//   QuickeningInfo
+//     uint8[]                     quickening data
+//     unaligned_uint32_t[2][]     table of offsets pair:
+//                                    uint32_t[0] contains code_item_offset
+//                                    uint32_t[1] contains quickening data offset from the start
+//                                                of QuickeningInfo
+//     unalgined_uint32_t[D]       start offsets (from the start of QuickeningInfo) in previous
+//                                 table for each dex file
+
 typedef struct __attribute__((packed)) {
   vdexHeader *pVdexHeader;
   dexHeader *pDexFiles;

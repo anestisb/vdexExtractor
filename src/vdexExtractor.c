@@ -32,7 +32,6 @@
 // exit() wrapper
 void exitWrapper(int errCode) {
   log_closeLogFile();
-  log_closeRecoverFile();
   exit(errCode);
 }
 

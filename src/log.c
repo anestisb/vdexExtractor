@@ -33,7 +33,6 @@ static bool inside_line;
 static bool dis_enabled;
 static int log_fd;
 static FILE *log_disOut;
-static FILE *log_recoverFile;
 
 __attribute__((constructor)) void log_init(void) {
   log_minLevel = l_INFO;
@@ -60,32 +59,11 @@ bool log_initLogFile(const char *logFile) {
   return true;
 }
 
-bool log_initRecoverFile(const char *recoverFile) {
-  if (recoverFile == NULL) {
-    return false;
-  }
-
-  log_recoverFile = fopen(recoverFile, "wb+");
-  if (log_recoverFile == NULL) {
-    LOGMSG_P(l_ERROR, "Couldn't open recoverFile '%s'", recoverFile);
-    return false;
-  }
-  return true;
-}
-
 void log_closeLogFile() {
   fflush(log_disOut);
   if (log_disOut != stdout) {
     fclose(log_disOut);
   }
-}
-
-void log_closeRecoverFile() {
-  if (log_recoverFile == NULL) {
-    return;
-  }
-  fflush(log_recoverFile);
-  fclose(log_recoverFile);
 }
 
 void log_msg(log_level_t dl,
@@ -179,13 +157,4 @@ void log_dis(const char *fmt, ...) {
   va_start(args, fmt);
   vfprintf(log_disOut, fmt, args);
   va_end(args);
-}
-
-void log_clsRecWrite(const char *fmt, ...) {
-  if (!log_recoverFile) return;
-  va_list args;
-  va_start(args, fmt);
-  vfprintf(log_recoverFile, fmt, args);
-  va_end(args);
-  fflush(log_disOut);
 }

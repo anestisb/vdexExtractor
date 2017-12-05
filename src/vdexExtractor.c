@@ -47,8 +47,6 @@ static void usage(bool exit_success) {
              " -u, --unquicken      : enable unquicken bytecode decompiler (also known as de-odex)\n"
              " -D, --dump-deps      : dump verified dependencies information\n"
              " -d, --disassemble    : enable bytecode disassembler\n"
-             " -r, --class-recover  : dump information useful to recover original class name (json "
-                                     "file to output path)\n"
              " -n, --new-crc=<path> : Text file with extracted Apk or Dex file location checksum(s)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log "
@@ -92,7 +90,6 @@ int main(int argc, char **argv) {
     .unquicken = false,
     .enableDisassembler = false,
     .dumpDeps = false,
-    .classRecover = false,
     .newCrcFile = NULL,
   };
   infiles_t pFiles = {
@@ -101,14 +98,17 @@ int main(int argc, char **argv) {
 
   if (argc < 1) usage(true);
 
-  struct option longopts[] = {
-    { "input", required_argument, 0, 'i' },   { "output", required_argument, 0, 'o' },
-    { "file-override", no_argument, 0, 'f' }, { "unquicken", no_argument, 0, 'u' },
-    { "disassemble", no_argument, 0, 'd' },   { "dump-deps", no_argument, 0, 'D' },
-    { "class-recover", no_argument, 0, 'r' }, { "new-crc", required_argument, 0, 'n' },
-    { "debug", required_argument, 0, 'v' },   { "log-file", required_argument, 0, 'l' },
-    { "help", no_argument, 0, 'h' },          { 0, 0, 0, 0 }
-  };
+  struct option longopts[] = { { "input", required_argument, 0, 'i' },
+                               { "output", required_argument, 0, 'o' },
+                               { "file-override", no_argument, 0, 'f' },
+                               { "unquicken", no_argument, 0, 'u' },
+                               { "disassemble", no_argument, 0, 'd' },
+                               { "dump-deps", no_argument, 0, 'D' },
+                               { "new-crc", required_argument, 0, 'n' },
+                               { "debug", required_argument, 0, 'v' },
+                               { "log-file", required_argument, 0, 'l' },
+                               { "help", no_argument, 0, 'h' },
+                               { 0, 0, 0, 0 } };
 
   while ((c = getopt_long(argc, argv, "i:o:fudDrn:v:l:h", longopts, NULL)) != -1) {
     switch (c) {
@@ -132,10 +132,6 @@ int main(int argc, char **argv) {
         pRunArgs.dumpDeps = true;
         log_setDisStatus(true);
         break;
-      case 'r':
-        pRunArgs.classRecover = true;
-        pRunArgs.enableDisassembler = true;
-        break;
       case 'n':
         pRunArgs.newCrcFile = optarg;
         break;
@@ -152,12 +148,6 @@ int main(int argc, char **argv) {
         exitWrapper(EXIT_FAILURE);
         break;
     }
-  }
-
-  // We don't want to increase the complexity of the unquicken decompiler, so offer class name
-  // recover checks only when simply walking the Vdex file
-  if (pRunArgs.unquicken && pRunArgs.classRecover) {
-    LOGMSG(l_FATAL, "Class name recover cannot be used in parallel with unquicken decompiler");
   }
 
   // Adjust log level

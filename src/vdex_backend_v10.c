@@ -62,13 +62,6 @@ static u4 QuickeningInfoItGetCurrentSize() {
 int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
-  dex_setClassRecover(pRunArgs->classRecover);
-
-  bool *pFoundLogUtilCall = NULL;
-  if (pRunArgs->classRecover) {
-    bool foundLogUtilCall = false;
-    pFoundLogUtilCall = &foundLogUtilCall;
-  }
 
   const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
   const u1 *dexFileBuf = NULL;
@@ -94,16 +87,6 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
       continue;
     }
 
-    if (pRunArgs->classRecover) {
-      char outClsJsonFile[PATH_MAX] = { 0 };
-      outWriter_formatName(outClsJsonFile, sizeof(outClsJsonFile), pRunArgs->outputDir,
-                           VdexFileName, 0, "json");
-      if (!log_initRecoverFile(outClsJsonFile)) {
-        return -1;
-      }
-      log_clsRecWrite("{\n  \"classes\": [\n");
-    }
-
     // For each class
     log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx, pDexHeader->classDefsSize);
     for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
@@ -113,7 +96,7 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
       // Cursor for currently processed class data item
       const u1 *curClassDataCursor;
       if (pDexClassDef->classDataOff == 0) {
-        goto processClassEnd;
+        continue;
       } else {
         curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
       }
@@ -164,7 +147,7 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
             return -1;
           }
         } else {
-          dexDecompilerV10_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
+          dexDecompilerV10_walk(dexFileBuf, &curDexMethod);
         }
       }
 
@@ -196,17 +179,8 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
             return -1;
           }
         } else {
-          dexDecompilerV10_walk(dexFileBuf, &curDexMethod, pFoundLogUtilCall);
+          dexDecompilerV10_walk(dexFileBuf, &curDexMethod);
         }
-      }
-
-    processClassEnd:
-      if (pRunArgs->classRecover) {
-        if (*pFoundLogUtilCall == false) {
-          log_clsRecWrite("\"callsLogUtil\": false");
-        }
-        *pFoundLogUtilCall = false;
-        i == (pDexHeader->classDefsSize - 1) ? log_clsRecWrite(" }\n") : log_clsRecWrite(" },\n");
       }
     }
 
@@ -232,10 +206,6 @@ int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t
     if (!outWriter_DexFile(pRunArgs, VdexFileName, dex_file_idx, dexFileBuf,
                            pDexHeader->fileSize)) {
       return -1;
-    }
-
-    if (pRunArgs->classRecover) {
-      log_clsRecWrite("  ]\n}\n");
     }
   }
 

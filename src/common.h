@@ -132,7 +132,6 @@ typedef struct {
   bool unquicken;
   bool enableDisassembler;
   bool dumpDeps;
-  bool classRecover;
   char *newCrcFile;
 } runArgs_t;
 

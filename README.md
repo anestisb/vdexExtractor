@@ -35,7 +35,6 @@ $ bin/vdexExtractor -h
  -u, --unquicken       : enable unquicken bytecode decompiler (also known as de-odex)
  -D, --dump-deps       : dump verified dependencies information
  -d, --disassemble     : enable bytecode disassembler
- -r, --class-recover   : dump information useful to recover original class name (json file to output path)
  -n, --new-crc=<path>  : Text file with extracted Apk or Dex file location checksum(s)
  -v, --debug=LEVEL     : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
  -l, --log-file=<path> : save disassembler and/or verified dependencies output to log file (default is STDOUT)
@@ -296,36 +295,6 @@ file #0: classDefsSize=8840
 [new] 1abbee: 5b20 1400                              |0025: iput-object v0, v2, La;.mResources:Landroid/content/res/Resources; // field@0014
       1abbf2: 2200 fe25                              |0027: new-instance v0, Ljava/util/ArrayList; // type@25fe
       1abbf6: 7010 6bfb 0000                         |0029: invoke-direct {v0}, Ljava/util/ArrayList;.<init>:()V // method@fb6b
-```
-
-## Original Class Name Recover Info
-
-This feature is an attempt to assist bytecode reverse engineering by extracting information that
-might be useful to recover / guess original class names of minified class identifiers. The current
-information gather logic performs the following actions:
-* Process class srcFileName info in case it has not be stripped / altered. Be careful in case the
-  extracted filenames do not end with ".java". They're most probably manually modified, thus not
-  reliable.
-* Examine all methods of each class to identify if they call `android.util.Log`. For most cases the
-  tag string (arg0) indicates the actual class name or something very close to it. Unfortunately,
-  extracting this information from a static offline tool is an extremely complex task that is not
-  planned for the time being.
-
-The collected information is stored under a JSON file in the selected output directory. A sample
-output is illustrated in the following snippet:
-
-```bash
-$ bin/vdexExtractor -i /tmp/CarrierConfig.vdex -o /tmp -f -r
-[INFO] Processing 1 file(s) from /tmp/Videos.vdex
-[INFO] 1 out of 1 Vdex files have been processed
-[INFO] 2 Dex files have been extracted in total
-[INFO] Extracted Dex files are available in '/tmp'
-$ cat /tmp/CarrierConfig.apk_classes.json
-{
-  "classes": [
-    { "name": "com.android.carrierconfig.DefaultCarrierConfigService", "srcFileName": "DefaultCarrierConfigService.java", "callsLogUtil": true }
-  ]
-}
 ```
 
 

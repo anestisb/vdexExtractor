@@ -448,18 +448,18 @@ void vdex_dumpDepsInfo(const u1 *vdexFileBuf, const vdexDeps *pVdexDeps) {
                 getStringFromId(pVdexDepData, fieldRes.declaringClassIdx, dexFileBuf),
                 fieldRes.accessFlags);
       }
+    }
 
-      dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->directMethods, "direct");
-      dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->virtualMethods, "virtual");
-      dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->interfaceMethods, "interface");
+    dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->directMethods, "direct");
+    dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->virtualMethods, "virtual");
+    dumpDepsMethodInfo(dexFileBuf, pVdexDepData, &pVdexDepData->interfaceMethods, "interface");
 
-      log_dis(" unverified classes: number_of_classes=%" PRIu32 "\n",
-              pVdexDepData->unvfyClasses.numberOfEntries);
-      for (u4 i = 0; i < pVdexDepData->unvfyClasses.numberOfEntries; ++i) {
-        log_dis("  %04" PRIu32 ": '%s' is expected to be verified at runtime\n", i,
-                dex_getStringByTypeIdx(dexFileBuf,
-                                       pVdexDepData->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
-      }
+    log_dis(" unverified classes: number_of_classes=%" PRIu32 "\n",
+            pVdexDepData->unvfyClasses.numberOfEntries);
+    for (u4 i = 0; i < pVdexDepData->unvfyClasses.numberOfEntries; ++i) {
+      log_dis("  %04" PRIu32 ": '%s' is expected to be verified at runtime\n", i,
+              dex_getStringByTypeIdx(dexFileBuf,
+                                     pVdexDepData->unvfyClasses.pVdexDepUnvfyClasses[i].typeIdx));
     }
   }
   log_dis("----- EOF Vdex Deps Info -----\n");

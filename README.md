@@ -379,6 +379,7 @@ file #0: classDefsSize=8840
   * Add Vdex 010 (API-27) support by defining different parser & decompiler backend engines that are
     version specific
   * Fix a bug in verified dependencies iterator that presented results out of order
+  * Simplified command line arguments
 * __0.3.1__ - 17 November 2017
   * Add option to update checksum location of Vdex file (`-n, --new-crc`). Feature mostly targets
     use-cases were a backwards compatibility fix of the Vdex file is required without having to

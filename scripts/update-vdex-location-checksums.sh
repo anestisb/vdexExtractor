@@ -110,7 +110,7 @@ unzip -vl "$INPUT_BC" | grep "dex$" | sed 's/  */ /g' | cut -d " " -f8 > "$check
 
 # TODO: Add support for Dex CRC extraction
 
-$VDEX_EXTRACTOR_BIN -i "$INPUT_VDEX" -o "$OUTPUT_DIR" -n "$checksumsFile" || {
+$VDEX_EXTRACTOR_BIN -i "$INPUT_VDEX" -o "$OUTPUT_DIR" --new-crc "$checksumsFile" || {
   error "vdexExtractor execution failed"
   abort 1
 }

@@ -56,7 +56,7 @@ static const u1 *QuickeningInfoItGetCurrentPtr() {
 }
 
 static u4 QuickeningInfoItGetCurrentSize() {
-  return *(unaligned_u4 *)(quickening_info_ptr) + current_code_item_ptr[1];
+  return *(unaligned_u4 *)(quickening_info_ptr + current_code_item_ptr[1]);
 }
 
 int vdex_process_v10(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {

@@ -38,7 +38,7 @@ static void QuickeningInfoItInit(u4 dex_file_idx,
                                  u4 quicken_size) {
   quickening_info_ptr = quicken_ptr;
   const unaligned_u4 *dex_file_indices =
-      (unaligned_u4 *)(quicken_ptr + quicken_size + numberOfDexFiles * sizeof(u4));
+      (unaligned_u4 *)(quicken_ptr + quicken_size - numberOfDexFiles * sizeof(u4));
   current_code_item_end = (dex_file_idx == numberOfDexFiles - 1)
                               ? dex_file_indices
                               : (unaligned_u4 *)(quicken_ptr + dex_file_indices[dex_file_idx + 1]);

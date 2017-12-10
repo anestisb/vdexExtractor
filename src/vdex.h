@@ -27,6 +27,8 @@
 #include "common.h"
 #include "dex.h"
 
+#define kUnresolvedMarker (u2)(-1)
+
 #define kNumVdexVersions 2
 #define kVdexVersionLen 4
 
@@ -129,23 +131,6 @@ typedef struct __attribute__((packed)) {
   vdexDepUnvfyClass *pVdexDepUnvfyClasses;
 } vdexDepUnvfyClassesSet;
 
-typedef struct __attribute__((packed)) {
-  vdexDepStrings extraStrings;
-  vdexDepTypeSet assignTypeSets;
-  vdexDepTypeSet unassignTypeSets;
-  vdexDepClassResSet classes;
-  vdexDepFieldResSet fields;
-  vdexDepMethodResSet directMethods;
-  vdexDepMethodResSet virtualMethods;
-  vdexDepMethodResSet interfaceMethods;
-  vdexDepUnvfyClassesSet unvfyClasses;
-} vdexDepData;
-
-typedef struct __attribute__((packed)) {
-  u4 numberOfDexFiles;
-  vdexDepData *pVdexDepData;
-} vdexDeps;
-
 // Verify if valid Vdex file
 bool vdex_isValidVdex(const u1 *);
 bool vdex_isMagicValid(const u1 *);
@@ -169,9 +154,9 @@ u4 vdex_GetQuickeningInfoOffset(const u1 *);
 
 void vdex_dumpHeaderInfo(const u1 *);
 
-vdexDeps *vdex_initDepsInfo(const u1 *);
-void vdex_destroyDepsInfo(const vdexDeps *);
-void vdex_dumpDepsInfo(const u1 *, const vdexDeps *);
+void *vdex_initDepsInfo(const u1 *);
+void vdex_destroyDepsInfo(const void *);
+void vdex_dumpDepsInfo(const u1 *, const void *);
 
 void vdex_backendInit(VdexBackend);
 int vdex_process(const char *, const u1 *, const runArgs_t *);

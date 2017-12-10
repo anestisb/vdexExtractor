@@ -25,6 +25,28 @@
 
 #include "common.h"
 #include "dex.h"
+#include "vdex.h"
+
+typedef struct __attribute__((packed)) {
+  vdexDepStrings extraStrings;
+  vdexDepTypeSet assignTypeSets;
+  vdexDepTypeSet unassignTypeSets;
+  vdexDepClassResSet classes;
+  vdexDepFieldResSet fields;
+  vdexDepMethodResSet directMethods;
+  vdexDepMethodResSet virtualMethods;
+  vdexDepMethodResSet interfaceMethods;
+  vdexDepUnvfyClassesSet unvfyClasses;
+} vdexDepData_v6;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepData_v6 *pVdexDepData;
+} vdexDeps_v6;
+
+void *vdex_initDepsInfo_v6(const u1 *);
+void vdex_destroyDepsInfo_v6(const void *);
+void vdex_dumpDepsInfo_v6(const u1 *, const void *);
 
 int vdex_process_v6(const char *, const u1 *, const runArgs_t *);
 

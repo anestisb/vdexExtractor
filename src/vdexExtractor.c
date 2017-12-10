@@ -239,15 +239,15 @@ int main(int argc, char **argv) {
     // Dump Vdex verified dependencies info
     if (pRunArgs.dumpDeps) {
       log_setDisStatus(true);
-      vdexDeps *pVdexDeps = vdex_initDepsInfo(buf);
-      if (pVdexDeps == NULL) {
+      void *pDepsData = vdex_initDepsInfo(buf);
+      if (pDepsData == NULL) {
         LOGMSG(l_WARN, "Empty verified dependency data")
       } else {
         // TODO: Migrate this to vdex_process to avoid iterating Dex files twice. For now it's not
         // a priority since the two flags offer different functionalities thus no point using them
         // at the same time.
-        vdex_dumpDepsInfo(buf, pVdexDeps);
-        vdex_destroyDepsInfo(pVdexDeps);
+        vdex_dumpDepsInfo(buf, pDepsData);
+        vdex_destroyDepsInfo(pDepsData);
       }
       log_setDisStatus(false);
     }

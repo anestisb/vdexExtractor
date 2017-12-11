@@ -375,7 +375,7 @@ file #0: classDefsSize=8840
 
 ## Changelog
 
-* __0.4.0__ - xx December 2017
+* __0.4.0__ - 11 December 2017
   * Add Vdex 010 (API-27) support by defining different parser & decompiler backend engines that are
     version specific
   * Fix a bug in verified dependencies iterator that presented results out of order

@@ -82,47 +82,14 @@ dex file #0
   0000: 'Landroid/service/dreams/DreamService;' must be assignable to 'Landroid/content/Context;'
   0001: 'Landroid/view/TextureView;' must be assignable to 'Landroid/view/View;'
   0002: 'Ljava/nio/FloatBuffer;' must be assignable to 'Ljava/nio/Buffer;'
-  0003: 'Ljava/nio/ShortBuffer;' must be assignable to 'Ljava/nio/Buffer;'
-  0004: 'Landroid/os/HandlerThread;' must be assignable to 'Ljava/lang/Thread;'
-  0005: 'Ljava/lang/IllegalArgumentException;' must be assignable to 'Ljava/lang/Throwable;'
-  0006: 'Ljava/lang/InterruptedException;' must be assignable to 'Ljava/lang/Throwable;'
-  0007: 'Ljava/lang/RuntimeException;' must be assignable to 'Ljava/lang/Throwable;'
+...
  unassignable type sets: number_of_sets=0
  class dependencies: number_of_classes=34
   0000: 'Landroid/graphics/Color;' 'must' be resolved with access flags '1'
   0001: 'Landroid/graphics/SurfaceTexture;' 'must' be resolved with access flags '1'
-  0002: 'Landroid/opengl/GLES20;' 'must' be resolved with access flags '1'
-  0003: 'Landroid/opengl/GLUtils;' 'must' be resolved with access flags '1'
-  0004: 'Landroid/os/Handler;' 'must' be resolved with access flags '1'
-  0005: 'Landroid/os/HandlerThread;' 'must' be resolved with access flags '1'
-  0006: 'Landroid/os/SystemClock;' 'must' be resolved with access flags '1'
-  0007: 'Landroid/service/dreams/DreamService;' 'must' be resolved with access flags '1'
-  0008: 'Landroid/util/Log;' 'must' be resolved with access flags '1'
-  0009: 'Landroid/view/Choreographer;' 'must' be resolved with access flags '1'
-  0010: 'Landroid/view/TextureView;' 'must' be resolved with access flags '1'
-  0011: 'Ljava/lang/Class;' 'must' be resolved with access flags '1'
-  0012: 'Ljava/lang/IllegalArgumentException;' 'must' be resolved with access flags '1'
-  0013: 'Ljava/lang/Integer;' 'must' be resolved with access flags '1'
-  0014: 'Ljava/lang/InterruptedException;' 'must' be resolved with access flags '1'
-  0015: 'Ljava/lang/Math;' 'must' be resolved with access flags '1'
-  0016: 'Ljava/lang/Object;' 'must' be resolved with access flags '1'
-  0017: 'Ljava/lang/RuntimeException;' 'must' be resolved with access flags '1'
-  0018: 'Ljava/lang/String;' 'must' be resolved with access flags '1'
-  0019: 'Ljava/lang/StringBuilder;' 'must' be resolved with access flags '1'
-  0020: 'Ljava/nio/ByteBuffer;' 'must' be resolved with access flags '1'
-  0021: 'Ljava/nio/ByteOrder;' 'must' be resolved with access flags '1'
-  0022: 'Ljava/nio/FloatBuffer;' 'must' be resolved with access flags '1'
-  0023: 'Ljava/nio/ShortBuffer;' 'must' be resolved with access flags '1'
+...
   0024: 'Ljavax/microedition/khronos/egl/EGL10;' 'must' be resolved with access flags '513'
-  0025: 'Ljavax/microedition/khronos/egl/EGLConfig;' 'must' be resolved with access flags '1'
-  0026: 'Ljavax/microedition/khronos/egl/EGLContext;' 'must' be resolved with access flags '1'
-  0027: 'Ljavax/microedition/khronos/egl/EGLDisplay;' 'must' be resolved with access flags '1'
-  0028: 'Ljavax/microedition/khronos/egl/EGLSurface;' 'must' be resolved with access flags '1'
-  0029: '[F' 'must' be resolved with access flags '1'
-  0030: '[I' 'must' be resolved with access flags '1'
-  0031: '[Ljava/lang/Object;' 'must' be resolved with access flags '1'
-  0032: '[Ljavax/microedition/khronos/egl/EGLConfig;' 'must' be resolved with access flags '1'
-  0033: '[S' 'must' be resolved with access flags '1'
+...
  field dependencies: number_of_fields=4
   0000: 'Ljavax/microedition/khronos/egl/EGL10;'->'EGL_DEFAULT_DISPLAY':'Ljava/lang/Object;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;' and have the access flags '9'
   0001: 'Ljavax/microedition/khronos/egl/EGL10;'->'EGL_NO_CONTEXT':'Ljavax/microedition/khronos/egl/EGLContext;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;' and have the access flags '9'
@@ -132,87 +99,7 @@ dex file #0
   0000: 'Landroid/graphics/Color;'->'HSVToColor':'([F)I' is expected to be in class 'Landroid/graphics/Color;', have the access flags '9
   0001: 'Landroid/opengl/GLES20;'->'glAttachShader':'(II)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
   0002: 'Landroid/opengl/GLES20;'->'glClear':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0003: 'Landroid/opengl/GLES20;'->'glClearColor':'(FFFF)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0004: 'Landroid/opengl/GLES20;'->'glCompileShader':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0005: 'Landroid/opengl/GLES20;'->'glCreateProgram':'()I' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0006: 'Landroid/opengl/GLES20;'->'glCreateShader':'(I)I' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0007: 'Landroid/opengl/GLES20;'->'glDeleteProgram':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0008: 'Landroid/opengl/GLES20;'->'glDeleteShader':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0009: 'Landroid/opengl/GLES20;'->'glDrawArrays':'(III)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0010: 'Landroid/opengl/GLES20;'->'glEnableVertexAttribArray':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0011: 'Landroid/opengl/GLES20;'->'glGetAttribLocation':'(ILjava/lang/String;)I' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0012: 'Landroid/opengl/GLES20;'->'glGetError':'()I' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0013: 'Landroid/opengl/GLES20;'->'glGetProgramInfoLog':'(I)Ljava/lang/String;' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0014: 'Landroid/opengl/GLES20;'->'glGetProgramiv':'(II[II)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0015: 'Landroid/opengl/GLES20;'->'glGetShaderInfoLog':'(I)Ljava/lang/String;' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0016: 'Landroid/opengl/GLES20;'->'glGetShaderiv':'(II[II)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0017: 'Landroid/opengl/GLES20;'->'glLinkProgram':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0018: 'Landroid/opengl/GLES20;'->'glShaderSource':'(ILjava/lang/String;)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0019: 'Landroid/opengl/GLES20;'->'glUseProgram':'(I)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0020: 'Landroid/opengl/GLES20;'->'glVertexAttribPointer':'(IIIZILjava/nio/Buffer;)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0021: 'Landroid/opengl/GLES20;'->'glViewport':'(IIII)V' is expected to be in class 'Landroid/opengl/GLES20;', have the access flags '9
-  0022: 'Landroid/opengl/GLUtils;'->'getEGLErrorString':'(I)Ljava/lang/String;' is expected to be in class 'Landroid/opengl/GLUtils;', have the access flags '9
-  0023: 'Landroid/os/Handler;'->'<init>':'(Landroid/os/Looper;)V' is expected to be in class 'Landroid/os/Handler;', have the access flags '1
-  0024: 'Landroid/os/Handler;'->'post':'(Ljava/lang/Runnable;)Z' is expected to be in class 'Landroid/os/Handler;', have the access flags '1
-  0025: 'Landroid/os/HandlerThread;'->'<init>':'(Ljava/lang/String;)V' is expected to be in class 'Landroid/os/HandlerThread;', have the access flags '1
-  0026: 'Landroid/os/HandlerThread;'->'getLooper':'()Landroid/os/Looper;' is expected to be in class 'Landroid/os/HandlerThread;', have the access flags '1
-  0027: 'Landroid/os/HandlerThread;'->'join':'()V' is expected to be in class 'Ljava/lang/Thread;', have the access flags '1
-  0028: 'Landroid/os/HandlerThread;'->'quit':'()Z' is expected to be in class 'Landroid/os/HandlerThread;', have the access flags '1
-  0029: 'Landroid/os/HandlerThread;'->'start':'()V' is expected to be in class 'Ljava/lang/Thread;', have the access flags '1
-  0030: 'Landroid/os/SystemClock;'->'uptimeMillis':'()J' is expected to be in class 'Landroid/os/SystemClock;', have the access flags '9
-  0031: 'Landroid/service/dreams/DreamService;'->'<init>':'()V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0032: 'Landroid/service/dreams/DreamService;'->'onAttachedToWindow':'()V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0033: 'Landroid/service/dreams/DreamService;'->'onCreate':'()V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0034: 'Landroid/util/Log;'->'d':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9
-  0035: 'Landroid/util/Log;'->'e':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9
-  0036: 'Landroid/util/Log;'->'w':'(Ljava/lang/String;Ljava/lang/String;)I' is expected to be in class 'Landroid/util/Log;', have the access flags '9
-  0037: 'Landroid/view/Choreographer;'->'getInstance':'()Landroid/view/Choreographer;' is expected to be in class 'Landroid/view/Choreographer;', have the access flags '9
-  0038: 'Landroid/view/Choreographer;'->'postFrameCallback':'(Landroid/view/Choreographer$FrameCallback;)V' is expected to be in class 'Landroid/view/Choreographer;', have the access flags '1
-  0039: 'Landroid/view/Choreographer;'->'removeFrameCallback':'(Landroid/view/Choreographer$FrameCallback;)V' is expected to be in class 'Landroid/view/Choreographer;', have the access flags '1
-  0040: 'Landroid/view/TextureView;'->'<init>':'(Landroid/content/Context;)V' is expected to be in class 'Landroid/view/TextureView;', have the access flags '1
-  0041: 'Landroid/view/TextureView;'->'setSurfaceTextureListener':'(Landroid/view/TextureView$SurfaceTextureListener;)V' is expected to be in class 'Landroid/view/TextureView;', have the access flags '1
-  0042: 'Lcom/android/dreams/basic/Colors;'->'setContentView':'(Landroid/view/View;)V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0043: 'Lcom/android/dreams/basic/Colors;'->'setFullscreen':'(Z)V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0044: 'Lcom/android/dreams/basic/Colors;'->'setInteractive':'(Z)V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0045: 'Lcom/android/dreams/basic/Colors;'->'setLowProfile':'(Z)V' is expected to be in class 'Landroid/service/dreams/DreamService;', have the access flags '1
-  0046: 'Ljava/lang/Class;'->'getSimpleName':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/Class;', have the access flags '1
-  0047: 'Ljava/lang/IllegalArgumentException;'->'<init>':'(Ljava/lang/String;)V' is expected to be in class 'Ljava/lang/IllegalArgumentException;', have the access flags '1
-  0048: 'Ljava/lang/Integer;'->'toHexString':'(I)Ljava/lang/String;' is expected to be in class 'Ljava/lang/Integer;', have the access flags '9
-  0049: 'Ljava/lang/Integer;'->'valueOf':'(I)Ljava/lang/Integer;' is expected to be in class 'Ljava/lang/Integer;', have the access flags '9
-  0050: 'Ljava/lang/Math;'->'random':'()D' is expected to be in class 'Ljava/lang/Math;', have the access flags '9
-  0051: 'Ljava/lang/Math;'->'sin':'(D)D' is expected to be in class 'Ljava/lang/Math;', have the access flags '9
-  0052: 'Ljava/lang/Object;'->'<init>':'()V' is expected to be in class 'Ljava/lang/Object;', have the access flags '1
-  0053: 'Ljava/lang/RuntimeException;'->'<init>':'(Ljava/lang/String;)V' is expected to be in class 'Ljava/lang/RuntimeException;', have the access flags '1
-  0054: 'Ljava/lang/StringBuilder;'->'<init>':'()V' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1
-  0055: 'Ljava/lang/StringBuilder;'->'append':'(I)Ljava/lang/StringBuilder;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1
-  0056: 'Ljava/lang/StringBuilder;'->'append':'(Ljava/lang/String;)Ljava/lang/StringBuilder;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1
-  0057: 'Ljava/lang/StringBuilder;'->'toString':'()Ljava/lang/String;' is expected to be in class 'Ljava/lang/StringBuilder;', have the access flags '1
-  0058: 'Ljava/nio/ByteBuffer;'->'allocateDirect':'(I)Ljava/nio/ByteBuffer;' is expected to be in class 'Ljava/nio/ByteBuffer;', have the access flags '9
-  0059: 'Ljava/nio/ByteBuffer;'->'asFloatBuffer':'()Ljava/nio/FloatBuffer;' is expected to be in class 'Ljava/nio/ByteBuffer;', have the access flags '1
-  0060: 'Ljava/nio/ByteBuffer;'->'asShortBuffer':'()Ljava/nio/ShortBuffer;' is expected to be in class 'Ljava/nio/ByteBuffer;', have the access flags '1
-  0061: 'Ljava/nio/ByteBuffer;'->'order':'(Ljava/nio/ByteOrder;)Ljava/nio/ByteBuffer;' is expected to be in class 'Ljava/nio/ByteBuffer;', have the access flags '1
-  0062: 'Ljava/nio/ByteOrder;'->'nativeOrder':'()Ljava/nio/ByteOrder;' is expected to be in class 'Ljava/nio/ByteOrder;', have the access flags '9
-  0063: 'Ljava/nio/FloatBuffer;'->'clear':'()Ljava/nio/Buffer;' is expected to be in class 'Ljava/nio/Buffer;', have the access flags '1
-  0064: 'Ljava/nio/FloatBuffer;'->'position':'(I)Ljava/nio/Buffer;' is expected to be in class 'Ljava/nio/Buffer;', have the access flags '1
-  0065: 'Ljava/nio/FloatBuffer;'->'put':'(F)Ljava/nio/FloatBuffer;' is expected to be in class 'Ljava/nio/FloatBuffer;', have the access flags '1
-  0066: 'Ljava/nio/FloatBuffer;'->'put':'([F)Ljava/nio/FloatBuffer;' is expected to be in class 'Ljava/nio/FloatBuffer;', have the access flags '1
-  0067: 'Ljava/nio/ShortBuffer;'->'position':'(I)Ljava/nio/Buffer;' is expected to be in class 'Ljava/nio/Buffer;', have the access flags '1
-  0068: 'Ljava/nio/ShortBuffer;'->'put':'([S)Ljava/nio/ShortBuffer;' is expected to be in class 'Ljava/nio/ShortBuffer;', have the access flags '1
-  0069: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglChooseConfig':'(Ljavax/microedition/khronos/egl/EGLDisplay;[I[Ljavax/microedition/khronos/egl/EGLConfig;I[I)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0070: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglCreateContext':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLConfig;Ljavax/microedition/khronos/egl/EGLContext;[I)Ljavax/microedition/khronos/egl/EGLContext;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0071: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglCreateWindowSurface':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLConfig;Ljava/lang/Object;[I)Ljavax/microedition/khronos/egl/EGLSurface;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0072: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglDestroyContext':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLContext;)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0073: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglDestroySurface':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLSurface;)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0074: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglGetCurrentContext':'()Ljavax/microedition/khronos/egl/EGLContext;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0075: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglGetCurrentSurface':'(I)Ljavax/microedition/khronos/egl/EGLSurface;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0076: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglGetDisplay':'(Ljava/lang/Object;)Ljavax/microedition/khronos/egl/EGLDisplay;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0077: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglGetError':'()I' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0078: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglInitialize':'(Ljavax/microedition/khronos/egl/EGLDisplay;[I)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0079: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglMakeCurrent':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLSurface;Ljavax/microedition/khronos/egl/EGLSurface;Ljavax/microedition/khronos/egl/EGLContext;)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0080: 'Ljavax/microedition/khronos/egl/EGL10;'->'eglSwapBuffers':'(Ljavax/microedition/khronos/egl/EGLDisplay;Ljavax/microedition/khronos/egl/EGLSurface;)Z' is expected to be in class 'Ljavax/microedition/khronos/egl/EGL10;', have the access flags '1
-  0081: 'Ljavax/microedition/khronos/egl/EGLContext;'->'equals':'(Ljava/lang/Object;)Z' is expected to be in class 'Ljava/lang/Object;', have the access flags '1
-  0082: 'Ljavax/microedition/khronos/egl/EGLContext;'->'getEGL':'()Ljavax/microedition/khronos/egl/EGL;' is expected to be in class 'Ljavax/microedition/khronos/egl/EGLContext;', have the access flags '9
-  0083: 'Ljavax/microedition/khronos/egl/EGLSurface;'->'equals':'(Ljava/lang/Object;)Z' is expected to be in class 'Ljava/lang/Object;', have the access flags '1
+...
  unverified classes: number_of_classes=0
 ----- EOF Vdex Deps Info -----
 [INFO] 1 out of 1 Vdex files have been processed

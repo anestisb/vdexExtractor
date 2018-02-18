@@ -40,7 +40,7 @@ static void usage(bool exit_success) {
   LOGMSG_RAW(l_INFO, "              " PROG_NAME " ver. " PROG_VERSION "\n");
   LOGMSG_RAW(l_INFO, PROG_AUTHORS "\n\n");
   LOGMSG_RAW(l_INFO,"%s",
-             " -i, --input=<path>   : input dir (1 max depth) or single file\n"
+             " -i, --input=<path>   : input dir (search recursively) or single file\n"
              " -o, --output=<path>  : output path (default is same as input)\n"
              " -f, --file-override  : allow output file override if already exists (default: false)\n"
              " --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)\n"
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
     goto complete;
   }
 
-  size_t processedVdexCnt = 0, processedDexCnt = 0;
+  size_t vdexCnt = 0, processedVdexCnt = 0, processedDexCnt = 0;
   DISPLAY(l_INFO, "Processing %zu file(s) from %s", pFiles.fileCnt, pFiles.inputFile);
 
   for (size_t f = 0; f < pFiles.fileCnt; f++) {
@@ -222,12 +222,13 @@ int main(int argc, char **argv) {
 
     // Validate Vdex magic header
     if (!vdex_isValidVdex(buf)) {
-      LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
+      LOGMSG(l_DEBUG, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
       continue;
     }
     vdex_dumpHeaderInfo(buf);
+    vdexCnt++;
 
     if (!selectVdexBackend(buf)) {
       LOGMSG(l_WARN, "Failed to initialize Vdex backend - skipping '%s'", pFiles.files[f]);
@@ -274,13 +275,16 @@ int main(int argc, char **argv) {
     close(srcfd);
   }
 
-  DISPLAY(l_INFO, "%u out of %u Vdex files have been processed", processedVdexCnt, pFiles.fileCnt);
+  DISPLAY(l_INFO, "%zu out of %u Vdex files have been processed", processedVdexCnt, vdexCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
           pRunArgs.outputDir ? pRunArgs.outputDir : dirname(pFiles.inputFile));
   mainRet = EXIT_SUCCESS;
 
 complete:
+  for (size_t i = 0; i < pFiles.fileCnt; i++) {
+    free(pFiles.files[i]);
+  }
   free(pFiles.files);
   exitWrapper(mainRet);
 }

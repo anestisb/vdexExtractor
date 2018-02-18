@@ -29,7 +29,7 @@ $ bin/vdexExtractor -h
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 by CENSUS S.A. All Rights Reserved.
 
- -i, --input=<path>   : input dir (1 max depth) or single file
+ -i, --input=<path>   : input dir (search recursively) or single file
  -o, --output=<path>  : output path (default is same as input)
  -f, --file-override  : allow output file override if already exists (default: false)
  --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)

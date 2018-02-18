@@ -26,14 +26,13 @@
 
 #include "utils.h"
 
-static bool utils_readdir(infiles_t *pFiles) {
-  DIR *dir = opendir(pFiles->inputFile);
+static bool utils_readdir(infiles_t *pFiles, const char *basePath) {
+  DIR *dir = opendir(basePath);
   if (!dir) {
-    LOGMSG_P(l_ERROR, "Couldn't open dir '%s'", pFiles->inputFile);
+    LOGMSG_P(l_ERROR, "Couldn't open dir '%s'", basePath);
     return false;
   }
 
-  size_t count = 0;
   for (;;) {
     errno = 0;
     struct dirent *entry = readdir(dir);
@@ -41,20 +40,32 @@ static bool utils_readdir(infiles_t *pFiles) {
       continue;
     }
     if (entry == NULL && errno != 0) {
-      LOGMSG_P(l_ERROR, "readdir('%s')", pFiles->inputFile);
+      LOGMSG_P(l_ERROR, "readdir('%s')", basePath);
       return false;
     }
     if (entry == NULL) {
       break;
     }
 
+    // Skip special files
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+      continue;
+    }
+
     char path[PATH_MAX];
-    snprintf(path, sizeof(path), "%s/%s", pFiles->inputFile, entry->d_name);
+    snprintf(path, sizeof(path), "%s/%s", basePath, entry->d_name);
 
     struct stat st;
     if (stat(path, &st) == -1) {
       LOGMSG(l_WARN, "Couldn't stat() the '%s' file", path);
       continue;
+    }
+
+    if (S_ISDIR(st.st_mode)) {
+      if (!utils_readdir(pFiles, path)) {
+        LOGMSG(l_ERROR, "Failed to process '%s' directory", path);
+        continue;
+      }
     }
 
     if (!S_ISREG(st.st_mode)) {
@@ -67,30 +78,24 @@ static bool utils_readdir(infiles_t *pFiles) {
       continue;
     }
 
-    if (!(pFiles->files = realloc(pFiles->files, sizeof(char *) * (count + 1)))) {
+    if (!(pFiles->files = realloc(pFiles->files, sizeof(char *) * (pFiles->fileCnt + 1)))) {
       LOGMSG_P(l_ERROR, "Couldn't allocate memory");
       closedir(dir);
       return false;
     }
 
-    pFiles->files[count] = strdup(path);
-    if (!pFiles->files[count]) {
+    pFiles->files[pFiles->fileCnt] = strdup(path);
+    if (!pFiles->files[pFiles->fileCnt]) {
       LOGMSG_P(l_ERROR, "Couldn't allocate memory");
       closedir(dir);
       return false;
     }
-    pFiles->fileCnt = ++count;
+    pFiles->fileCnt++;
 
     LOGMSG(l_DEBUG, "Added '%s' to the list of input files", path);
   }
 
   closedir(dir);
-  if (count == 0) {
-    LOGMSG(l_ERROR, "Directory '%s' doesn't contain any regular files", pFiles->inputFile);
-    return false;
-  }
-
-  LOGMSG(l_INFO, "%u input files have been added to the list", pFiles->fileCnt);
   return true;
 }
 
@@ -112,8 +117,20 @@ bool utils_init(infiles_t *pFiles) {
     return false;
   }
 
+  // If a directory, recursively scan
   if (S_ISDIR(st.st_mode)) {
-    return utils_readdir(pFiles);
+    if (!utils_readdir(pFiles, pFiles->inputFile)) {
+      LOGMSG(l_ERROR, "Failed to recursively process '%s' directory", pFiles->inputFile);
+      return false;
+    }
+
+    if (pFiles->fileCnt == 0) {
+      LOGMSG(l_ERROR, "Directory '%s' doesn't contain any regular files", pFiles->inputFile);
+      return false;
+    }
+
+    LOGMSG(l_INFO, "%u input files have been added to the list", pFiles->fileCnt);
+    return true;
   }
 
   if (!S_ISREG(st.st_mode)) {
@@ -121,6 +138,7 @@ bool utils_init(infiles_t *pFiles) {
     return false;
   }
 
+  // Single file case
   pFiles->files[0] = pFiles->inputFile;
   pFiles->fileCnt = 1;
 

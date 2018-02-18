@@ -282,8 +282,10 @@ int main(int argc, char **argv) {
   mainRet = EXIT_SUCCESS;
 
 complete:
-  for (size_t i = 0; i < pFiles.fileCnt; i++) {
-    free(pFiles.files[i]);
+  if (pFiles.fileCnt > 1) {
+    for (size_t i = 0; i < pFiles.fileCnt; i++) {
+      free(pFiles.files[i]);
+    }
   }
   free(pFiles.files);
   exitWrapper(mainRet);

@@ -66,7 +66,6 @@ static bool DecompileNop(u2 *insns, u4 dex_pc) {
   const u1 *temporary_pointer = quickening_info_ptr;
   u4 quickened_pc = dex_readULeb128(&temporary_pointer);
   if (quickened_pc != dex_pc) {
-    LOGMSG(l_FATAL, "Fatal error when decompiling NOP instruction");
     return false;
   }
   u2 reference_index = GetIndexAt(dex_pc);

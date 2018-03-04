@@ -25,7 +25,7 @@ section. Instead they're always paired with a matching Vdex file.
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.4.0
+              vdexExtractor ver. 0.4.1
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 
@@ -35,6 +35,7 @@ $ bin/vdexExtractor -h
  --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)
  --deps               : dump verified dependencies information
  --dis                : enable bytecode disassembler
+ --ignore-crc-error   : decompiled Dex CRC errors are ignored (see issue #3)
  --new-crc=<path>     : text file with extracted Apk or Dex file location checksum(s)
  -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
  -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
@@ -262,9 +263,11 @@ file #0: classDefsSize=8840
 
 ## Changelog
 
-* __0.4.1__ - TBC
+* __0.4.1__ - 4 March 2018
   * Fix Vdex 006 NOP decompilation issue
   * Support multi-depth directory recursion for input path
+  * Argument to ignore CRC errors required for out-of-order optimized classes (see
+    [issue #3][issue3])
 * __0.4.0__ - 11 December 2017
   * Add Vdex 010 (API-27) support by defining different parser & decompiler backend engines that are
     version specific
@@ -339,3 +342,4 @@ file #0: classDefsSize=8840
 [oatdump-oreo]: https://gist.github.com/anestisb/71d6b0496912f801533dec9d264aa409
 [oatdump-plus]: https://github.com/anestisb/oatdump_plus/tree/oreo-release
 [census-snet]: https://census-labs.com/news/2017/11/17/examining-the-value-of-safetynet-attestation-as-an-application-integrity-security-control/
+[issue3]: https://github.com/anestisb/vdexExtractor/issues/3

@@ -131,6 +131,7 @@ typedef struct {
   bool fileOverride;
   bool unquicken;
   bool enableDisassembler;
+  bool ignoreCrc;
   bool dumpDeps;
   char *newCrcFile;
 } runArgs_t;

@@ -422,10 +422,15 @@ int vdex_process_v6(const char *VdexFileName, const u1 *cursor, const runArgs_t 
       // If unquicken was successful original checksum should verify
       u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
       if (curChecksum != pDexHeader->checksum) {
-        LOGMSG(l_ERROR,
-               "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
-               curChecksum, pDexHeader->checksum);
-        return -1;
+        // If ignore CRC errors is enabled, repair CRC (see issue #3)
+        if (pRunArgs->ignoreCrc) {
+          dex_repairDexCRC(dexFileBuf, pDexHeader->fileSize);
+        } else {
+          LOGMSG(l_ERROR,
+                 "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
+                 curChecksum, pDexHeader->checksum);
+          return -1;
+        }
       }
     } else {
       // Repair CRC if not decompiling so we can still run Dex parsing tools against output

@@ -46,6 +46,7 @@ static void usage(bool exit_success) {
              " --no-unquicken       : disable unquicken bytecode decompiler (don't de-odex)\n"
              " --deps               : dump verified dependencies information\n"
              " --dis                : enable bytecode disassembler\n"
+             " --ignore-crc-error   : decompiled Dex CRC errors are ignored (see issue #3)\n"
              " --new-crc=<path>     : text file with extracted Apk or Dex file location checksum(s)\n"
              " -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)\n"
              " -l, --log-file=<path>: save disassembler and/or verified dependencies output to log "
@@ -88,6 +89,7 @@ int main(int argc, char **argv) {
     .fileOverride = false,
     .unquicken = true,
     .enableDisassembler = false,
+    .ignoreCrc = false,
     .dumpDeps = false,
     .newCrcFile = NULL,
   };
@@ -104,6 +106,7 @@ int main(int argc, char **argv) {
                                { "dis", no_argument, 0, 0x102 },
                                { "deps", no_argument, 0, 0x103 },
                                { "new-crc", required_argument, 0, 0x104 },
+                               { "ignore-crc-error", no_argument, 0, 0x105 },
                                { "debug", required_argument, 0, 'v' },
                                { "log-file", required_argument, 0, 'l' },
                                { "help", no_argument, 0, 'h' },
@@ -131,6 +134,9 @@ int main(int argc, char **argv) {
         break;
       case 0x104:
         pRunArgs.newCrcFile = optarg;
+        break;
+      case 0x105:
+        pRunArgs.ignoreCrc = true;
         break;
       case 'v':
         logLevel = atoi(optarg);

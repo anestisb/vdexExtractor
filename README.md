@@ -27,7 +27,7 @@ section. Instead they're always paired with a matching Vdex file.
 $ bin/vdexExtractor -h
               vdexExtractor ver. 0.4.0
     Anestis Bechtsoudis <anestis@census-labs.com>
-  Copyright 2017 by CENSUS S.A. All Rights Reserved.
+  Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 
  -i, --input=<path>   : input dir (search recursively) or single file
  -o, --output=<path>  : output path (default is same as input)
@@ -319,7 +319,7 @@ file #0: classDefsSize=8840
 
 ```
    Anestis Bechtsoudis <anestis@census-labs.com>
-   Copyright 2017 by CENSUS S.A. All Rights Reserved.
+   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

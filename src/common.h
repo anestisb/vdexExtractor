@@ -82,9 +82,8 @@
 #endif
 
 #ifndef FALLTHROUGH_INTENDED
-#define FALLTHROUGH_INTENDED \
-  do {                       \
-  } while (0)
+#define FALLTHROUGH_INTENDED
+  __attribute__((fallthrough));
 #endif
 
 typedef uint8_t u1;

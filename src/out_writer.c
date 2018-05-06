@@ -30,16 +30,17 @@ void outWriter_formatName(char *outBuf,
                           size_t classId,
                           const char *suffix) {
   // Trim Vdex extension and replace with Apk
-  char *fileExt = strrchr(fName, '.');
+  const char *fileExt = strrchr(fName, '.');
+  int fNameLen = strlen(fName);
   if (fileExt) {
-    *fileExt = '\0';
+    fNameLen = fileExt - fName;
   }
   char formattedName[PATH_MAX] = { 0 };
   if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes.%s", fName, suffix);
+    snprintf(formattedName, sizeof(formattedName), "%.*s.apk_classes.%s", fNameLen, fName, suffix);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%s.apk_classes%zu.%s", fName, classId + 1,
-             suffix);
+    snprintf(formattedName, sizeof(formattedName), "%.*s.apk_classes%zu.%s", fNameLen, fName,
+             classId + 1, suffix);
   }
 
   if (rootPath == NULL) {
@@ -84,13 +85,14 @@ bool outWriter_DexFile(const runArgs_t *pRunArgs,
 }
 
 bool outWriter_VdexFile(const runArgs_t *pRunArgs, const char *VdexFileName, u1 *buf, off_t bufSz) {
-  char *fileExt = strrchr(VdexFileName, '.');
+  const char *fileExt = strrchr(VdexFileName, '.');
+  int fNameLen = strlen(VdexFileName);
   if (fileExt) {
-    *fileExt = '\0';
+    fNameLen = fileExt - VdexFileName;
   }
   char outFileName[PATH_MAX] = { 0 };
   if (pRunArgs->outputDir == NULL) {
-    snprintf(outFileName, sizeof(outFileName), "%s_updated.vdex", VdexFileName);
+    snprintf(outFileName, sizeof(outFileName), "%.*s_updated.vdex", fNameLen, VdexFileName);
   } else {
     const char *pFileBaseName = utils_fileBasename(VdexFileName);
     snprintf(outFileName, sizeof(outFileName), "%s/%s_updated.vdex", pRunArgs->outputDir,

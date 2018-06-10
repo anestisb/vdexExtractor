@@ -20,17 +20,29 @@
 
 */
 
-#ifndef _DEX_DECOMPILER_V10_H_
-#define _DEX_DECOMPILER_V10_H_
+#ifndef _VDEX_BACKEND_010_H_
+#define _VDEX_BACKEND_010_H_
 
-#include "common.h"
-#include "dex.h"
-#include "dex_instruction.h"
+#include "vdex_010.h"
+#include "../common.h"
+#include "../dex.h"
 
-// Dex decompiler driver function using quicken_info data
-bool dexDecompilerV10_decompile(const u1 *, dexMethod *, const u1 *, u4, bool);
+typedef struct __attribute__((packed)) {
+  vdexDepStrings_010 extraStrings;
+  vdexDepTypeSet_010 assignTypeSets;
+  vdexDepTypeSet_010 unassignTypeSets;
+  vdexDepClassResSet_010 classes;
+  vdexDepFieldResSet_010 fields;
+  vdexDepMethodResSet_010 methods;
+  vdexDepUnvfyClassesSet_010 unvfyClasses;
+} vdexDepData_010;
 
-// Dex decompiler walk method that simply disassembles code blocks
-void dexDecompilerV10_walk(const u1 *, dexMethod *);
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepData_010 *pVdexDepData;
+} vdexDeps_010;
+
+void vdex_backend_010_dumpDepsInfo(const u1 *);
+int vdex_backend_010_process(const char *, const u1 *, const runArgs_t *);
 
 #endif

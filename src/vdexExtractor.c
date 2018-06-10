@@ -60,26 +60,6 @@ static void usage(bool exit_success) {
 }
 // clang-format on
 
-static bool selectVdexBackend(const u1 *cursor) {
-  const vdexHeader *pVdexHeader = (const vdexHeader *)cursor;
-
-  VdexBackend ver = kBackendMax;
-  char *end;
-  switch (strtol((char *)pVdexHeader->version, &end, 10)) {
-    case 6:
-      ver = kBackendV6;
-      break;
-    case 10:
-      ver = kBackendV10;
-      break;
-    default:
-      LOGMSG(l_ERROR, "Invalid Vdex version");
-      return false;
-  }
-  vdex_backendInit(ver);
-  return true;
-}
-
 int main(int argc, char **argv) {
   int c;
   int logLevel = l_INFO;
@@ -96,6 +76,8 @@ int main(int argc, char **argv) {
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
+  vdex_env_t vdex_env;
+  vdex_env_t *pVdex = &vdex_env;
 
   if (argc < 1) usage(true);
 
@@ -218,44 +200,24 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    // Quick size checks for minimum valid file
-    if ((size_t)fileSz < (sizeof(vdexHeader) + sizeof(dexHeader))) {
-      LOGMSG(l_WARN, "Invalid input file - skipping '%s'", pFiles.files[f]);
+    // Validate Vdex magic header and initialize matching version backend
+    if (!vdex_initEnv(buf, pVdex)) {
+      LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);
       continue;
     }
 
-    // Validate Vdex magic header
-    if (!vdex_isValidVdex(buf)) {
-      LOGMSG(l_DEBUG, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
-      munmap(buf, fileSz);
-      close(srcfd);
-      continue;
-    }
-    vdex_dumpHeaderInfo(buf);
+    pVdex->dumpHeaderInfo(buf);
     vdexCnt++;
-
-    if (!selectVdexBackend(buf)) {
-      LOGMSG(l_WARN, "Failed to initialize Vdex backend - skipping '%s'", pFiles.files[f]);
-      munmap(buf, fileSz);
-      close(srcfd);
-      continue;
-    }
 
     // Dump Vdex verified dependencies info
     if (pRunArgs.dumpDeps) {
-      log_setDisStatus(true);
-      void *pDepsData = vdex_initDepsInfo(buf);
-      if (pDepsData == NULL) {
-        LOGMSG(l_WARN, "Empty verified dependency data")
-      } else {
-        // TODO: Migrate this to vdex_process to avoid iterating Dex files twice. For now it's not
-        // a priority since the two flags offer different functionalities thus no point using them
-        // at the same time.
-        vdex_dumpDepsInfo(buf, pDepsData);
-        vdex_destroyDepsInfo(pDepsData);
-      }
+      log_setDisStatus(true);  // TODO: Remove
+      // TODO: Migrate this to vdex_process to avoid iterating Dex files twice. For now it's not
+      // a priority since the two flags offer different functionalities thus no point using them
+      // at the same time.
+      pVdex->dumpDepsInfo(buf);
       log_setDisStatus(false);
     }
 
@@ -264,7 +226,7 @@ int main(int argc, char **argv) {
     }
 
     // Unquicken Dex bytecode or simply walk optimized Dex files
-    int ret = vdex_process(pFiles.files[f], buf, &pRunArgs);
+    int ret = pVdex->process(pFiles.files[f], buf, &pRunArgs);
     if (ret == -1) {
       LOGMSG(l_ERROR, "Failed to process Dex files - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
@@ -284,7 +246,9 @@ int main(int argc, char **argv) {
   DISPLAY(l_INFO, "%zu out of %u Vdex files have been processed", processedVdexCnt, vdexCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
-          pRunArgs.outputDir ? pRunArgs.outputDir : dirname(pFiles.inputFile));
+          pRunArgs.outputDir
+              ? pRunArgs.outputDir
+              : (utils_isDir(pFiles.inputFile) ? pFiles.inputFile : dirname(pFiles.inputFile)));
   mainRet = EXIT_SUCCESS;
 
 complete:

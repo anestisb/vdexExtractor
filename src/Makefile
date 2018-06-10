@@ -35,7 +35,7 @@ endif
 default: $(TARGET)
 all: default
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c) $(wildcard */*.c))
 HEADERS = $(wildcard *.h)
 
 %.o: %.c $(HEADERS)
@@ -49,6 +49,7 @@ $(TARGET): $(OBJECTS)
 
 clean:
 	-rm -f *.o
+	-rm -f */*.o
 	-rm -f $(TARGET)
 
 format:

@@ -381,3 +381,9 @@ char *utils_fileBasename(char const *path) {
     return strdup(s + 1);
   }
 }
+
+bool utils_isDir(const char *path) {
+  struct stat buf;
+  stat(path, &buf);
+  return S_ISDIR(buf.st_mode);
+}

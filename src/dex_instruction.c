@@ -677,16 +677,16 @@ void dexInstr_getVarArgs(u2 *code_ptr, u4 arg[kMaxVarArgRegs]) {
   switch (count) {
     case 5:
       arg[4] = InstA(code_ptr);
-      /* fall through */
+    /* fall through */
     case 4:
       arg[3] = (regList >> 12) & 0x0f;
-      /* fall through */
+    /* fall through */
     case 3:
       arg[2] = (regList >> 8) & 0x0f;
-      /* fall through */
+    /* fall through */
     case 2:
       arg[1] = (regList >> 4) & 0x0f;
-      /* fall through */
+    /* fall through */
     case 1:
       arg[0] = regList & 0x0f;
       break;

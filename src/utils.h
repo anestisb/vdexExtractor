@@ -45,5 +45,6 @@ long utils_endTimer(struct timespec *);
 u4 *utils_processFileWithCsums(const char *, int *);
 
 char *utils_fileBasename(char const *);
+bool utils_isDir(const char *);
 
 #endif

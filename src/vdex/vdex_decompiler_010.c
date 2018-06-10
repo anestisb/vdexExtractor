@@ -20,8 +20,8 @@
 
 */
 
-#include "dex_decompiler_v10.h"
-#include "utils.h"
+#include "vdex_decompiler_010.h"
+#include "../utils.h"
 
 static const u1 *quicken_info_ptr;
 static size_t quicken_info_number_of_indices;
@@ -91,7 +91,7 @@ static void DecompileInvokeVirtual(u2 *insns, Code new_opcode, bool is_range) {
   }
 }
 
-bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
+bool vdex_decompiler_010_decompile(const u1 *dexFileBuf,
                                 dexMethod *pDexMethod,
                                 const u1 *quickening_info,
                                 u4 quickening_size,
@@ -200,7 +200,7 @@ bool dexDecompilerV10_decompile(const u1 *dexFileBuf,
   return true;
 }
 
-void dexDecompilerV10_walk(const u1 *dexFileBuf, dexMethod *pDexMethod) {
+void vdex_decompiler_010_walk(const u1 *dexFileBuf, dexMethod *pDexMethod) {
   dexCode *pDexCode = (dexCode *)(dexFileBuf + pDexMethod->codeOff);
   u4 startCodeOff = dex_getFirstInstrOff(pDexMethod);
   initCodeIterator(pDexCode->insns, pDexCode->insns_size, startCodeOff);

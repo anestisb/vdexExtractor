@@ -210,6 +210,7 @@ static void destroyDepsInfo(const vdexDeps_010 *pVdexDeps) {
     free((void *)pVdexDeps->pVdexDepData[i].classes.pVdexDepClasses);
     free((void *)pVdexDeps->pVdexDepData[i].fields.pVdexDepFields);
     free((void *)pVdexDeps->pVdexDepData[i].methods.pVdexDepMethods);
+    free((void *)pVdexDeps->pVdexDepData[i].unvfyClasses.pVdexDepUnvfyClasses);
   }
   free((void *)pVdexDeps->pVdexDepData);
   free((void *)pVdexDeps);

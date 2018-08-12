@@ -140,6 +140,7 @@ u4 vdex_006_GetQuickeningInfoOffset(const u1 *);
 
 void vdex_006_dumpHeaderInfo(const u1 *);
 void vdex_006_dumpDepsInfo(const u1 *);
-int vdex_006_process(const char *, const u1 *, const runArgs_t *);
+bool vdex_006_SanityCheck(const u1 *, size_t);
+int vdex_006_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

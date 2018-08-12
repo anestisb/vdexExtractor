@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
     }
 
     // Unquicken Dex bytecode or simply walk optimized Dex files
-    int ret = pVdex->process(pFiles.files[f], buf, &pRunArgs);
+    int ret = pVdex->process(pFiles.files[f], buf, (size_t)fileSz, &pRunArgs);
     if (ret == -1) {
       LOGMSG(l_ERROR, "Failed to process Dex files - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);

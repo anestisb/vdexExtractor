@@ -321,7 +321,13 @@ void vdex_backend_010_dumpDepsInfo(const u1 *vdexFileBuf) {
   destroyDepsInfo(pVdexDeps);
 }
 
-int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
+int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
+
+  // Basic size checks
+  if (!vdex_010_SanityCheck(cursor, bufSz)) {
+    LOGMSG(l_ERROR, "Malformed Vdex file");
+    return -1;
+  }
 
   const vdexHeader_010 *pVdexHeader = (const vdexHeader_010 *)cursor;
   const u1 *dexFileBuf = NULL;

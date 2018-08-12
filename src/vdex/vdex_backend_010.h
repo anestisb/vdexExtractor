@@ -43,6 +43,6 @@ typedef struct __attribute__((packed)) {
 } vdexDeps_010;
 
 void vdex_backend_010_dumpDepsInfo(const u1 *);
-int vdex_backend_010_process(const char *, const u1 *, const runArgs_t *);
+int vdex_backend_010_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

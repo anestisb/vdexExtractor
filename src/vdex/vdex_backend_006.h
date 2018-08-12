@@ -45,6 +45,6 @@ typedef struct __attribute__((packed)) {
 } vdexDeps_006;
 
 void vdex_backend_006_dumpDepsInfo(const u1 *);
-int vdex_backend_006_process(const char *, const u1 *, const runArgs_t *);
+int vdex_backend_006_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

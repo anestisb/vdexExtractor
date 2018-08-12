@@ -306,7 +306,13 @@ void vdex_backend_006_dumpDepsInfo(const u1 *vdexFileBuf) {
   destroyDepsInfo(pVdexDeps);
 }
 
-int vdex_backend_006_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
+int vdex_backend_006_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
+
+  // Basic size checks
+  if (!vdex_006_SanityCheck(cursor, bufSz)) {
+    LOGMSG(l_ERROR, "Malformed Vdex file");
+    return -1;
+  }
 
   const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
   const u1 *quickening_info_ptr = vdex_006_GetQuickeningInfo(cursor);

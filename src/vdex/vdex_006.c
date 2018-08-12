@@ -171,7 +171,26 @@ void vdex_006_dumpHeaderInfo(const u1 *cursor) {
   LOGMSG_RAW(l_DEBUG, "---- EOF Vdex Header Info ----\n");
 }
 
-int vdex_006_process(const char *VdexFileName, const u1 *cursor, const runArgs_t *pRunArgs) {
+bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
+  // Check that verifier deps section doesn't point past the end of file
+  u4 depsOff = vdex_006_GetVerifierDepsDataOffset(cursor);
+  u4 depsSz = vdex_006_GetVerifierDepsDataSize(cursor);
+  if (depsOff + depsSz > bufSz) {
+    LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32 " + %" PRIx32 " > %" PRIx32 ")", depsOff, depsSz, bufSz);
+    return false;
+  }
+
+  // Check that quecking info section doesn't point past the end of file
+  u4 qOff = vdex_006_GetQuickeningInfoOffset(cursor);
+  u4 qSz = vdex_006_GetQuickeningInfoSize(cursor);
+  if (qOff + qSz > bufSz) {
+    LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32 " > %" PRIx32 ")", qOff, qSz, bufSz);
+    return false;
+  }
+  return true;
+}
+
+int vdex_006_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
 
@@ -180,7 +199,7 @@ int vdex_006_process(const char *VdexFileName, const u1 *cursor, const runArgs_t
   utils_startTimer(&timer);
 
   // Process Vdex file
-  int ret = vdex_backend_006_process(VdexFileName, cursor, pRunArgs);
+  int ret = vdex_backend_006_process(VdexFileName, cursor, bufSz, pRunArgs);
 
   // Get elapsed time in ns
   long timeSpend = utils_endTimer(&timer);

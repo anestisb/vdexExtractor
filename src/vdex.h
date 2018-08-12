@@ -29,7 +29,7 @@
 typedef struct {
   void (*dumpHeaderInfo)(const u1 *);
   void (*dumpDepsInfo)(const u1 *);
-  int (*process)(const char *, const u1 *, const runArgs_t *);
+  int (*process)(const char *, const u1 *, size_t, const runArgs_t *);
 } vdex_env_t;
 
 bool vdex_initEnv(const u1 *, vdex_env_t *);

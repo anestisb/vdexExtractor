@@ -22,10 +22,10 @@
 
 #include <sys/mman.h>
 
-#include "vdex_backend_010.h"
-#include "vdex_decompiler_010.h"
 #include "../out_writer.h"
 #include "../utils.h"
+#include "vdex_backend_010.h"
+#include "vdex_decompiler_010.h"
 
 static const u1 *quickening_info_ptr;
 static const unaligned_u4 *current_code_item_ptr;
@@ -97,7 +97,9 @@ static void decodeDepClasses(const u1 **in,
   }
 }
 
-static void decodeDepFields(const u1 **in, const u1 *end, vdexDepFieldResSet_010 *pVdexDepFieldResSet) {
+static void decodeDepFields(const u1 **in,
+                            const u1 *end,
+                            vdexDepFieldResSet_010 *pVdexDepFieldResSet) {
   u4 numOfEntries = decodeUint32WithOverflowCheck(in, end);
   pVdexDepFieldResSet->pVdexDepFields = utils_malloc(numOfEntries * sizeof(vdexDepFieldRes_010));
   pVdexDepFieldResSet->numberOfEntries = numOfEntries;
@@ -321,8 +323,10 @@ void vdex_backend_010_dumpDepsInfo(const u1 *vdexFileBuf) {
   destroyDepsInfo(pVdexDeps);
 }
 
-int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
-
+int vdex_backend_010_process(const char *VdexFileName,
+                             const u1 *cursor,
+                             size_t bufSz,
+                             const runArgs_t *pRunArgs) {
   // Basic size checks
   if (!vdex_010_SanityCheck(cursor, bufSz)) {
     LOGMSG(l_ERROR, "Malformed Vdex file");
@@ -336,7 +340,8 @@ int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, size_t 
   // For each Dex file
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
     QuickeningInfoItInit(dex_file_idx, pVdexHeader->numberOfDexFiles,
-                         vdex_010_GetQuickeningInfo(cursor), vdex_010_GetQuickeningInfoSize(cursor));
+                         vdex_010_GetQuickeningInfo(cursor),
+                         vdex_010_GetQuickeningInfoSize(cursor));
 
     dexFileBuf = vdex_010_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
@@ -408,7 +413,7 @@ int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, size_t 
             quickening_size = 0;
           }
           if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
-                                          quickening_size, true)) {
+                                             quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
@@ -440,7 +445,7 @@ int vdex_backend_010_process(const char *VdexFileName, const u1 *cursor, size_t 
             quickening_size = 0;
           }
           if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
-                                          quickening_size, true)) {
+                                             quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }

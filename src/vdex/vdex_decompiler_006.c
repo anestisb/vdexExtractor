@@ -94,10 +94,10 @@ static void DecompileInvokeVirtual(u2 *insns, u4 dex_pc, Code new_opcode, bool i
 }
 
 bool vdex_decompiler_006_decompile(const u1 *dexFileBuf,
-                               dexMethod *pDexMethod,
-                               const u1 *quickening_info,
-                               u4 quickening_size,
-                               bool decompile_return_instruction) {
+                                   dexMethod *pDexMethod,
+                                   const u1 *quickening_info,
+                                   u4 quickening_size,
+                                   bool decompile_return_instruction) {
   if (quickening_size == 0 && !decompile_return_instruction) {
     return true;
   }

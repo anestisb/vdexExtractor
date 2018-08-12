@@ -22,10 +22,10 @@
 
 #include <sys/mman.h>
 
-#include "vdex_backend_006.h"
-#include "vdex_decompiler_006.h"
 #include "../out_writer.h"
 #include "../utils.h"
+#include "vdex_backend_006.h"
+#include "vdex_decompiler_006.h"
 
 static inline u4 decodeUint32WithOverflowCheck(const u1 **in, const u1 *end) {
   CHECK_LT(*in, end);
@@ -66,7 +66,9 @@ static void decodeDepClasses(const u1 **in,
   }
 }
 
-static void decodeDepFields(const u1 **in, const u1 *end, vdexDepFieldResSet_006 *pVdexDepFieldResSet) {
+static void decodeDepFields(const u1 **in,
+                            const u1 *end,
+                            vdexDepFieldResSet_006 *pVdexDepFieldResSet) {
   u4 numOfEntries = decodeUint32WithOverflowCheck(in, end);
   pVdexDepFieldResSet->pVdexDepFields = utils_malloc(numOfEntries * sizeof(vdexDepFieldRes_006));
   pVdexDepFieldResSet->numberOfEntries = numOfEntries;
@@ -306,8 +308,10 @@ void vdex_backend_006_dumpDepsInfo(const u1 *vdexFileBuf) {
   destroyDepsInfo(pVdexDeps);
 }
 
-int vdex_backend_006_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
-
+int vdex_backend_006_process(const char *VdexFileName,
+                             const u1 *cursor,
+                             size_t bufSz,
+                             const runArgs_t *pRunArgs) {
   // Basic size checks
   if (!vdex_006_SanityCheck(cursor, bufSz)) {
     LOGMSG(l_ERROR, "Malformed Vdex file");
@@ -388,7 +392,7 @@ int vdex_backend_006_process(const char *VdexFileName, const u1 *cursor, size_t 
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
           if (!vdex_decompiler_006_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
-                                         quickening_size, true)) {
+                                             quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
@@ -415,7 +419,7 @@ int vdex_backend_006_process(const char *VdexFileName, const u1 *cursor, size_t 
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
           if (!vdex_decompiler_006_decompile(dexFileBuf, &curDexMethod, quickening_info_ptr,
-                                         quickening_size, true)) {
+                                             quickening_size, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }

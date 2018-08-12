@@ -23,9 +23,9 @@
 #ifndef _VDEX_BACKEND_006_H_
 #define _VDEX_BACKEND_006_H_
 
-#include "vdex_006.h"
 #include "../common.h"
 #include "../dex.h"
+#include "vdex_006.h"
 
 typedef struct __attribute__((packed)) {
   vdexDepStrings_006 extraStrings;

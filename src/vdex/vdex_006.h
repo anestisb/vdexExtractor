@@ -24,9 +24,9 @@
 #define _VDEX_006_H_
 
 #include <zlib.h>
-#include "vdex_common.h"
 #include "../common.h"
 #include "../dex.h"
+#include "vdex_common.h"
 
 static const u1 kVdex006[] = { '0', '0', '6', '\0' };
 

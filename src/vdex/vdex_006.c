@@ -21,9 +21,9 @@
 */
 
 #include "vdex_006.h"
-#include "vdex_backend_006.h"
 #include "../out_writer.h"
 #include "../utils.h"
+#include "vdex_backend_006.h"
 
 bool vdex_006_isMagicValid(const u1 *cursor) {
   const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
@@ -157,7 +157,8 @@ void vdex_006_dumpHeaderInfo(const u1 *cursor) {
   LOGMSG_RAW(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n",
              vdex_006_GetVerifierDepsDataSize(cursor), vdex_006_GetVerifierDepsDataSize(cursor));
   LOGMSG_RAW(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_006_GetVerifierDepsDataOffset(cursor), vdex_006_GetVerifierDepsDataOffset(cursor));
+             vdex_006_GetVerifierDepsDataOffset(cursor),
+             vdex_006_GetVerifierDepsDataOffset(cursor));
   LOGMSG_RAW(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")\n",
              vdex_006_GetQuickeningInfoSize(cursor), vdex_006_GetQuickeningInfoSize(cursor));
   LOGMSG_RAW(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n",
@@ -176,7 +177,9 @@ bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
   u4 depsOff = vdex_006_GetVerifierDepsDataOffset(cursor);
   u4 depsSz = vdex_006_GetVerifierDepsDataSize(cursor);
   if (depsOff + depsSz > bufSz) {
-    LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32 " + %" PRIx32 " > %" PRIx32 ")", depsOff, depsSz, bufSz);
+    LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32
+                    " + %" PRIx32 " > %" PRIx32 ")",
+           depsOff, depsSz, bufSz);
     return false;
   }
 
@@ -184,13 +187,18 @@ bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
   u4 qOff = vdex_006_GetQuickeningInfoOffset(cursor);
   u4 qSz = vdex_006_GetQuickeningInfoSize(cursor);
   if (qOff + qSz > bufSz) {
-    LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32 " > %" PRIx32 ")", qOff, qSz, bufSz);
+    LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32
+                    " > %" PRIx32 ")",
+           qOff, qSz, bufSz);
     return false;
   }
   return true;
 }
 
-int vdex_006_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, const runArgs_t *pRunArgs) {
+int vdex_006_process(const char *VdexFileName,
+                     const u1 *cursor,
+                     size_t bufSz,
+                     const runArgs_t *pRunArgs) {
   // Update Dex disassembler engine status
   dex_setDisassemblerStatus(pRunArgs->enableDisassembler);
 
@@ -208,6 +216,4 @@ int vdex_006_process(const char *VdexFileName, const u1 *cursor, size_t bufSz, c
   return ret;
 }
 
-void vdex_006_dumpDepsInfo(const u1 *vdexFileBuf) {
-  vdex_backend_006_dumpDepsInfo(vdexFileBuf);
-}
+void vdex_006_dumpDepsInfo(const u1 *vdexFileBuf) { vdex_backend_006_dumpDepsInfo(vdexFileBuf); }

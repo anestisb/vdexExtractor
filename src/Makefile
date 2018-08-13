@@ -30,6 +30,17 @@ ifeq ($(DEBUG),true)
   LDFLAGS += -g -ggdb
 endif
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),32)
+  # If compiling in 32bit system
+  CFLAGS += -Wno-pointer-to-int-cast
+else
+ifneq (,$(findstring -m32,$(CFLAGS)))
+  # If cross-compiling for a 32bit target from a 64bit system
+  CFLAGS += -Wno-pointer-to-int-cast
+endif
+endif
+
 .PHONY: default all clean
 
 default: $(TARGET)

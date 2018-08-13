@@ -52,7 +52,7 @@ static bool utils_readdir(infiles_t *pFiles, const char *basePath) {
       continue;
     }
 
-    char path[PATH_MAX];
+    char path[PATH_MAX + 2];
     snprintf(path, sizeof(path), "%s/%s", basePath, entry->d_name);
 
     struct stat st;

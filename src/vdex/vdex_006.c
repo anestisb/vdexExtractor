@@ -183,7 +183,7 @@ bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
     return false;
   }
 
-  // Check that quecking info section doesn't point past the end of file
+  // Check that quickening info section doesn't point past the end of file
   u4 qOff = vdex_006_GetQuickeningInfoOffset(cursor);
   u4 qSz = vdex_006_GetQuickeningInfoSize(cursor);
   if (qOff + qSz > bufSz) {

@@ -302,7 +302,7 @@ void vdex_backend_010_dumpDepsInfo(const u1 *vdexFileBuf) {
         log_dis("unresolved\n");
       } else {
         log_dis(
-            "in class '%s', have the access flags '%" PRIu16 "\n",
+            "in class '%s', have the access flags '%" PRIu16 "'\n",
             getStringFromId(pVdexDepData,
                             pVdexDepData->methods.pVdexDepMethods[i].declaringClassIdx, dexFileBuf),
             accessFlags);

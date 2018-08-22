@@ -67,39 +67,35 @@ u4 vdex_006_DexEndOffset(const u1 *cursor) {
   return vdex_006_DexBeginOffset(cursor) + pVdexHeader->dexSize;
 }
 
-// TODO: Cache embedded Dex file offsets so that we don't have to parse from scratch when we
-// want to iterate over all files.
-const u1 *vdex_006_GetNextDexFileData(const u1 *cursor, u4 *offset) {
-  if (*offset == 0) {
+const u1 *vdex_006_GetNextDexFileData(const u1 *cursor, u4 *curOffset) {
+  if (*curOffset == 0) {
     if (vdex_006_hasDexSection(cursor)) {
       const u1 *dexBuf = vdex_006_DexBegin(cursor);
-      *offset = sizeof(vdexHeader_006) + vdex_006_GetSizeOfChecksumsSection(cursor);
-      LOGMSG(l_DEBUG, "Processing first Dex file at offset:0x%x", *offset);
+      *curOffset = sizeof(vdexHeader_006) + vdex_006_GetSizeOfChecksumsSection(cursor);
+      LOGMSG(l_DEBUG, "Processing first Dex file at offset:0x%x", *curOffset);
 
-      // Adjust offset to point at the end of current Dex file
-      dexHeader *pDexHeader = (dexHeader *)(dexBuf);
-      *offset += pDexHeader->fileSize;
+      // Adjust curOffset to point at the end of current Dex file
+      *curOffset += dex_getFileSize(dexBuf);
       return dexBuf;
     } else {
+      LOGMSG(l_ERROR, "Vdex file has no Dex entries to process");
       return NULL;
     }
   } else {
-    dexHeader *pDexHeader = (dexHeader *)(cursor + *offset);
-
     // Check boundaries
-    const u1 *dexBuf = cursor + *offset;
-    const u1 *dexBufMax = dexBuf + pDexHeader->fileSize;
+    const u1 *dexBuf = cursor + *curOffset;
+    const u1 *dexBufMax = dexBuf + dex_getFileSize(dexBuf);
     if (dexBufMax == vdex_006_DexEnd(cursor)) {
-      LOGMSG(l_DEBUG, "Processing last Dex file at offset:0x%x", *offset);
-    } else if (dexBufMax <= vdex_006_DexEnd(cursor)) {
-      LOGMSG(l_DEBUG, "Processing Dex file at offset:0x%x", *offset);
+      LOGMSG(l_DEBUG, "Processing last Dex file at offset:0x%x", *curOffset);
+    } else if (dexBufMax < vdex_006_DexEnd(cursor)) {
+      LOGMSG(l_DEBUG, "Processing Dex file at offset:0x%x", *curOffset);
     } else {
-      LOGMSG(l_ERROR, "Invalid cursor offset '0x%x'", *offset);
+      LOGMSG(l_ERROR, "Invalid cursor offset '0x%x'", *curOffset);
       return NULL;
     }
 
-    // Adjust offset to point at the end of current Dex file
-    *offset += pDexHeader->fileSize;
+    // Adjust curOffset to point at the end of current Dex file
+    *curOffset += dex_getFileSize(dexBuf);
     return dexBuf;
   }
 }

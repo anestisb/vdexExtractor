@@ -23,6 +23,23 @@
 #include "dex.h"
 #include "utils.h"
 
+// CompactDex helper constants for CodeItem decoding
+static const size_t kRegistersSizeShift = 12;
+static const size_t kInsSizeShift = 8;
+static const size_t kOutsSizeShift = 4;
+static const size_t kTriesSizeSizeShift = 0;
+static const u2 kFlagPreHeaderRegisterSize = 0x1 << 0;
+static const u2 kFlagPreHeaderInsSize = 0x1 << 1;
+static const u2 kFlagPreHeaderOutsSize = 0x1 << 2;
+static const u2 kFlagPreHeaderTriesSize = 0x1 << 3;
+static const u2 kFlagPreHeaderInsnsSize = 0x1 << 4;
+static const size_t kInsnsSizeShift = 5;
+// static const size_t kBitsPerByte = 8;
+// static const size_t kInsnsSizeBits = sizeof(u2) * kBitsPerByte -  kInsnsSizeShift;
+static const u2 kFlagPreHeaderCombined = kFlagPreHeaderRegisterSize | kFlagPreHeaderInsSize |
+                                         kFlagPreHeaderOutsSize | kFlagPreHeaderTriesSize |
+                                         kFlagPreHeaderInsnsSize;
+
 static bool enableDisassembler = false;
 
 static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }
@@ -31,8 +48,6 @@ static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] <
 // for the index in the given instruction.
 static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
   char *buf = utils_calloc(bufSize);
-
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   static const u4 kInvalidIndex = USHRT_MAX;
 
   // Determine index and width of the string.
@@ -85,7 +100,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
       outSize = snprintf(buf, bufSize, "<no-index>");
       break;
     case kIndexTypeRef:
-      if (index < pDexHeader->typeIdsSize) {
+      if (index < dex_getTypeIdsSize(dexFileBuf)) {
         const char *tp = dex_getStringByTypeIdx(dexFileBuf, index);
         outSize = snprintf(buf, bufSize, "%s // type@%0*x", tp, width, index);
       } else {
@@ -93,7 +108,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
       }
       break;
     case kIndexStringRef:
-      if (index < pDexHeader->stringIdsSize) {
+      if (index < dex_getStringIdsSize(dexFileBuf)) {
         const char *st = dex_getStringDataByIdx(dexFileBuf, index);
         outSize = snprintf(buf, bufSize, "\"%s\" // string@%0*x", st, width, index);
       } else {
@@ -101,7 +116,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
       }
       break;
     case kIndexMethodRef:
-      if (index < pDexHeader->methodIdsSize) {
+      if (index < dex_getMethodIdsSize(dexFileBuf)) {
         const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, index);
         const char *name = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
         const char *signature = dex_getMethodSignature(dexFileBuf, pDexMethodId);
@@ -114,7 +129,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
       }
       break;
     case kIndexFieldRef:
-      if (index < pDexHeader->fieldIdsSize) {
+      if (index < dex_getFieldIdsSize(dexFileBuf)) {
         const dexFieldId *pDexFieldId = dex_getFieldId(dexFileBuf, index);
         const char *name = dex_getStringDataByIdx(dexFileBuf, pDexFieldId->nameIdx);
         const char *typeDescriptor = dex_getStringByTypeIdx(dexFileBuf, pDexFieldId->typeIdx);
@@ -139,7 +154,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
       strncpy((void *)methodStr, kDefaultMethodStr, strlen(kDefaultMethodStr));
       strncpy((void *)protoStr, kDefaultProtoStr, strlen(kDefaultProtoStr));
 
-      if (index < pDexHeader->methodIdsSize) {
+      if (index < dex_getMethodIdsSize(dexFileBuf)) {
         const dexMethodId *pDexMethodId = dex_getMethodId(dexFileBuf, index);
         const char *name = dex_getStringDataByIdx(dexFileBuf, pDexMethodId->nameIdx);
         const char *signature = dex_getMethodSignature(dexFileBuf, pDexMethodId);
@@ -154,7 +169,7 @@ static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
         // Clean-up intermediates
         free((void *)signature);
       }
-      if (secondary_index < pDexHeader->protoIdsSize) {
+      if (secondary_index < dex_getProtoIdsSize(dexFileBuf)) {
         const dexProtoId *pDexProtoId = dex_getProtoId(dexFileBuf, secondary_index);
 
         // Free the default since a new one is allocated
@@ -314,64 +329,352 @@ static char *createAccessFlagStr(u4 flags, dexAccessFor forWhat) {
   return str;
 }
 
-bool dex_isValidDexMagic(const dexHeader *pDexHeader) {
+// Return true if the code item has any preheaders.
+static bool hasAnyPreHeader(u2 insnsCountAndFlags) {
+  return (insnsCountAndFlags & kFlagPreHeaderCombined) != 0;
+}
+
+static bool hasPreHeader(u2 insnsCountAndFlags, u2 flag) {
+  return (insnsCountAndFlags & flag) != 0;
+}
+
+dexType dex_checkType(const u1 *cursor) {
+  if (memcmp(cursor, kDexMagic, sizeof(kDexMagic)) == 0) {
+    return kNormalDex;
+  }
+
+  if (memcmp(cursor, kCDexMagic, sizeof(kCDexMagic)) == 0) {
+    return kCompactDex;
+  }
+
+  return kDexInvalid;
+}
+
+bool dex_isValidDex(const u1 *cursor) {
+  const dexHeader *pHeader = (dexHeader *)cursor;
+  if (pHeader->headerSize != sizeof(dexHeader)) {
+    return false;
+  }
+
   // Validate magic number
-  if (memcmp(pDexHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
+  if (memcmp(pHeader->magic.dex, kDexMagic, sizeof(kDexMagic)) != 0) {
     return false;
   }
 
   // Validate magic version
-  const char *version = pDexHeader->magic.ver;
+  const char *version = pHeader->magic.ver;
   for (u4 i = 0; i < kNumDexVersions; i++) {
     if (memcmp(version, kDexMagicVersions[i], kDexVersionLen) == 0) {
-      LOGMSG(l_DEBUG, "Dex version '%s' detected", pDexHeader->magic.ver);
+      LOGMSG(l_DEBUG, "Dex version '%s' detected", pHeader->magic.ver);
       return true;
     }
   }
   return false;
 }
 
-void dex_dumpHeaderInfo(const dexHeader *pDexHeader) {
-  char *sigHex = utils_bin2hex(pDexHeader->signature, kSHA1Len);
+bool dex_isValidCDex(const u1 *cursor) {
+  const cdexHeader *pHeader = (cdexHeader *)cursor;
+  if (pHeader->headerSize != sizeof(cdexHeader)) {
+    LOGMSG(l_ERROR, "Invalid header size (%" PRIx32 " vs %" PRIx32 ")", pHeader->headerSize,
+           sizeof(cdexHeader));
+    return false;
+  }
+
+  // Validate magic number
+  if (memcmp(pHeader->magic.dex, kCDexMagic, sizeof(kCDexMagic)) != 0) {
+    return false;
+  }
+
+  // Validate magic version
+  const char *version = pHeader->magic.ver;
+  for (u4 i = 0; i < kNumCDexVersions; i++) {
+    if (memcmp(version, kCDexMagicVersions[i], kDexVersionLen) == 0) {
+      LOGMSG(l_DEBUG, "CompactDex version '%s' detected", pHeader->magic.ver);
+      return true;
+    }
+  }
+  return false;
+}
+
+dexMagic dex_getMagic(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->magic;
+  } else {
+    return ((const cdexHeader *)cursor)->magic;
+  }
+}
+
+u4 dex_getChecksum(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->checksum;
+  } else {
+    return ((const cdexHeader *)cursor)->checksum;
+  }
+}
+
+u4 dex_getFileSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->fileSize;
+  } else {
+    return ((const cdexHeader *)cursor)->fileSize;
+  }
+}
+
+u4 dex_getHeaderSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->headerSize;
+  } else {
+    return ((const cdexHeader *)cursor)->headerSize;
+  }
+}
+
+u4 dex_getEndianTag(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->endianTag;
+  } else {
+    return ((const cdexHeader *)cursor)->endianTag;
+  }
+}
+
+u4 dex_getLinkSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->linkSize;
+  } else {
+    return ((const cdexHeader *)cursor)->linkSize;
+  }
+}
+
+u4 dex_getLinkOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->linkOff;
+  } else {
+    return ((const cdexHeader *)cursor)->linkOff;
+  }
+}
+
+u4 dex_getMapOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->mapOff;
+  } else {
+    return ((const cdexHeader *)cursor)->mapOff;
+  }
+}
+
+u4 dex_getStringIdsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->stringIdsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->stringIdsSize;
+  }
+}
+
+u4 dex_getStringIdsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->stringIdsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->stringIdsOff;
+  }
+}
+
+u4 dex_getTypeIdsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->typeIdsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->typeIdsSize;
+  }
+}
+
+u4 dex_getTypeIdsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->typeIdsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->typeIdsOff;
+  }
+}
+
+u4 dex_getProtoIdsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->protoIdsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->protoIdsSize;
+  }
+}
+
+u4 dex_getProtoIdsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->protoIdsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->protoIdsOff;
+  }
+}
+
+u4 dex_getFieldIdsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->fieldIdsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->fieldIdsSize;
+  }
+}
+
+u4 dex_getFieldIdsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->fieldIdsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->fieldIdsOff;
+  }
+}
+
+u4 dex_getMethodIdsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->methodIdsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->methodIdsSize;
+  }
+}
+
+u4 dex_getMethodIdsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->methodIdsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->methodIdsOff;
+  }
+}
+
+u4 dex_getClassDefsSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->classDefsSize;
+  } else {
+    return ((const cdexHeader *)cursor)->classDefsSize;
+  }
+}
+
+u4 dex_getClassDefsOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->classDefsOff;
+  } else {
+    return ((const cdexHeader *)cursor)->classDefsOff;
+  }
+}
+
+u4 dex_getDataSize(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->dataSize;
+  } else {
+    return ((const cdexHeader *)cursor)->dataSize;
+  }
+}
+
+u4 dex_getDataOff(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return ((const dexHeader *)cursor)->dataOff;
+  } else {
+    return ((const cdexHeader *)cursor)->dataOff;
+  }
+}
+
+u4 dex_getFeatureFlags(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->featureFlags;
+}
+
+u4 dex_getDebugInfoOffsetsPos(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->debugInfoOffsetsPos;
+}
+
+u4 dex_getDebugInfoOffsetsTableOffset(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->debugInfoOffsetsTableOffset;
+}
+
+u4 dex_getDebugInfoBase(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->debugInfoBase;
+}
+
+u4 dex_getOwnedDataBegin(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->ownedDataBegin;
+}
+
+u4 dex_getOwnedDataEnd(const u1 *cursor) {
+  CHECK(dex_checkType(cursor) == kCompactDex);
+  return ((const cdexHeader *)cursor)->ownedDataEnd;
+}
+
+const u1 *dex_getDataAddr(const u1 *cursor) {
+  if (dex_checkType(cursor) == kNormalDex) {
+    return cursor;
+  } else {
+    return cursor + dex_getDataOff(cursor);
+  }
+}
+
+void dex_dumpHeaderInfo(const u1 *cursor) {
+  dexMagic magic = dex_getMagic(cursor);
+  char *sigHex = utils_bin2hex(cursor + sizeof(dexMagic) + sizeof(u4), kSHA1Len);
 
   log_dis("------ Dex Header Info ------\n");
-  log_dis("magic        : %.3s-%.3s\n", pDexHeader->magic.dex, pDexHeader->magic.ver);
-  log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->checksum, pDexHeader->checksum);
+  log_dis("magic        : %.4s-%.4s\n", magic.dex, magic.ver);
+  log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", dex_getChecksum(cursor),
+          dex_getChecksum(cursor));
   log_dis("signature    : %s\n", sigHex);
-  log_dis("fileSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fileSize, pDexHeader->fileSize);
-  log_dis("headerSize   : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->headerSize,
-          pDexHeader->headerSize);
-  log_dis("endianTag    : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->endianTag,
-          pDexHeader->endianTag);
-  log_dis("linkSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkSize, pDexHeader->linkSize);
-  log_dis("linkOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->linkOff, pDexHeader->linkOff);
-  log_dis("mapOff       : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->mapOff, pDexHeader->mapOff);
-  log_dis("stringIdsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->stringIdsSize,
-          pDexHeader->stringIdsSize);
-  log_dis("stringIdsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->stringIdsOff,
-          pDexHeader->stringIdsOff);
-  log_dis("typeIdsSize  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->typeIdsSize,
-          pDexHeader->typeIdsSize);
-  log_dis("typeIdsOff   : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->typeIdsOff,
-          pDexHeader->typeIdsOff);
-  log_dis("protoIdsSize : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->protoIdsSize,
-          pDexHeader->protoIdsSize);
-  log_dis("protoIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->protoIdsOff,
-          pDexHeader->protoIdsOff);
-  log_dis("fieldIdsSize : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fieldIdsSize,
-          pDexHeader->fieldIdsSize);
-  log_dis("fieldIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->fieldIdsOff,
-          pDexHeader->fieldIdsOff);
-  log_dis("methodIdsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->methodIdsSize,
-          pDexHeader->methodIdsSize);
-  log_dis("methodIdsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->methodIdsOff,
-          pDexHeader->methodIdsOff);
-  log_dis("classDefsSize: %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->classDefsSize,
-          pDexHeader->classDefsSize);
-  log_dis("classDefsOff : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->classDefsOff,
-          pDexHeader->classDefsOff);
-  log_dis("dataSize     : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataSize, pDexHeader->dataSize);
-  log_dis("dataOff      : %" PRIx32 " (%" PRIu32 ")\n", pDexHeader->dataOff, pDexHeader->dataOff);
+  log_dis("fileSize     : %" PRIx32 " (%" PRIu32 ")\n", dex_getFileSize(cursor),
+          dex_getFileSize(cursor));
+  log_dis("headerSize   : %" PRIx32 " (%" PRIu32 ")\n", dex_getHeaderSize(cursor),
+          dex_getHeaderSize(cursor));
+  log_dis("endianTag    : %" PRIx32 " (%" PRIu32 ")\n", dex_getEndianTag(cursor),
+          dex_getEndianTag(cursor));
+  log_dis("linkSize     : %" PRIx32 " (%" PRIu32 ")\n", dex_getLinkSize(cursor),
+          dex_getLinkSize(cursor));
+  log_dis("linkOff      : %" PRIx32 " (%" PRIu32 ")\n", dex_getLinkOff(cursor),
+          dex_getLinkOff(cursor));
+  log_dis("mapOff       : %" PRIx32 " (%" PRIu32 ")\n", dex_getMapOff(cursor),
+          dex_getMapOff(cursor));
+  log_dis("stringIdsSize: %" PRIx32 " (%" PRIu32 ")\n", dex_getStringIdsSize(cursor),
+          dex_getStringIdsSize(cursor));
+  log_dis("stringIdsOff : %" PRIx32 " (%" PRIu32 ")\n", dex_getStringIdsOff(cursor),
+          dex_getStringIdsOff(cursor));
+  log_dis("typeIdsSize  : %" PRIx32 " (%" PRIu32 ")\n", dex_getTypeIdsSize(cursor),
+          dex_getTypeIdsSize(cursor));
+  log_dis("typeIdsOff   : %" PRIx32 " (%" PRIu32 ")\n", dex_getTypeIdsOff(cursor),
+          dex_getTypeIdsOff(cursor));
+  log_dis("protoIdsSize : %" PRIx32 " (%" PRIu32 ")\n", dex_getProtoIdsSize(cursor),
+          dex_getProtoIdsSize(cursor));
+  log_dis("protoIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", dex_getProtoIdsOff(cursor),
+          dex_getProtoIdsOff(cursor));
+  log_dis("fieldIdsSize : %" PRIx32 " (%" PRIu32 ")\n", dex_getFieldIdsSize(cursor),
+          dex_getFieldIdsSize(cursor));
+  log_dis("fieldIdsOff  : %" PRIx32 " (%" PRIu32 ")\n", dex_getFieldIdsOff(cursor),
+          dex_getFieldIdsOff(cursor));
+  log_dis("methodIdsSize: %" PRIx32 " (%" PRIu32 ")\n", dex_getMethodIdsSize(cursor),
+          dex_getMethodIdsSize(cursor));
+  log_dis("methodIdsOff : %" PRIx32 " (%" PRIu32 ")\n", dex_getMethodIdsOff(cursor),
+          dex_getMethodIdsOff(cursor));
+  log_dis("classDefsSize: %" PRIx32 " (%" PRIu32 ")\n", dex_getClassDefsSize(cursor),
+          dex_getClassDefsSize(cursor));
+  log_dis("classDefsOff : %" PRIx32 " (%" PRIu32 ")\n", dex_getClassDefsOff(cursor),
+          dex_getClassDefsOff(cursor));
+  log_dis("dataSize     : %" PRIx32 " (%" PRIu32 ")\n", dex_getDataSize(cursor),
+          dex_getDataSize(cursor));
+  log_dis("dataOff      : %" PRIx32 " (%" PRIu32 ")\n", dex_getDataOff(cursor),
+          dex_getDataOff(cursor));
+
+  if (dex_checkType(cursor) == kCompactDex) {
+    log_dis("featureFlags                : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getFeatureFlags(cursor), dex_getFeatureFlags(cursor));
+    log_dis("debuginfoOffsetsPos         : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getDebugInfoOffsetsPos(cursor), dex_getDebugInfoOffsetsPos(cursor));
+    log_dis("debugInfoOffsetsTableOffset : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getDebugInfoOffsetsTableOffset(cursor), dex_getDebugInfoOffsetsTableOffset(cursor));
+    log_dis("debugInfoBase               : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getDebugInfoBase(cursor), dex_getDebugInfoBase(cursor));
+    log_dis("ownedDataBegin              : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getOwnedDataBegin(cursor), dex_getOwnedDataBegin(cursor));
+    log_dis("ownedDataEnd                : %" PRIx32 " (%" PRIu32 ")\n",
+            dex_getOwnedDataEnd(cursor), dex_getOwnedDataEnd(cursor));
+  }
+
   log_dis("-----------------------------\n");
 
   free((void *)sigHex);
@@ -390,9 +693,13 @@ void dex_repairDexCRC(const u1 *buf, off_t fileSz) {
   memcpy((void *)buf + sizeof(dexMagic), &adler_checksum, sizeof(u4));
 }
 
-u4 dex_getFirstInstrOff(const dexMethod *pDexMethod) {
+u4 dex_getFirstInstrOff(const u1 *cursor, const dexMethod *pDexMethod) {
   // The first instruction is the last member of the dexCode struct
-  return pDexMethod->codeOff + sizeof(dexCode) - sizeof(u2);
+  if (dex_checkType(cursor) == kNormalDex) {
+    return pDexMethod->codeOff + sizeof(dexCode) - sizeof(u2);
+  } else {
+    return pDexMethod->codeOff + sizeof(cdexCode) - sizeof(u2);
+  }
 }
 
 u4 dex_readULeb128(const u1 **pStream) {
@@ -476,49 +783,43 @@ void dex_readClassDataMethod(const u1 **cursor, dexMethod *pDexMethod) {
 
 // Returns the StringId at the specified index.
 const dexStringId *dex_getStringId(const u1 *dexFileBuf, u2 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->stringIdsSize);
-  dexStringId *dexStringIds = (dexStringId *)(dexFileBuf + pDexHeader->stringIdsOff);
+  CHECK_LT(idx, dex_getStringIdsSize(dexFileBuf));
+  dexStringId *dexStringIds = (dexStringId *)(dexFileBuf + dex_getStringIdsOff(dexFileBuf));
   return &dexStringIds[idx];
 }
 
 // Returns the dexTypeId at the specified index.
 const dexTypeId *dex_getTypeId(const u1 *dexFileBuf, u2 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->typeIdsSize);
-  dexTypeId *dexTypeIds = (dexTypeId *)(dexFileBuf + pDexHeader->typeIdsOff);
+  CHECK_LT(idx, dex_getTypeIdsSize(dexFileBuf));
+  dexTypeId *dexTypeIds = (dexTypeId *)(dexFileBuf + dex_getTypeIdsOff(dexFileBuf));
   return &dexTypeIds[idx];
 }
 
 // Returns the dexProtoId at the specified index.
 const dexProtoId *dex_getProtoId(const u1 *dexFileBuf, u2 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->protoIdsSize);
-  dexProtoId *dexProtoIds = (dexProtoId *)(dexFileBuf + pDexHeader->protoIdsOff);
+  CHECK_LT(idx, dex_getProtoIdsSize(dexFileBuf));
+  dexProtoId *dexProtoIds = (dexProtoId *)(dexFileBuf + dex_getProtoIdsOff(dexFileBuf));
   return &dexProtoIds[idx];
 }
 
 // Returns the dexFieldId at the specified index.
 const dexFieldId *dex_getFieldId(const u1 *dexFileBuf, u4 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->fieldIdsSize);
-  dexFieldId *dexFieldIds = (dexFieldId *)(dexFileBuf + pDexHeader->fieldIdsOff);
+  CHECK_LT(idx, dex_getFieldIdsSize(dexFileBuf));
+  dexFieldId *dexFieldIds = (dexFieldId *)(dexFileBuf + dex_getFieldIdsOff(dexFileBuf));
   return &dexFieldIds[idx];
 }
 
 // Returns the MethodId at the specified index.
 const dexMethodId *dex_getMethodId(const u1 *dexFileBuf, u4 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->methodIdsSize);
-  dexMethodId *dexMethodIds = (dexMethodId *)(dexFileBuf + pDexHeader->methodIdsOff);
+  CHECK_LT(idx, dex_getMethodIdsSize(dexFileBuf));
+  dexMethodId *dexMethodIds = (dexMethodId *)(dexFileBuf + dex_getMethodIdsOff(dexFileBuf));
   return &dexMethodIds[idx];
 }
 
 // Returns the ClassDef at the specified index.
 const dexClassDef *dex_getClassDef(const u1 *dexFileBuf, u2 idx) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-  CHECK_LT(idx, pDexHeader->classDefsSize);
-  dexClassDef *dexClassDefs = (dexClassDef *)(dexFileBuf + pDexHeader->classDefsOff);
+  CHECK_LT(idx, dex_getClassDefsSize(dexFileBuf));
+  dexClassDef *dexClassDefs = (dexClassDef *)(dexFileBuf + dex_getClassDefsOff(dexFileBuf));
   return &dexClassDefs[idx];
 }
 
@@ -526,7 +827,7 @@ const char *dex_getStringDataAndUtf16Length(const u1 *dexFileBuf,
                                             const dexStringId *pDexStringId,
                                             u4 *utf16_length) {
   CHECK(utf16_length != NULL);
-  const u1 *ptr = (u1 *)(dexFileBuf + pDexStringId->stringDataOff);
+  const u1 *ptr = (u1 *)(dex_getDataAddr(dexFileBuf) + pDexStringId->stringDataOff);
   *utf16_length = dex_readULeb128(&ptr);
   return (const char *)ptr;
 }
@@ -584,7 +885,7 @@ const dexTypeList *dex_getProtoParameters(const u1 *dexFileBuf, const dexProtoId
   if (pDexProtoId->parametersOff == 0) {
     return NULL;
   } else {
-    const u1 *addr = (u1 *)(dexFileBuf + pDexProtoId->parametersOff);
+    const u1 *addr = (u1 *)(dex_getDataAddr(dexFileBuf) + pDexProtoId->parametersOff);
     return (const dexTypeList *)addr;
   }
 }
@@ -635,7 +936,7 @@ void dex_dumpClassInfo(const u1 *dexFileBuf, u4 idx) {
 
   if (pDexClassDef->classDataOff != 0) {
     dexClassDataHeader pDexClassDataHeader;
-    const u1 *curClassDataCursor = dexFileBuf + pDexClassDef->classDataOff;
+    const u1 *curClassDataCursor = dex_getDataAddr(dexFileBuf) + pDexClassDef->classDataOff;
     memset(&pDexClassDataHeader, 0, sizeof(dexClassDataHeader));
     dex_readClassDataHeader(&curClassDataCursor, &pDexClassDataHeader);
     log_dis("   static_fields=%" PRIu32 ", instance_fields=%" PRIu32 ", direct_methods=%" PRIu32
@@ -946,6 +1247,55 @@ char *dex_descriptorClassToDotLong(const char *str) {
   }
   newStr[len] = '\0';
   return newStr;
+}
+
+void dex_DecodeCDexFields(cdexCode *pCdexCode,
+                          u4 *insnsCount,
+                          u2 *registersSize,
+                          u2 *insSize,
+                          u2 *outsSize,
+                          u2 *triesSize,
+                          bool decodeOnlyInsrCnt) {
+  *insnsCount = pCdexCode->insnsCountAndFlags >> kInsnsSizeShift;
+  if (!decodeOnlyInsrCnt) {
+    const u2 fields = pCdexCode->fields;
+    *registersSize = (fields >> kRegistersSizeShift) & 0xF;
+    *insSize = (fields >> kInsSizeShift) & 0xF;
+    *outsSize = (fields >> kOutsSizeShift) & 0xF;
+    *triesSize = (fields >> kTriesSizeSizeShift) & 0xF;
+  }
+
+  if (hasAnyPreHeader(pCdexCode->insnsCountAndFlags)) {
+    const u2 *preheader = (u2 *)(pCdexCode);
+    if (hasPreHeader(pCdexCode->insnsCountAndFlags, kFlagPreHeaderInsnsSize)) {
+      --preheader;
+      *insnsCount += (u4)(*preheader);
+      --preheader;
+      *insnsCount += (u4)(*preheader) << 16;
+    }
+    if (!decodeOnlyInsrCnt) {
+      if (hasPreHeader(pCdexCode->insnsCountAndFlags, kFlagPreHeaderRegisterSize)) {
+        --preheader;
+        *registersSize += preheader[0];
+      }
+      if (hasPreHeader(pCdexCode->insnsCountAndFlags, kFlagPreHeaderInsSize)) {
+        --preheader;
+        *insSize += preheader[0];
+      }
+      if (hasPreHeader(pCdexCode->insnsCountAndFlags, kFlagPreHeaderOutsSize)) {
+        --preheader;
+        *outsSize += preheader[0];
+      }
+      if (hasPreHeader(pCdexCode->insnsCountAndFlags, kFlagPreHeaderTriesSize)) {
+        --preheader;
+        *triesSize += preheader[0];
+      }
+    }
+  }
+
+  if (!decodeOnlyInsrCnt) {
+    *registersSize += *insSize;
+  }
 }
 
 void dex_setDisassemblerStatus(bool status) { enableDisassembler = status; }

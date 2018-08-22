@@ -21,6 +21,7 @@
 */
 
 #include "out_writer.h"
+#include "dex.h"
 #include "utils.h"
 
 void outWriter_formatName(char *outBuf,
@@ -59,7 +60,8 @@ bool outWriter_DexFile(const runArgs_t *pRunArgs,
                        const u1 *buf,
                        size_t bufSize) {
   char outFile[PATH_MAX] = { 0 };
-  outWriter_formatName(outFile, sizeof(outFile), pRunArgs->outputDir, VdexFileName, dexIdx, "dex");
+  outWriter_formatName(outFile, sizeof(outFile), pRunArgs->outputDir, VdexFileName, dexIdx,
+                       dex_checkType(buf) == kNormalDex ? "dex" : "cdex");
 
   // Write Dex file
   int fileFlags = O_CREAT | O_RDWR;

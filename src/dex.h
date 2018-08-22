@@ -28,6 +28,7 @@
 #include "dex_instruction.h"
 
 #define kNumDexVersions 4
+#define kNumCDexVersions 1
 #define kDexVersionLen 4
 #define kSHA1Len 20
 
@@ -40,15 +41,21 @@ static const u1 kDexMagicVersions[kNumDexVersions][kDexVersionLen] = {
   { '0', '3', '7', '\0' },
   // Dex version 038: Android "O".
   { '0', '3', '8', '\0' },
-  // Dex verion 039: Beyond Android "O".
+  // Dex version 039: Beyond Android "O".
   { '0', '3', '9', '\0' },
 };
 
+static const u1 kCDexMagic[] = { 'c', 'd', 'e', 'x' };
+static const u1 kCDexMagicVersions[kNumCDexVersions][kDexVersionLen] = {
+  // Android "P" and above
+  { '0', '0', '1', '\0' },
+};
+
+typedef enum { kDexInvalid = 0, kNormalDex = 1, kCompactDex = 2 } dexType;
+
 typedef struct __attribute__((packed)) {
-  char dex[3];
-  char nl[1];
-  char ver[3];
-  char zero[1];
+  char dex[4];
+  char ver[4];
 } dexMagic;
 
 typedef struct __attribute__((packed)) {
@@ -76,6 +83,38 @@ typedef struct __attribute__((packed)) {
   u4 dataSize;
   u4 dataOff;
 } dexHeader;
+
+typedef struct __attribute__((packed)) {
+  dexMagic magic;
+  u4 checksum;
+  unsigned char signature[kSHA1Len];
+  u4 fileSize;
+  u4 headerSize;
+  u4 endianTag;
+  u4 linkSize;
+  u4 linkOff;
+  u4 mapOff;
+  u4 stringIdsSize;
+  u4 stringIdsOff;
+  u4 typeIdsSize;
+  u4 typeIdsOff;
+  u4 protoIdsSize;
+  u4 protoIdsOff;
+  u4 fieldIdsSize;
+  u4 fieldIdsOff;
+  u4 methodIdsSize;
+  u4 methodIdsOff;
+  u4 classDefsSize;
+  u4 classDefsOff;
+  u4 dataSize;
+  u4 dataOff;
+  u4 featureFlags;
+  u4 debugInfoOffsetsPos;
+  u4 debugInfoOffsetsTableOffset;
+  u4 debugInfoBase;
+  u4 ownedDataBegin;
+  u4 ownedDataEnd;
+} cdexHeader;
 
 typedef struct __attribute__((packed)) { u4 stringDataOff; } dexStringId;
 
@@ -130,18 +169,39 @@ typedef struct __attribute__((packed)) {
 } dexMapList;
 
 typedef struct __attribute__((packed)) {
+  // the number of registers used by this code (locals + parameters)
   u2 registersSize;
+  // the number of words of incoming arguments to the method  that this code is for
   u2 insSize;
+  // the number of words of outgoing argument space required by this code for method invocation
   u2 outsSize;
-  u2 tries_size;
-  u4 debug_info_off;
-  u4 insns_size;
+  // the number of try_items for this instance. If non-zero, then these appear as the tries array
+  // just after the insns in this instance.
+  u2 triesSize;
+  // Holds file offset to debug info stream.
+  u4 debugInfoOff;
+  // size of the insns array, in 2 byte code units
+  u4 insnsSize;
+  // actual array of bytecode
   u2 insns[1];
   // followed by optional u2 padding
   // followed by try_item[triesSize]
   // followed by uleb128 handlersSize
   // followed by catch_handler_item[handlersSize]
 } dexCode;
+
+typedef struct __attribute__((packed)) {
+  // Packed code item data, 4 bits each: [registers_size, ins_size, outs_size, tries_size]
+  u2 fields;
+  // 5 bits for if either of the fields required preheader extension, 11 bits for the number of
+  // instruction code units.
+  u2 insnsCountAndFlags;
+  u2 insns[1];
+  // followed by optional u2 padding
+  // followed by try_item[triesSize]
+  // followed by uleb128 handlersSize
+  // followed by catch_handler_item[handlersSize]
+} cdexCode;
 
 typedef struct __attribute__((packed)) {
   u4 start_addr_;
@@ -187,11 +247,49 @@ typedef enum {
 } dexAccessFor;
 #define kDexNumAccessFlags 18
 
+// Return type of Dex file based on magic number
+dexType dex_checkType(const u1 *);
+
 // Verify if valid Dex file magic number
-bool dex_isValidDexMagic(const dexHeader *);
+bool dex_isValidDex(const u1 *);
+
+// Verify if valid CompactDex file magic number
+bool dex_isValidCDex(const u1 *);
 
 // Debug print Dex header info
-void dex_dumpHeaderInfo(const dexHeader *);
+void dex_dumpHeaderInfo(const u1 *);
+
+// Access header data
+dexMagic dex_getMagic(const u1 *);
+u4 dex_getChecksum(const u1 *);
+u4 dex_getFileSize(const u1 *);
+u4 dex_getHeaderSize(const u1 *);
+u4 dex_getEndianTag(const u1 *);
+u4 dex_getLinkSize(const u1 *);
+u4 dex_getLinkOff(const u1 *);
+u4 dex_getMapOff(const u1 *);
+u4 dex_getStringIdsSize(const u1 *);
+u4 dex_getStringIdsOff(const u1 *);
+u4 dex_getTypeIdsSize(const u1 *);
+u4 dex_getTypeIdsOff(const u1 *);
+u4 dex_getProtoIdsSize(const u1 *);
+u4 dex_getProtoIdsOff(const u1 *);
+u4 dex_getFieldIdsSize(const u1 *);
+u4 dex_getFieldIdsOff(const u1 *);
+u4 dex_getMethodIdsSize(const u1 *);
+u4 dex_getMethodIdsOff(const u1 *);
+u4 dex_getClassDefsSize(const u1 *);
+u4 dex_getClassDefsOff(const u1 *);
+u4 dex_getDataSize(const u1 *);
+u4 dex_getDataOff(const u1 *);
+
+// Specific to CompactDex header
+u4 dex_getFeatureFlags(const u1 *);
+u4 dex_getDebugInfoOffsetsPos(const u1 *);
+u4 dex_getDebugInfoOffsetsTableOffset(const u1 *);
+u4 dex_getDebugInfoBase(const u1 *);
+u4 dex_getOwnedDataBegin(const u1 *);
+u4 dex_getOwnedDataEnd(const u1 *);
 
 // Compute Dex file CRC
 u4 dex_computeDexCRC(const u1 *, off_t);
@@ -210,7 +308,7 @@ u4 dex_readULeb128(const u1 **);
 s4 dex_readSLeb128(const u1 **);
 
 // Get the offset of the first instruction for a given dexMethod
-u4 dex_getFirstInstrOff(const dexMethod *);
+u4 dex_getFirstInstrOff(const u1 *, const dexMethod *);
 
 // Read Leb128 class data header
 void dex_readClassDataHeader(const u1 **, dexClassDataHeader *);
@@ -249,6 +347,9 @@ void dex_setDisassemblerStatus(bool);
 bool dex_getDisassemblerStatus(void);
 void dex_dumpInstruction(const u1 *, u2 *, u4, u4, bool);
 
+// Get Dex data base address
+const u1 *dex_getDataAddr(const u1 *);
+
 // Functions to print information of primitive types (mainly used by disassembler)
 void dex_dumpClassInfo(const u1 *, u4);
 void dex_dumpMethodInfo(const u1 *, dexMethod *, u4, const char *);
@@ -263,5 +364,9 @@ char *dex_descriptorClassToDotLong(const char *);
 // Converts the class name portion of a type descriptor to human-readable
 // "dotted" form. For example, "Ljava/lang/String;" becomes "String".
 char *dex_descriptorClassToDot(const char *);
+
+// Helper method to decode CompactDex CodeItem fields and read the preheader if necessary. If
+// decodeOnlyInsrCnt is specified then only the instruction count is decoded.
+void dex_DecodeCDexFields(cdexCode *, u4 *, u2 *, u2 *, u2 *, u2 *, bool);
 
 #endif

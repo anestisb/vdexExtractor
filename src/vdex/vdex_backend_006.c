@@ -110,9 +110,8 @@ static void decodeDepUnvfyClasses(const u1 **in,
 static const char *getStringFromId(const vdexDepData_006 *pVdexDepData,
                                    u4 stringId,
                                    const u1 *dexFileBuf) {
-  const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
   vdexDepStrings_006 extraStrings = pVdexDepData->extraStrings;
-  u4 numIdsInDex = pDexHeader->stringIdsSize;
+  u4 numIdsInDex = dex_getStringIdsSize(dexFileBuf);
   if (stringId < numIdsInDex) {
     return dex_getStringDataByIdx(dexFileBuf, stringId);
   } else {
@@ -334,18 +333,17 @@ int vdex_backend_006_process(const char *VdexFileName,
       continue;
     }
 
-    const dexHeader *pDexHeader = (const dexHeader *)dexFileBuf;
-
     // Check if valid Dex file
-    dex_dumpHeaderInfo(pDexHeader);
-    if (!dex_isValidDexMagic(pDexHeader)) {
+    dex_dumpHeaderInfo(dexFileBuf);
+    if (!dex_isValidDex(dexFileBuf)) {
       LOGMSG(l_ERROR, "'classes%zu.dex' is an invalid Dex file - skipping", dex_file_idx);
       continue;
     }
 
     // For each class
-    log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx, pDexHeader->classDefsSize);
-    for (u4 i = 0; i < pDexHeader->classDefsSize; ++i) {
+    log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx,
+            dex_getClassDefsSize(dexFileBuf));
+    for (u4 i = 0; i < dex_getClassDefsSize(dexFileBuf); ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
       dex_dumpClassInfo(dexFileBuf, i);
 
@@ -432,25 +430,25 @@ int vdex_backend_006_process(const char *VdexFileName,
 
     if (pRunArgs->unquicken) {
       // If unquicken was successful original checksum should verify
-      u4 curChecksum = dex_computeDexCRC(dexFileBuf, pDexHeader->fileSize);
-      if (curChecksum != pDexHeader->checksum) {
+      u4 curChecksum = dex_computeDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
+      if (curChecksum != dex_getChecksum(dexFileBuf)) {
         // If ignore CRC errors is enabled, repair CRC (see issue #3)
         if (pRunArgs->ignoreCrc) {
-          dex_repairDexCRC(dexFileBuf, pDexHeader->fileSize);
+          dex_repairDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
         } else {
           LOGMSG(l_ERROR,
                  "Unexpected checksum (%" PRIx32 " vs %" PRIx32 ") - failed to unquicken Dex file",
-                 curChecksum, pDexHeader->checksum);
+                 curChecksum, dex_getChecksum(dexFileBuf));
           return -1;
         }
       }
     } else {
       // Repair CRC if not decompiling so we can still run Dex parsing tools against output
-      dex_repairDexCRC(dexFileBuf, pDexHeader->fileSize);
+      dex_repairDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
     }
 
     if (!outWriter_DexFile(pRunArgs, VdexFileName, dex_file_idx, dexFileBuf,
-                           pDexHeader->fileSize)) {
+                           dex_getFileSize(dexFileBuf))) {
       return -1;
     }
   }

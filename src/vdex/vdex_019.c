@@ -154,7 +154,6 @@ u4 vdex_019_GetQuickeningInfoSize(const u1 *cursor) {
 
 void vdex_019_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)cursor;
-  const DexSectHeader *pDexSectHeader = vdex_019_GetDexSectionHeader(cursor);
 
   LOGMSG_RAW(l_DEBUG, "------ Vdex Header Info -------\n");
   LOGMSG_RAW(l_DEBUG, "magic header                  : %.4s\n", pVdexHeader->magic);
@@ -171,17 +170,20 @@ void vdex_019_dumpHeaderInfo(const u1 *cursor) {
              vdex_019_GetQuickeningInfoSize(cursor), vdex_019_GetQuickeningInfoSize(cursor));
   LOGMSG_RAW(l_DEBUG, "quickening info offset        : %" PRIx32 " (%" PRIu32 ")\n",
              vdex_019_GetQuickeningInfoOffset(cursor), vdex_019_GetQuickeningInfoOffset(cursor));
-  LOGMSG_RAW(l_DEBUG, "dex section header offset     : %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_019_GetDexSectionHeaderOffset(cursor),
-             vdex_019_GetDexSectionHeaderOffset(cursor));
-  LOGMSG_RAW(l_DEBUG, "dex size                      : %" PRIx32 " (%" PRIu32 ")\n",
-             pDexSectHeader->dexSize, pDexSectHeader->dexSize);
-  LOGMSG_RAW(l_DEBUG, "dex shared data size          : %" PRIx32 " (%" PRIu32 ")\n",
-             pDexSectHeader->dexSharedDataSize, pDexSectHeader->dexSharedDataSize);
-  LOGMSG_RAW(l_DEBUG, "dex files info                :\n");
-  for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
-    LOGMSG_RAW(l_DEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")\n", i,
-               vdex_019_GetLocationChecksum(cursor, i), vdex_019_GetLocationChecksum(cursor, i));
+  if (vdex_019_hasDexSection(cursor)) {
+    const DexSectHeader *pDexSectHeader = vdex_019_GetDexSectionHeader(cursor);
+    LOGMSG_RAW(l_DEBUG, "dex section header offset     : %" PRIx32 " (%" PRIu32 ")\n",
+               vdex_019_GetDexSectionHeaderOffset(cursor),
+               vdex_019_GetDexSectionHeaderOffset(cursor));
+    LOGMSG_RAW(l_DEBUG, "dex size                      : %" PRIx32 " (%" PRIu32 ")\n",
+               pDexSectHeader->dexSize, pDexSectHeader->dexSize);
+    LOGMSG_RAW(l_DEBUG, "dex shared data size          : %" PRIx32 " (%" PRIu32 ")\n",
+               pDexSectHeader->dexSharedDataSize, pDexSectHeader->dexSharedDataSize);
+    LOGMSG_RAW(l_DEBUG, "dex files info                :\n");
+    for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
+      LOGMSG_RAW(l_DEBUG, "  [%" PRIu32 "] location checksum : %" PRIx32 " (%" PRIu32 ")\n", i,
+                 vdex_019_GetLocationChecksum(cursor, i), vdex_019_GetLocationChecksum(cursor, i));
+    }
   }
   LOGMSG_RAW(l_DEBUG, "---- EOF Vdex Header Info ----\n");
 }

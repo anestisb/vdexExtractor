@@ -218,6 +218,12 @@ static void destroyDepsInfo(const vdexDeps_019 *pVdexDeps) {
 }
 
 void vdex_backend_019_dumpDepsInfo(const u1 *vdexFileBuf) {
+  // Not all Vdex files have Dex data to process
+  if (!vdex_019_hasDexSection(vdexFileBuf)) {
+    LOGMSG(l_DEBUG, "Vdex has no Dex data - skipping");
+    return;
+  }
+
   // Initialize depsInfo structs
   vdexDeps_019 *pVdexDeps = initDepsInfo(vdexFileBuf);
   if (pVdexDeps == NULL) {
@@ -331,6 +337,12 @@ int vdex_backend_019_process(const char *VdexFileName,
   if (!vdex_019_SanityCheck(cursor, bufSz)) {
     LOGMSG(l_ERROR, "Malformed Vdex file");
     return -1;
+  }
+
+  // Not all Vdex files have Dex data to process
+  if (!vdex_019_hasDexSection(cursor)) {
+    LOGMSG(l_DEBUG, "Vdex has no Dex data - skipping");
+    return 0;
   }
 
   const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)cursor;

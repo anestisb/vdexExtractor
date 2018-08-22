@@ -47,4 +47,8 @@ u4 *utils_processFileWithCsums(const char *, int *);
 char *utils_fileBasename(char const *);
 bool utils_isDir(const char *);
 
+uintptr_t utils_roundDown(uintptr_t, uintptr_t);
+uintptr_t utils_roundUp(uintptr_t, uintptr_t);
+uintptr_t utils_allignUp(uintptr_t, uintptr_t);
+
 #endif

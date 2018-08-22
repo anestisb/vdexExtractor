@@ -28,6 +28,7 @@
 #include "vdex.h"
 #include "vdex/vdex_006.h"
 #include "vdex/vdex_010.h"
+#include "vdex/vdex_019.h"
 
 bool vdex_initEnv(const u1 *cursor, vdex_env_t *env) {
   // Check if a supported Vdex version is found
@@ -41,6 +42,11 @@ bool vdex_initEnv(const u1 *cursor, vdex_env_t *env) {
     env->dumpHeaderInfo = vdex_010_dumpHeaderInfo;
     env->dumpDepsInfo = vdex_010_dumpDepsInfo;
     env->process = vdex_010_process;
+  } else if (vdex_019_isValidVdex(cursor)) {
+    LOGMSG(l_DEBUG, "Initializing environment for Vdex version '019'");
+    env->dumpHeaderInfo = vdex_019_dumpHeaderInfo;
+    env->dumpDepsInfo = vdex_019_dumpDepsInfo;
+    env->process = vdex_019_process;
   } else {
     LOGMSG(l_ERROR, "Unsupported Vdex version");
     return false;

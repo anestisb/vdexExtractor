@@ -20,16 +20,17 @@
 
 */
 
-#ifndef _VDEX_COMMON_H_
-#define _VDEX_COMMON_H_
+#ifndef _VDEX_DECOMPILER_019_H_
+#define _VDEX_DECOMPILER_019_H_
 
 #include "../common.h"
+#include "../dex.h"
+#include "../dex_instruction.h"
 
-#define kUnresolvedMarker (u2)(-1)
+// Dex decompiler driver function using quicken_info data
+bool vdex_decompiler_019_decompile(const u1 *, dexMethod *, const u1 *, u4, bool);
 
-static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
-
-typedef u4 VdexChecksum;
-typedef u4 QuickeningTableOffsetType;
+// Dex decompiler walk method that simply disassembles code blocks
+void vdex_decompiler_019_walk(const u1 *, dexMethod *);
 
 #endif

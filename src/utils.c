@@ -99,6 +99,8 @@ static bool utils_readdir(infiles_t *pFiles, const char *basePath) {
   return true;
 }
 
+static bool isPowerOfTwo(uintptr_t x) { return (x & (x - 1)) == 0; }
+
 bool utils_init(infiles_t *pFiles) {
   pFiles->files = malloc(sizeof(char *));
   if (!pFiles->files) {
@@ -387,3 +389,12 @@ bool utils_isDir(const char *path) {
   stat(path, &buf);
   return S_ISDIR(buf.st_mode);
 }
+
+uintptr_t utils_roundDown(uintptr_t x, uintptr_t n) {
+  CHECK(isPowerOfTwo(n));
+  return (x & -n);
+}
+
+uintptr_t utils_roundUp(uintptr_t x, uintptr_t n) { return utils_roundDown(x + n - 1, n); }
+
+uintptr_t utils_allignUp(uintptr_t x, uintptr_t n) { return utils_roundUp(x, n); }

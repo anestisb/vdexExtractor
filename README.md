@@ -263,6 +263,9 @@ file #0: classDefsSize=8840
 
 ## Changelog
 
+* __0.5.0__ - TBC
+  * Vdex 019 support for Android Pie (WIP)
+  * Improved input file sanity checks to avoid malformed Vdex crashing the tool
 * __0.4.1__ - 4 March 2018
   * Fix Vdex 006 NOP decompilation issue
   * Support multi-depth directory recursion for input path

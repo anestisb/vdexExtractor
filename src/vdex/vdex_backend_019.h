@@ -20,16 +20,29 @@
 
 */
 
-#ifndef _VDEX_COMMON_H_
-#define _VDEX_COMMON_H_
+#ifndef _VDEX_BACKEND_019_H_
+#define _VDEX_BACKEND_019_H_
 
 #include "../common.h"
+#include "../dex.h"
+#include "vdex_019.h"
 
-#define kUnresolvedMarker (u2)(-1)
+typedef struct __attribute__((packed)) {
+  vdexDepStrings_019 extraStrings;
+  vdexDepTypeSet_019 assignTypeSets;
+  vdexDepTypeSet_019 unassignTypeSets;
+  vdexDepClassResSet_019 classes;
+  vdexDepFieldResSet_019 fields;
+  vdexDepMethodResSet_019 methods;
+  vdexDepUnvfyClassesSet_019 unvfyClasses;
+} vdexDepData_019;
 
-static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepData_019 *pVdexDepData;
+} vdexDeps_019;
 
-typedef u4 VdexChecksum;
-typedef u4 QuickeningTableOffsetType;
+void vdex_backend_019_dumpDepsInfo(const u1 *);
+int vdex_backend_019_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

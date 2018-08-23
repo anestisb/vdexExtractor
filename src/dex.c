@@ -24,21 +24,21 @@
 #include "utils.h"
 
 // CompactDex helper constants for CodeItem decoding
-static const size_t kRegistersSizeShift = 12;
-static const size_t kInsSizeShift = 8;
-static const size_t kOutsSizeShift = 4;
-static const size_t kTriesSizeSizeShift = 0;
-static const u2 kFlagPreHeaderRegisterSize = 0x1 << 0;
-static const u2 kFlagPreHeaderInsSize = 0x1 << 1;
-static const u2 kFlagPreHeaderOutsSize = 0x1 << 2;
-static const u2 kFlagPreHeaderTriesSize = 0x1 << 3;
-static const u2 kFlagPreHeaderInsnsSize = 0x1 << 4;
-static const size_t kInsnsSizeShift = 5;
-// static const size_t kBitsPerByte = 8;
-// static const size_t kInsnsSizeBits = sizeof(u2) * kBitsPerByte -  kInsnsSizeShift;
-static const u2 kFlagPreHeaderCombined = kFlagPreHeaderRegisterSize | kFlagPreHeaderInsSize |
-                                         kFlagPreHeaderOutsSize | kFlagPreHeaderTriesSize |
-                                         kFlagPreHeaderInsnsSize;
+#define kRegistersSizeShift ((size_t)12)
+#define kInsSizeShift ((size_t)8)
+#define kOutsSizeShift ((size_t)4)
+#define kTriesSizeSizeShift ((size_t)0)
+#define kFlagPreHeaderRegisterSize ((u2)(0x1 << 0))
+#define kFlagPreHeaderInsSize ((u2)(0x1 << 1))
+#define kFlagPreHeaderOutsSize ((u2)(0x1 << 2))
+#define kFlagPreHeaderTriesSize ((u2)(0x1 << 3))
+#define kFlagPreHeaderInsnsSize ((u2)(0x1 << 4))
+#define kInsnsSizeShift ((size_t)5)
+// #define kBitsPerByte ((size_t)8)
+// #define kInsnsSizeBits ((size_t)(sizeof(u2) * kBitsPerByte -  kInsnsSizeShift))
+#define kFlagPreHeaderCombined                                                        \
+  ((u2)(kFlagPreHeaderRegisterSize | kFlagPreHeaderInsSize | kFlagPreHeaderOutsSize | \
+        kFlagPreHeaderTriesSize | kFlagPreHeaderInsnsSize))
 
 static bool enableDisassembler = false;
 

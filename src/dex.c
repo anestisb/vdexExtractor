@@ -23,23 +23,6 @@
 #include "dex.h"
 #include "utils.h"
 
-// CompactDex helper constants for CodeItem decoding
-#define kRegistersSizeShift ((size_t)12)
-#define kInsSizeShift ((size_t)8)
-#define kOutsSizeShift ((size_t)4)
-#define kTriesSizeSizeShift ((size_t)0)
-#define kFlagPreHeaderRegisterSize ((u2)(0x1 << 0))
-#define kFlagPreHeaderInsSize ((u2)(0x1 << 1))
-#define kFlagPreHeaderOutsSize ((u2)(0x1 << 2))
-#define kFlagPreHeaderTriesSize ((u2)(0x1 << 3))
-#define kFlagPreHeaderInsnsSize ((u2)(0x1 << 4))
-#define kInsnsSizeShift ((size_t)5)
-// #define kBitsPerByte ((size_t)8)
-// #define kInsnsSizeBits ((size_t)(sizeof(u2) * kBitsPerByte -  kInsnsSizeShift))
-#define kFlagPreHeaderCombined                                                        \
-  ((u2)(kFlagPreHeaderRegisterSize | kFlagPreHeaderInsSize | kFlagPreHeaderOutsSize | \
-        kFlagPreHeaderTriesSize | kFlagPreHeaderInsnsSize))
-
 static bool enableDisassembler = false;
 
 static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }

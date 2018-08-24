@@ -20,8 +20,8 @@
 
 */
 
-#ifndef _VDEX_H_
-#define _VDEX_H_
+#ifndef _VDEX_API_H_
+#define _VDEX_API_H_
 
 #include <zlib.h>
 #include "common.h"
@@ -30,9 +30,9 @@ typedef struct {
   void (*dumpHeaderInfo)(const u1 *);
   void (*dumpDepsInfo)(const u1 *);
   int (*process)(const char *, const u1 *, size_t, const runArgs_t *);
-} vdex_env_t;
+} vdex_api_env_t;
 
-bool vdex_initEnv(const u1 *, vdex_env_t *);
-bool vdex_updateChecksums(const char *, int, u4 *, const runArgs_t *);
+bool vdexApi_initEnv(const u1 *, vdex_api_env_t *);
+bool vdexApi_updateChecksums(const char *, int, u4 *, const runArgs_t *);
 
 #endif

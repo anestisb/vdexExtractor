@@ -25,12 +25,12 @@
 #include "log.h"
 #include "out_writer.h"
 #include "utils.h"
-#include "vdex.h"
 #include "vdex/vdex_006.h"
 #include "vdex/vdex_010.h"
 #include "vdex/vdex_019.h"
+#include "vdex_api.h"
 
-bool vdex_initEnv(const u1 *cursor, vdex_env_t *env) {
+bool vdexApi_initEnv(const u1 *cursor, vdex_api_env_t *env) {
   // Check if a supported Vdex version is found
   if (vdex_006_isValidVdex(cursor)) {
     LOGMSG(l_DEBUG, "Initializing environment for Vdex version '006'");
@@ -55,10 +55,10 @@ bool vdex_initEnv(const u1 *cursor, vdex_env_t *env) {
   return true;
 }
 
-bool vdex_updateChecksums(const char *inVdexFileName,
-                          int nCsums,
-                          u4 *checksums,
-                          const runArgs_t *pRunArgs) {
+bool vdexApi_updateChecksums(const char *inVdexFileName,
+                             int nCsums,
+                             u4 *checksums,
+                             const runArgs_t *pRunArgs) {
   bool ret = false;
   off_t fileSz = 0;
   int srcfd = -1;

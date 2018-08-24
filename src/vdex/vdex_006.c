@@ -110,38 +110,28 @@ void vdex_006_SetLocationChecksum(const u1 *cursor, u4 fileIdx, u4 value) {
   checksums[fileIdx] = value;
 }
 
-const u1 *vdex_006_GetVerifierDepsData(const u1 *cursor) {
+void vdex_006_GetVerifierDeps(const u1 *cursor, vdex_data_array_t *pVerifierDeps) {
   const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return vdex_006_DexBegin(cursor) + pVdexHeader->dexSize;
+  pVerifierDeps->data = vdex_006_DexBegin(cursor) + pVdexHeader->dexSize;
+  pVerifierDeps->offset = vdex_006_DexBeginOffset(cursor) + pVdexHeader->dexSize;
+  pVerifierDeps->size = pVdexHeader->verifierDepsSize;
 }
 
-u4 vdex_006_GetVerifierDepsDataOffset(const u1 *cursor) {
+void vdex_006_GetQuickeningInfo(const u1 *cursor, vdex_data_array_t *pQuickInfo) {
+  vdex_data_array_t vDeps;
+  vdex_006_GetVerifierDeps(cursor, &vDeps);
   const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return vdex_006_DexBeginOffset(cursor) + pVdexHeader->dexSize;
-}
-
-u4 vdex_006_GetVerifierDepsDataSize(const u1 *cursor) {
-  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return pVdexHeader->verifierDepsSize;
-}
-
-const u1 *vdex_006_GetQuickeningInfo(const u1 *cursor) {
-  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return vdex_006_GetVerifierDepsData(cursor) + pVdexHeader->verifierDepsSize;
-}
-
-u4 vdex_006_GetQuickeningInfoOffset(const u1 *cursor) {
-  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return vdex_006_GetVerifierDepsDataOffset(cursor) + pVdexHeader->verifierDepsSize;
-}
-
-u4 vdex_006_GetQuickeningInfoSize(const u1 *cursor) {
-  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  return pVdexHeader->quickeningInfoSize;
+  pQuickInfo->data = vDeps.data + pVdexHeader->verifierDepsSize;
+  pQuickInfo->offset = vDeps.offset + pVdexHeader->verifierDepsSize;
+  pQuickInfo->size = pVdexHeader->quickeningInfoSize;
 }
 
 void vdex_006_dumpHeaderInfo(const u1 *cursor) {
   const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
+  vdex_data_array_t vDeps;
+  vdex_006_GetVerifierDeps(cursor, &vDeps);
+  vdex_data_array_t quickInfo;
+  vdex_006_GetQuickeningInfo(cursor, &quickInfo);
 
   LOGMSG_RAW(l_DEBUG, "------ Vdex Header Info ------\n");
   LOGMSG_RAW(l_DEBUG, "magic header & version      : %.4s-%.4s\n", pVdexHeader->magic,
@@ -150,15 +140,14 @@ void vdex_006_dumpHeaderInfo(const u1 *cursor) {
              pVdexHeader->numberOfDexFiles, pVdexHeader->numberOfDexFiles);
   LOGMSG_RAW(l_DEBUG, "dex size (overall)          : %" PRIx32 " (%" PRIu32 ")\n",
              pVdexHeader->dexSize, pVdexHeader->dexSize);
-  LOGMSG_RAW(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_006_GetVerifierDepsDataSize(cursor), vdex_006_GetVerifierDepsDataSize(cursor));
-  LOGMSG_RAW(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_006_GetVerifierDepsDataOffset(cursor),
-             vdex_006_GetVerifierDepsDataOffset(cursor));
-  LOGMSG_RAW(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_006_GetQuickeningInfoSize(cursor), vdex_006_GetQuickeningInfoSize(cursor));
-  LOGMSG_RAW(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n",
-             vdex_006_GetQuickeningInfoOffset(cursor), vdex_006_GetQuickeningInfoOffset(cursor));
+  LOGMSG_RAW(l_DEBUG, "verifier dependencies size  : %" PRIx32 " (%" PRIu32 ")\n", vDeps.size,
+             vDeps.size);
+  LOGMSG_RAW(l_DEBUG, "verifier dependencies offset: %" PRIx32 " (%" PRIu32 ")\n", vDeps.offset,
+             vDeps.offset);
+  LOGMSG_RAW(l_DEBUG, "quickening info size        : %" PRIx32 " (%" PRIu32 ")\n", quickInfo.size,
+             quickInfo.size);
+  LOGMSG_RAW(l_DEBUG, "quickening info offset      : %" PRIx32 " (%" PRIu32 ")\n", quickInfo.offset,
+             quickInfo.offset);
   LOGMSG_RAW(l_DEBUG, "dex files info              :\n");
 
   for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
@@ -170,22 +159,22 @@ void vdex_006_dumpHeaderInfo(const u1 *cursor) {
 
 bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
   // Check that verifier deps section doesn't point past the end of file
-  u4 depsOff = vdex_006_GetVerifierDepsDataOffset(cursor);
-  u4 depsSz = vdex_006_GetVerifierDepsDataSize(cursor);
-  if (depsOff + depsSz > bufSz) {
+  vdex_data_array_t vDeps;
+  vdex_006_GetVerifierDeps(cursor, &vDeps);
+  if (vDeps.offset + vDeps.size > bufSz) {
     LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32
                     " + %" PRIx32 " > %" PRIx32 ")",
-           depsOff, depsSz, bufSz);
+           vDeps.offset, vDeps.size, bufSz);
     return false;
   }
 
   // Check that quickening info section doesn't point past the end of file
-  u4 qOff = vdex_006_GetQuickeningInfoOffset(cursor);
-  u4 qSz = vdex_006_GetQuickeningInfoSize(cursor);
-  if (qOff + qSz > bufSz) {
+  vdex_data_array_t quickInfo;
+  vdex_006_GetQuickeningInfo(cursor, &quickInfo);
+  if (quickInfo.offset + quickInfo.size > bufSz) {
     LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32
                     " > %" PRIx32 ")",
-           qOff, qSz, bufSz);
+           quickInfo.offset, quickInfo.size, bufSz);
     return false;
   }
   return true;

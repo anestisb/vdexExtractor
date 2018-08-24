@@ -131,12 +131,8 @@ u4 vdex_006_DexEndOffset(const u1 *);
 const u1 *vdex_006_GetNextDexFileData(const u1 *, u4 *);
 u4 vdex_006_GetLocationChecksum(const u1 *, u4);
 void vdex_006_SetLocationChecksum(const u1 *, u4, u4);
-const u1 *vdex_006_GetVerifierDepsData(const u1 *);
-u4 vdex_006_GetVerifierDepsDataOffset(const u1 *);
-u4 vdex_006_GetVerifierDepsDataSize(const u1 *);
-const u1 *vdex_006_GetQuickeningInfo(const u1 *);
-u4 vdex_006_GetQuickeningInfoSize(const u1 *);
-u4 vdex_006_GetQuickeningInfoOffset(const u1 *);
+void vdex_006_GetVerifierDeps(const u1 *, vdex_data_array_t *);
+void vdex_006_GetQuickeningInfo(const u1 *, vdex_data_array_t *);
 
 void vdex_006_dumpHeaderInfo(const u1 *);
 void vdex_006_dumpDepsInfo(const u1 *);

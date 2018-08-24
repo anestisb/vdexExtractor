@@ -27,7 +27,7 @@
 #include "common.h"
 #include "log.h"
 #include "utils.h"
-#include "vdex.h"
+#include "vdex_api.h"
 
 // exit() wrapper
 void exitWrapper(int errCode) {
@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
   infiles_t pFiles = {
     .inputFile = NULL, .files = NULL, .fileCnt = 0,
   };
-  vdex_env_t vdex_env;
-  vdex_env_t *pVdex = &vdex_env;
+  vdex_api_env_t vdex_api_env;
+  vdex_api_env_t *pVdex = &vdex_api_env;
 
   if (argc < 1) usage(true);
 
@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
       goto complete;
     }
 
-    if (!vdex_updateChecksums(pFiles.files[0], nSums, checksums, &pRunArgs)) {
+    if (!vdexApi_updateChecksums(pFiles.files[0], nSums, checksums, &pRunArgs)) {
       LOGMSG(l_ERROR, "Failed to update location checksums");
     } else {
       mainRet = EXIT_SUCCESS;
@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
     }
 
     // Validate Vdex magic header and initialize matching version backend
-    if (!vdex_initEnv(buf, pVdex)) {
+    if (!vdexApi_initEnv(buf, pVdex)) {
       LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
       munmap(buf, fileSz);
       close(srcfd);

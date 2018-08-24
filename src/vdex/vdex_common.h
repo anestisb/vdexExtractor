@@ -32,4 +32,10 @@ static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
 typedef u4 VdexChecksum;
 typedef u4 QuickeningTableOffsetType;
 
+typedef struct {
+  const u1 *data;  // Pointer to data begin
+  u4 size;         // Size of data (in bytes)
+  u4 offset;       // Offset from Vdex begin
+} vdex_data_array_t;
+
 #endif

@@ -154,8 +154,10 @@ static const char *getStringFromId(const vdexDepData_010 *pVdexDepData,
 }
 
 static vdexDeps_010 *initDepsInfo(const u1 *vdexFileBuf) {
-  if (vdex_010_GetVerifierDepsDataSize(vdexFileBuf) == 0) {
-    // Return eagerly, as the first thing we expect from VerifierDeps data is
+  vdex_data_array_t vDeps;
+  vdex_010_GetVerifierDeps(vdexFileBuf, &vDeps);
+  if (vDeps.size == 0) {
+    // Return early, as the first thing we expect from VerifierDeps data is
     // the number of created strings, even if there is no dependency.
     return NULL;
   }
@@ -169,8 +171,8 @@ static vdexDeps_010 *initDepsInfo(const u1 *vdexFileBuf) {
   const u1 *dexFileBuf = NULL;
   u4 offset = 0;
 
-  const u1 *depsDataStart = vdex_010_GetVerifierDepsData(vdexFileBuf);
-  const u1 *depsDataEnd = depsDataStart + vdex_010_GetVerifierDepsDataSize(vdexFileBuf);
+  const u1 *depsDataStart = vDeps.data;
+  const u1 *depsDataEnd = depsDataStart + vDeps.size;
 
   for (u4 i = 0; i < pVdexDeps->numberOfDexFiles; ++i) {
     dexFileBuf = vdex_010_GetNextDexFileData(vdexFileBuf, &offset);
@@ -338,9 +340,10 @@ int vdex_backend_010_process(const char *VdexFileName,
 
   // For each Dex file
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
-    QuickeningInfoItInit(dex_file_idx, pVdexHeader->numberOfDexFiles,
-                         vdex_010_GetQuickeningInfo(cursor),
-                         vdex_010_GetQuickeningInfoSize(cursor));
+    vdex_data_array_t quickInfo;
+    vdex_010_GetQuickeningInfo(cursor, &quickInfo);
+    QuickeningInfoItInit(dex_file_idx, pVdexHeader->numberOfDexFiles, quickInfo.data,
+                         quickInfo.size);
 
     dexFileBuf = vdex_010_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {

@@ -149,8 +149,10 @@ static void dumpDepsMethodInfo(const u1 *dexFileBuf,
 }
 
 static vdexDeps_006 *initDepsInfo(const u1 *vdexFileBuf) {
-  if (vdex_006_GetVerifierDepsDataSize(vdexFileBuf) == 0) {
-    // Return eagerly, as the first thing we expect from VerifierDeps data is
+  vdex_data_array_t vDeps;
+  vdex_006_GetVerifierDeps(vdexFileBuf, &vDeps);
+  if (vDeps.size == 0) {
+    // Return early, as the first thing we expect from VerifierDeps data is
     // the number of created strings, even if there is no dependency.
     return NULL;
   }
@@ -164,8 +166,8 @@ static vdexDeps_006 *initDepsInfo(const u1 *vdexFileBuf) {
   const u1 *dexFileBuf = NULL;
   u4 offset = 0;
 
-  const u1 *depsDataStart = vdex_006_GetVerifierDepsData(vdexFileBuf);
-  const u1 *depsDataEnd = depsDataStart + vdex_006_GetVerifierDepsDataSize(vdexFileBuf);
+  const u1 *depsDataStart = vDeps.data;
+  const u1 *depsDataEnd = depsDataStart + vDeps.size;
 
   for (u4 i = 0; i < pVdexDeps->numberOfDexFiles; ++i) {
     dexFileBuf = vdex_006_GetNextDexFileData(vdexFileBuf, &offset);
@@ -317,11 +319,12 @@ int vdex_backend_006_process(const char *VdexFileName,
     return -1;
   }
 
-  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
-  const u1 *quickening_info_ptr = vdex_006_GetQuickeningInfo(cursor);
-  const u1 *const quickening_info_end =
-      vdex_006_GetQuickeningInfo(cursor) + vdex_006_GetQuickeningInfoSize(cursor);
+  vdex_data_array_t quickInfo;
+  vdex_006_GetQuickeningInfo(cursor, &quickInfo);
+  const u1 *quickening_info_ptr = quickInfo.data;
+  const u1 *const quickening_info_end = quickInfo.data + quickInfo.size;
 
+  const vdexHeader_006 *pVdexHeader = (const vdexHeader_006 *)cursor;
   const u1 *dexFileBuf = NULL;
   u4 offset = 0;
 
@@ -385,7 +388,7 @@ int vdex_backend_006_process(const char *VdexFileName,
           continue;
         }
 
-        if (pRunArgs->unquicken && vdex_006_GetQuickeningInfoSize(cursor) != 0) {
+        if (pRunArgs->unquicken && quickInfo.size != 0) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);
@@ -412,7 +415,7 @@ int vdex_backend_006_process(const char *VdexFileName,
           continue;
         }
 
-        if (pRunArgs->unquicken && vdex_006_GetQuickeningInfoSize(cursor) != 0) {
+        if (pRunArgs->unquicken && quickInfo.size != 0) {
           // For quickening info blob the first 4bytes are the inner blobs size
           u4 quickening_size = *(u4 *)quickening_info_ptr;
           quickening_info_ptr += sizeof(u4);

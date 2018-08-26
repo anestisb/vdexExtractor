@@ -147,6 +147,10 @@ void vdex_019_SetLocationChecksum(const u1 *, u4, u4);
 void vdex_019_GetVerifierDeps(const u1 *, vdex_data_array_t *);
 void vdex_019_GetQuickeningInfo(const u1 *, vdex_data_array_t *);
 
+// Vdex 019 introduces an intermediate set of tables that contain the QuickeningInfo offsets for
+// each Dex file in the container
+void vdex_019_GetQuickenInfoOffsetTable(const u1 *, const vdex_data_array_t *, vdex_data_array_t *);
+
 void vdex_019_dumpHeaderInfo(const u1 *);
 void vdex_019_dumpDepsInfo(const u1 *);
 bool vdex_019_SanityCheck(const u1 *, size_t);

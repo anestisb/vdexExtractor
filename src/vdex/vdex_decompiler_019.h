@@ -26,9 +26,10 @@
 #include "../common.h"
 #include "../dex.h"
 #include "../dex_instruction.h"
+#include "vdex_common.h"
 
 // Dex decompiler driver function using quicken_info data
-bool vdex_decompiler_019_decompile(const u1 *, dexMethod *, const u1 *, u4, bool);
+bool vdex_decompiler_019_decompile(const u1 *, dexMethod *, const vdex_data_array_t *, bool);
 
 // Dex decompiler walk method that simply disassembles code blocks
 void vdex_decompiler_019_walk(const u1 *, dexMethod *);

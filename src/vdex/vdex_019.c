@@ -139,7 +139,7 @@ void vdex_019_GetQuickenInfoOffsetTable(const u1 *dexBuf,
                                         const vdex_data_array_t *pQuickInfo,
                                         vdex_data_array_t *pOffTable) {
   // The offset is in preheader right before the beginning of the Dex file
-  const u4 offset = (u4)(dexBuf[-4]);
+  const u4 offset = ((u4 *)dexBuf)[-1];
   CHECK_LE(offset, pQuickInfo->size);
 
   pOffTable->size = pQuickInfo->size - offset;

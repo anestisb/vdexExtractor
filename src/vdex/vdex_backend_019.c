@@ -37,8 +37,8 @@ static inline int POPCOUNT(uintptr_t x) {
 
 static void initCompactOffset(const u1 *cursor) {
   pCompactOffsetDataBegin = cursor + (2 * sizeof(u4));
-  compactOffsetMinOffset = (u4)(cursor[0]);  // First 4 bytes are are the minimum offset
-  u4 tableOffset = (u4)(cursor[4]);          // Next 4 bytes are the table offset
+  compactOffsetMinOffset = ((u4 *)cursor)[0];  // First 4 bytes are are the minimum offset
+  u4 tableOffset = ((u4 *)cursor)[1];          // Next 4 bytes are the table offset
   pCompactOffsetTable = (u4 *)(pCompactOffsetDataBegin + tableOffset);
 }
 

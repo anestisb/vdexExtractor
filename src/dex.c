@@ -598,7 +598,11 @@ void dex_dumpHeaderInfo(const u1 *cursor) {
   char *sigHex = utils_bin2hex(cursor + sizeof(dexMagic) + sizeof(u4), kSHA1Len);
 
   log_dis("------ Dex Header Info ------\n");
-  log_dis("magic        : %.4s-%.4s\n", magic.dex, magic.ver);
+  if (dex_checkType(cursor) == kNormalDex) {
+    log_dis("magic        : %.3s-%.3s\n", magic.dex, magic.ver);
+  } else {
+    log_dis("magic        : %.4s-%.4s\n", magic.dex, magic.ver);
+  }
   log_dis("checksum     : %" PRIx32 " (%" PRIu32 ")\n", dex_getChecksum(cursor),
           dex_getChecksum(cursor));
   log_dis("signature    : %s\n", sigHex);

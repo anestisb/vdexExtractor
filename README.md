@@ -4,7 +4,7 @@ Command line tool to decompile and extract Android Dex bytecode from Vdex files 
 along with Oat files when optimizing bytecode from dex2oat ART runtime compiler. Vdex file format
 has been introduced in the Oreo (API-26) build. More information is available [here][vdex-cr]. It
 should be noted that Oat files are no longer storing the matching Dex files inside their `.rodata`
-section. Instead they're always paired with a matching Vdex file.
+section. Instead they're always paired with a matching Vdex container file.
 
 
 ## Compile
@@ -53,7 +53,10 @@ AOSP.
 The Vdex fully unquicken functionality has been also implemented as part of the AOSP oatdump libart
 tool. The upstream contribution is available [here][aosp-master]. If you want to use oatdump with
 Oreo release you can use the corresponding patch [here][oatdump-oreo] or fork and build (inside and
-AOSP_SRC_ROOT workspace) the oreo-release branch of the [oatdump++][oatdump-plus] tool.
+AOSP_SRC_ROOT workspace) the oreo-release branch of the [oatdump++][oatdump-plus] tool. Google has
+released the contributed patches along with the Android Pie release of the ART runtime. However,
+the upstream oatdump is appending the entire de-duplicated shared data section at the end of each
+CompactDex file when exporting.
 
 
 ## Verified Dependencies Iterator
@@ -266,6 +269,7 @@ file #0: classDefsSize=8840
 * __0.5.0__ - TBC
   * Vdex 019 support for Android Pie (WIP)
   * Improved input file sanity checks to avoid malformed Vdex crashing the tool
+  * Various bug fixes and disassembler output improvements
 * __0.4.1__ - 4 March 2018
   * Fix Vdex 006 NOP decompilation issue
   * Support multi-depth directory recursion for input path

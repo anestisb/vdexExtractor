@@ -278,7 +278,7 @@ file #0: classDefsSize=8840
 
 ## Changelog
 
-* __0.5.0__ - TBC
+* __0.5.0__ - 30 August 2018
   * Vdex 019 support for Android Pie (verifier dependencies, decompiler & disassembler)
   * Extended Dex file parsing library to support CompactDex files
   * Extended disassembler engine to support CompactDex files as processed from the Android Pie

@@ -70,7 +70,7 @@ function build_cross_android()
   find libs -mindepth 1 -maxdepth 1 -type d | while read -r cpuBaseDir
   do
     cpu=$(basename "$cpuBaseDir")
-    cp "$baseDir/$cpu/$MODULE_NAME" "bin/$MODULE_NAME-$cpu"
+    cp "$baseDir/$cpu/$MODULE_NAME" "bin/$MODULE_NAME-android-$cpu"
   done
 }
 

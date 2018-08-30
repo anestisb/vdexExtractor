@@ -498,6 +498,7 @@ int vdex_backend_019_process(const char *VdexFileName,
 
           if (!vdex_decompiler_019_decompile(dexFileBuf, &curDexMethod, &quickenData, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
+            hashset_destroy(unquickened_code_items);
             return -1;
           }
 
@@ -507,7 +508,7 @@ int vdex_backend_019_process(const char *VdexFileName,
         } else {
           vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
         }
-      }
+      }  // EOF direct methods iterator
 
       // For each virtual method
       lastIdx = 0;
@@ -547,6 +548,7 @@ int vdex_backend_019_process(const char *VdexFileName,
 
           if (!vdex_decompiler_019_decompile(dexFileBuf, &curDexMethod, &quickenData, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
+            hashset_destroy(unquickened_code_items);
             return -1;
           }
 
@@ -556,8 +558,11 @@ int vdex_backend_019_process(const char *VdexFileName,
         } else {
           vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
         }
-      }
+      }  // EOF virtual methods iterator
     }
+
+    // Destroy hashset for current dex file
+    hashset_destroy(unquickened_code_items);
 
     if (pRunArgs->unquicken) {
       // TODO: Update this after a method to convert CDEX->DEX is decided
@@ -587,7 +592,7 @@ int vdex_backend_019_process(const char *VdexFileName,
                            dex_getFileSize(dexFileBuf))) {
       return -1;
     }
-  }
+  }  // EOF of dex file iterator
 
   return pVdexHeader->numberOfDexFiles;
 }

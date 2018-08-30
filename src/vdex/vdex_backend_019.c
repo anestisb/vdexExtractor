@@ -466,7 +466,7 @@ int vdex_backend_019_process(const char *VdexFileName,
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "direct");
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "direct");
 
         // Skip empty methods
         if (curDexMethod.codeOff == 0) {
@@ -515,7 +515,7 @@ int vdex_backend_019_process(const char *VdexFileName,
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "virtual");
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "virtual");
 
         // Skip native or abstract methods
         if (curDexMethod.codeOff == 0) {

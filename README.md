@@ -21,11 +21,23 @@ section. Instead they're always paired with a matching Vdex container file.
 * For debug builds use `$ DEBUG=true ./make.sh`
 
 
+## Dependencies
+
+The following external libraries should be installed the in the host system:
+
+1. zlib
+    * macOS with homebrew: `brew install zlib-devel`
+    * macOS with macports: `port install zlib`
+    * Linux with apt: `apt install libz-dev`
+    * Other Linux/Unix systems: Check available package manager or compile from sources
+    * Windows with cygwin: Install `zlib-devel` from cygwin installer
+
+
 ## Usage
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.4.1
+              vdexExtractor ver. 0.5.0
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 

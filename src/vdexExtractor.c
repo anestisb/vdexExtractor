@@ -203,9 +203,7 @@ int main(int argc, char **argv) {
     // Validate Vdex magic header and initialize matching version backend
     if (!vdexApi_initEnv(buf, pVdex)) {
       LOGMSG(l_WARN, "Invalid Vdex header - skipping '%s'", pFiles.files[f]);
-      munmap(buf, fileSz);
-      close(srcfd);
-      continue;
+      goto next_file;
     }
 
     pVdex->dumpHeaderInfo(buf);
@@ -229,17 +227,15 @@ int main(int argc, char **argv) {
     int ret = pVdex->process(pFiles.files[f], buf, (size_t)fileSz, &pRunArgs);
     if (ret == -1) {
       LOGMSG(l_ERROR, "Failed to process Dex files - skipping '%s'", pFiles.files[f]);
-      munmap(buf, fileSz);
-      close(srcfd);
-      continue;
+      goto next_file;
     }
 
     processedDexCnt += ret;
     processedVdexCnt++;
 
+  next_file:
     // Clean-up
     munmap(buf, fileSz);
-    buf = NULL;
     close(srcfd);
   }
 

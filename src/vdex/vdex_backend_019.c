@@ -479,8 +479,7 @@ int vdex_backend_019_process(const char *VdexFileName,
           u4 codeSize = 0;
           dex_getCodeItemInfo(dexFileBuf, &curDexMethod, &pCode, &codeSize);
           if (hashset_is_member(unquickened_code_items, (void *)pCode)) {
-            LOGMSG(l_DEBUG, "Already unquickened direct method:%d",
-                   lastIdx + curDexMethod.methodIdx);
+            vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
             goto next_dmethod;
           }
 
@@ -529,8 +528,7 @@ int vdex_backend_019_process(const char *VdexFileName,
           u4 codeSize = 0;
           dex_getCodeItemInfo(dexFileBuf, &curDexMethod, &pCode, &codeSize);
           if (hashset_is_member(unquickened_code_items, (void *)pCode)) {
-            LOGMSG(l_DEBUG, "Already unquickened virtual method:%d",
-                   lastIdx + curDexMethod.methodIdx);
+            vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
             goto next_vmethod;
           }
 

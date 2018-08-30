@@ -388,4 +388,7 @@ char *dex_descriptorClassToDot(const char *);
 // decodeOnlyInsrCnt is specified then only the instruction count is decoded.
 void dex_DecodeCDexFields(cdexCode *, u4 *, u2 *, u2 *, u2 *, u2 *, bool);
 
+// Get CodeItem information from a DexMethod
+void dex_getCodeItemInfo(const u1 *, dexMethod *, u2 **, u4 *);
+
 #endif

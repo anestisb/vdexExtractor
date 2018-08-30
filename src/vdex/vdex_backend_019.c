@@ -22,6 +22,7 @@
 
 #include <sys/mman.h>
 
+#include "../hashset/hashset.h"
 #include "../out_writer.h"
 #include "../utils.h"
 #include "vdex_backend_019.h"
@@ -414,6 +415,13 @@ int vdex_backend_019_process(const char *VdexFileName,
       initCompactOffset(quickenInfoOffTable.data);
     }
 
+    // Make sure to not unquicken the same code item multiple times.
+    hashset_t unquickened_code_items = hashset_create();
+    if (!unquickened_code_items) {
+      LOGMSG(l_ERROR, "Failed to create hashset");
+      return -1;
+    }
+
     // For each class
     log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx,
             dex_getClassDefsSize(dexFileBuf));
@@ -462,16 +470,27 @@ int vdex_backend_019_process(const char *VdexFileName,
 
         // Skip empty methods
         if (curDexMethod.codeOff == 0) {
-          continue;
+          goto next_dmethod;
         }
 
         if (pRunArgs->unquicken) {
+          // Check if we've already unquickened the code item
+          u2 *pCode = NULL;
+          u4 codeSize = 0;
+          dex_getCodeItemInfo(dexFileBuf, &curDexMethod, &pCode, &codeSize);
+          if (hashset_is_member(unquickened_code_items, (void *)pCode)) {
+            LOGMSG(l_DEBUG, "Already unquickened direct method:%d",
+                   lastIdx + curDexMethod.methodIdx);
+            goto next_dmethod;
+          }
+
+          // Since new code item, add to set
+          hashset_add(unquickened_code_items, (void *)pCode);
+
           // Offset being 0 means not quickened.
           const u4 qOffset = getOffset(lastIdx + curDexMethod.methodIdx);
 
-          // Update lastIdx since followings delta_idx are based on 1st elements idx
-          lastIdx += curDexMethod.methodIdx;
-
+          // Get quickenData for method and decompile
           vdex_data_array_t quickenData;
           memset(&quickenData, 0, sizeof(vdex_data_array_t));
           if (quickenInfo.size != 0 && qOffset != 0u) {
@@ -482,6 +501,10 @@ int vdex_backend_019_process(const char *VdexFileName,
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
+
+        next_dmethod:
+          // Update lastIdx since followings delta_idx are based on 1st elements idx
+          lastIdx += curDexMethod.methodIdx;
         } else {
           vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
         }
@@ -497,16 +520,27 @@ int vdex_backend_019_process(const char *VdexFileName,
 
         // Skip native or abstract methods
         if (curDexMethod.codeOff == 0) {
-          continue;
+          goto next_vmethod;
         }
 
         if (pRunArgs->unquicken) {
+          // Check if we've already unquickened the code item
+          u2 *pCode = NULL;
+          u4 codeSize = 0;
+          dex_getCodeItemInfo(dexFileBuf, &curDexMethod, &pCode, &codeSize);
+          if (hashset_is_member(unquickened_code_items, (void *)pCode)) {
+            LOGMSG(l_DEBUG, "Already unquickened virtual method:%d",
+                   lastIdx + curDexMethod.methodIdx);
+            goto next_vmethod;
+          }
+
+          // Since new code item, add to set
+          hashset_add(unquickened_code_items, (void *)pCode);
+
           // Offset being 0 means not quickened.
           const u4 qOffset = getOffset(lastIdx + curDexMethod.methodIdx);
 
-          // Update lastIdx since followings delta_idx are based on 1st elements idx
-          lastIdx += curDexMethod.methodIdx;
-
+          // Get quickenData for method and decompile
           vdex_data_array_t quickenData;
           memset(&quickenData, 0, sizeof(vdex_data_array_t));
           if (quickenInfo.size != 0 && qOffset != 0u) {
@@ -517,6 +551,10 @@ int vdex_backend_019_process(const char *VdexFileName,
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
+
+        next_vmethod:
+          // Update lastIdx since followings delta_idx are based on 1st elements idx
+          lastIdx += curDexMethod.methodIdx;
         } else {
           vdex_decompiler_019_walk(dexFileBuf, &curDexMethod);
         }

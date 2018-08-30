@@ -107,18 +107,10 @@ bool vdex_decompiler_019_decompile(const u1 *dexFileBuf,
     return true;
   }
 
-  // We have different code items in StandardDex and CompactDex
+  // Get method's CodeItem information
   u2 *pCode = NULL;
   u4 codeSize = 0;
-  if (dex_checkType(dexFileBuf) == kNormalDex) {
-    dexCode *pDexCode = (dexCode *)(dex_getDataAddr(dexFileBuf) + pDexMethod->codeOff);
-    pCode = pDexCode->insns;
-    codeSize = pDexCode->insnsSize;
-  } else {
-    cdexCode *pCdexCode = (cdexCode *)(dex_getDataAddr(dexFileBuf) + pDexMethod->codeOff);
-    pCode = pCdexCode->insns;
-    dex_DecodeCDexFields(pCdexCode, &codeSize, NULL, NULL, NULL, NULL, true);
-  }
+  dex_getCodeItemInfo(dexFileBuf, pDexMethod, &pCode, &codeSize);
 
   u4 startCodeOff = dex_getFirstInstrOff(dexFileBuf, pDexMethod);
 

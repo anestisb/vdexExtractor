@@ -1281,5 +1281,18 @@ void dex_DecodeCDexFields(cdexCode *pCdexCode,
   }
 }
 
+void dex_getCodeItemInfo(const u1 *dexFileBuf, dexMethod *pDexMethod, u2 **pCode, u4 *codeSize) {
+  // We have different code items in StandardDex and CompactDex
+  if (dex_checkType(dexFileBuf) == kNormalDex) {
+    dexCode *pDexCode = (dexCode *)(dex_getDataAddr(dexFileBuf) + pDexMethod->codeOff);
+    *pCode = pDexCode->insns;
+    *codeSize = pDexCode->insnsSize;
+  } else {
+    cdexCode *pCdexCode = (cdexCode *)(dex_getDataAddr(dexFileBuf) + pDexMethod->codeOff);
+    *pCode = pCdexCode->insns;
+    dex_DecodeCDexFields(pCdexCode, codeSize, NULL, NULL, NULL, NULL, true);
+  }
+}
+
 void dex_setDisassemblerStatus(bool status) { enableDisassembler = status; }
 bool dex_getDisassemblerStatus(void) { return enableDisassembler; }

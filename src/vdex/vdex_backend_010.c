@@ -25,16 +25,17 @@
 #include "../out_writer.h"
 #include "../utils.h"
 #include "vdex_backend_010.h"
+#include "vdex_common.h"
 #include "vdex_decompiler_010.h"
 
 static const u1 *quickening_info_ptr;
 static const unaligned_u4 *current_code_item_ptr;
 static const unaligned_u4 *current_code_item_end;
 
-static void QuickeningInfoItInit(u4 dex_file_idx,
-                                 u4 numberOfDexFiles,
-                                 const u1 *quicken_ptr,
-                                 u4 quicken_size) {
+static void QuickeningInfoIt_Init(u4 dex_file_idx,
+                                  u4 numberOfDexFiles,
+                                  const u1 *quicken_ptr,
+                                  u4 quicken_size) {
   quickening_info_ptr = quicken_ptr;
   const unaligned_u4 *dex_file_indices =
       (unaligned_u4 *)(quicken_ptr + quicken_size - numberOfDexFiles * sizeof(u4));
@@ -44,18 +45,16 @@ static void QuickeningInfoItInit(u4 dex_file_idx,
   current_code_item_ptr = (unaligned_u4 *)(quicken_ptr + dex_file_indices[dex_file_idx]);
 }
 
-static bool QuickeningInfoItDone() { return current_code_item_ptr == current_code_item_end; }
+static bool QuickeningInfoIt_Done() { return current_code_item_ptr == current_code_item_end; }
 
-static void QuickeningInfoItAdvance() { current_code_item_ptr += 2; }
+static void QuickeningInfoIt_Advance() { current_code_item_ptr += 2; }
 
-static u4 QuickeningInfoItGetCurrentCodeItemOffset() { return current_code_item_ptr[0]; }
+static u4 QuickeningInfoIt_GetCurrentCodeItemOffset() { return current_code_item_ptr[0]; }
 
-static const u1 *QuickeningInfoItGetCurrentPtr() {
-  return quickening_info_ptr + current_code_item_ptr[1] + sizeof(u4);
-}
-
-static u4 QuickeningInfoItGetCurrentSize() {
-  return *(unaligned_u4 *)(quickening_info_ptr + current_code_item_ptr[1]);
+static void GetCurrentQuickeningInfo(vdex_data_array_t *quickInfo) {
+  // Add sizeof(uint32_t) to remove the length from the data pointer.
+  quickInfo->data = quickening_info_ptr + current_code_item_ptr[1] + sizeof(u4);
+  quickInfo->size = *(unaligned_u4 *)(quickening_info_ptr + current_code_item_ptr[1]);
 }
 
 static inline u4 decodeUint32WithOverflowCheck(const u1 **in, const u1 *end) {
@@ -342,8 +341,8 @@ int vdex_backend_010_process(const char *VdexFileName,
   for (size_t dex_file_idx = 0; dex_file_idx < pVdexHeader->numberOfDexFiles; ++dex_file_idx) {
     vdex_data_array_t quickInfo;
     vdex_010_GetQuickeningInfo(cursor, &quickInfo);
-    QuickeningInfoItInit(dex_file_idx, pVdexHeader->numberOfDexFiles, quickInfo.data,
-                         quickInfo.size);
+    QuickeningInfoIt_Init(dex_file_idx, pVdexHeader->numberOfDexFiles, quickInfo.data,
+                          quickInfo.size);
 
     dexFileBuf = vdex_010_GetNextDexFileData(cursor, &offset);
     if (dexFileBuf == NULL) {
@@ -404,17 +403,15 @@ int vdex_backend_010_process(const char *VdexFileName,
         }
 
         if (pRunArgs->unquicken) {
-          const u1 *quickening_ptr = QuickeningInfoItGetCurrentPtr();
-          u4 quickening_size = QuickeningInfoItGetCurrentSize();
-          if (!QuickeningInfoItDone() &&
-              curDexMethod.codeOff == QuickeningInfoItGetCurrentCodeItemOffset()) {
-            QuickeningInfoItAdvance();
-          } else {
-            quickening_ptr = NULL;
-            quickening_size = 0;
+          vdex_data_array_t curQuickInfo;
+          curQuickInfo.data = NULL;
+          curQuickInfo.size = 0;
+          if (!QuickeningInfoIt_Done() &&
+              curDexMethod.codeOff == QuickeningInfoIt_GetCurrentCodeItemOffset()) {
+            GetCurrentQuickeningInfo(&curQuickInfo);
+            QuickeningInfoIt_Advance();
           }
-          if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
-                                             quickening_size, true)) {
+          if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, &curQuickInfo, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
@@ -436,17 +433,15 @@ int vdex_backend_010_process(const char *VdexFileName,
         }
 
         if (pRunArgs->unquicken) {
-          const u1 *quickening_ptr = QuickeningInfoItGetCurrentPtr();
-          u4 quickening_size = QuickeningInfoItGetCurrentSize();
-          if (!QuickeningInfoItDone() &&
-              curDexMethod.codeOff == QuickeningInfoItGetCurrentCodeItemOffset()) {
-            QuickeningInfoItAdvance();
-          } else {
-            quickening_ptr = NULL;
-            quickening_size = 0;
+          vdex_data_array_t curQuickInfo;
+          curQuickInfo.data = NULL;
+          curQuickInfo.size = 0;
+          if (!QuickeningInfoIt_Done() &&
+              curDexMethod.codeOff == QuickeningInfoIt_GetCurrentCodeItemOffset()) {
+            GetCurrentQuickeningInfo(&curQuickInfo);
+            QuickeningInfoIt_Advance();
           }
-          if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, quickening_ptr,
-                                             quickening_size, true)) {
+          if (!vdex_decompiler_010_decompile(dexFileBuf, &curDexMethod, &curQuickInfo, true)) {
             LOGMSG(l_ERROR, "Failed to decompile Dex file");
             return -1;
           }
@@ -458,7 +453,7 @@ int vdex_backend_010_process(const char *VdexFileName,
 
     if (pRunArgs->unquicken) {
       // All QuickeningInfo data should have been consumed
-      if (!QuickeningInfoItDone()) {
+      if (!QuickeningInfoIt_Done()) {
         LOGMSG(l_ERROR, "Failed to use all quickening info");
         return -1;
       }

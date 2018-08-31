@@ -373,6 +373,8 @@ int vdex_backend_019_process(const char *VdexFileName,
                              const u1 *cursor,
                              size_t bufSz,
                              const runArgs_t *pRunArgs) {
+  int ret = 0;
+
   // Basic size checks
   if (!vdex_019_SanityCheck(cursor, bufSz)) {
     LOGMSG(l_ERROR, "Malformed Vdex file");
@@ -564,33 +566,73 @@ int vdex_backend_019_process(const char *VdexFileName,
     // Destroy hashset for current dex file
     hashset_destroy(unquickened_code_items);
 
+    // Some adjustments that are needed for the deduplicated shared data section
+    const u1 *dataBuf = NULL;
+    u4 dataSize = 0;
+    if (dex_checkType(dexFileBuf) == kCompactDex) {
+      cdexHeader *pCdexHeader = (cdexHeader *)dexFileBuf;
+      u4 mainSectionSize = pCdexHeader->fileSize;
+      u4 shared_section_size = pCdexHeader->dataSize;
+      const u1 *origDataAddr = dex_getDataAddr(dexFileBuf);
+
+      // The shared section will be serialized right after the dex file.
+      pCdexHeader->dataOff = pCdexHeader->fileSize;
+      pCdexHeader->fileSize += shared_section_size;
+
+      // Allocate a new map
+      const u1 *cdexBuf = utils_malloc(pCdexHeader->fileSize);
+
+      // Copy main section
+      memcpy((void *)cdexBuf, dexFileBuf, mainSectionSize);
+
+      // Copy data section
+      memcpy((void *)(cdexBuf + mainSectionSize), origDataAddr, shared_section_size);
+
+      dataBuf = cdexBuf;
+      dataSize = pCdexHeader->fileSize;
+    } else {
+      dataBuf = dexFileBuf;
+      dataSize = dex_getFileSize(dexFileBuf);
+    }
+
     if (pRunArgs->unquicken) {
       // TODO: Update this after a method to convert CDEX->DEX is decided
-      if (dex_checkType(dexFileBuf) == kCompactDex) {
-        dex_repairDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
+      if (dex_checkType(dataBuf) == kCompactDex) {
+        dex_repairDexCRC(dataBuf, dataSize);
       } else {
         // If unquicken was successful original checksum should verify
-        u4 curChecksum = dex_computeDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
-        if (curChecksum != dex_getChecksum(dexFileBuf)) {
+        u4 curChecksum = dex_computeDexCRC(dataBuf, dataSize);
+        if (curChecksum != dex_getChecksum(dataBuf)) {
           // If ignore CRC errors is enabled, repair CRC (see issue #3)
           if (pRunArgs->ignoreCrc) {
-            dex_repairDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
+            dex_repairDexCRC(dataBuf, dataSize);
           } else {
             LOGMSG(l_ERROR, "Unexpected checksum (%" PRIx32 " vs %" PRIx32
                             ") - failed to unquicken Dex file",
-                   curChecksum, dex_getChecksum(dexFileBuf));
-            return -1;
+                   curChecksum, dex_getChecksum(dataBuf));
+            ret = -1;
+            goto loop_end;
           }
         }
       }
     } else {
       // Repair CRC if not decompiling so we can still run Dex parsing tools against output
-      dex_repairDexCRC(dexFileBuf, dex_getFileSize(dexFileBuf));
+      dex_repairDexCRC(dataBuf, dataSize);
     }
 
-    if (!outWriter_DexFile(pRunArgs, VdexFileName, dex_file_idx, dexFileBuf,
-                           dex_getFileSize(dexFileBuf))) {
-      return -1;
+    if (!outWriter_DexFile(pRunArgs, VdexFileName, dex_file_idx, dataBuf, dataSize)) {
+      ret = -1;
+      goto loop_end;
+    }
+
+  loop_end:
+    if (dex_checkType(dataBuf) == kCompactDex) {
+      free((void *)dataBuf);
+    }
+
+    // Check if we have a cached error from current dexFile
+    if (ret != 0) {
+      return ret;
     }
   }  // EOF of dex file iterator
 

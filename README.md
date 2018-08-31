@@ -279,6 +279,8 @@ file #0: classDefsSize=8840
 ## Changelog
 
 * __0.5.1__ - TBC
+  * Improve handling of deduplicated shared data section when exporting CompactDex files after
+    decompilation
   * Fixes an OOB read issue in Vdex 010 decompiler
   * Fix Dex output header formatting glitch due to different magic size of CompactDex & StandardDex
 * __0.5.0__ - 30 August 2018

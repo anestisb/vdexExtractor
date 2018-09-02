@@ -23,7 +23,6 @@
 #ifndef _VDEX_010_H_
 #define _VDEX_010_H_
 
-#include <zlib.h>
 #include "../common.h"
 #include "../dex.h"
 #include "vdex_common.h"

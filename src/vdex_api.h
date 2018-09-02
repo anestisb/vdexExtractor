@@ -23,7 +23,6 @@
 #ifndef _VDEX_API_H_
 #define _VDEX_API_H_
 
-#include <zlib.h>
 #include "common.h"
 
 typedef struct {

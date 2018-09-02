@@ -20,8 +20,6 @@
 
 */
 
-#include <sys/mman.h>
-
 #include "../hashset/hashset.h"
 #include "../out_writer.h"
 #include "../utils.h"

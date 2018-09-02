@@ -38,9 +38,9 @@ void outWriter_formatName(char *outBuf,
   }
   char formattedName[PATH_MAX] = { 0 };
   if (classId == 0) {
-    snprintf(formattedName, sizeof(formattedName), "%.*s.apk_classes.%s", fNameLen, fName, suffix);
+    snprintf(formattedName, sizeof(formattedName), "%.*s_classes.%s", fNameLen, fName, suffix);
   } else {
-    snprintf(formattedName, sizeof(formattedName), "%.*s.apk_classes%zu.%s", fNameLen, fName,
+    snprintf(formattedName, sizeof(formattedName), "%.*s_classes%zu.%s", fNameLen, fName,
              classId + 1, suffix);
   }
 

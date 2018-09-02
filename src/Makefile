@@ -46,7 +46,7 @@ endif
 default: $(TARGET)
 all: default
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c) $(wildcard */*.c))
+OBJECTS = $(patsubst %.c, %.o, $(sort $(wildcard *.c)) $(sort $(wildcard */*.c)))
 HEADERS = $(wildcard *.h)
 
 %.o: %.c $(HEADERS)

@@ -249,7 +249,7 @@ do
   fi
 done
 
-appsDeodexed=$(find "$deodexed_output" -type d -maxdepth 1 ! -path "$deodexed_output" | wc -l | tr -d ' ')
+appsDeodexed=$(find "$deodexed_output" -maxdepth 1 ! -path "$deodexed_output" -type d | wc -l | tr -d ' ')
 info "$appsDeodexed binaries have been successfully deodexed"
 
 if [ $KEEP_TMP = false ]; then

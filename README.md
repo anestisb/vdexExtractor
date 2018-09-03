@@ -37,7 +37,7 @@ The following external libraries should be installed the in the host system:
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.5.0
+              vdexExtractor ver. 0.5.1
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 
@@ -49,6 +49,7 @@ $ bin/vdexExtractor -h
  --dis                : enable bytecode disassembler
  --ignore-crc-error   : decompiled Dex CRC errors are ignored (see issue #3)
  --new-crc=<path>     : text file with extracted Apk or Dex file location checksum(s)
+ --get-api             : get Android API level based on Vdex version (expects single Vdex file)
  -v, --debug=LEVEL    : log level (0 - FATAL ... 4 - DEBUG), default: '3' (INFO)
  -l, --log-file=<path>: save disassembler and/or verified dependencies output to log file (default is STDOUT)
  -h, --help           : this help
@@ -283,6 +284,8 @@ file #0: classDefsSize=8840
     decompilation
   * Fixes an OOB read issue in Vdex 010 decompiler
   * Fix Dex output header formatting glitch due to different magic size of CompactDex & StandardDex
+  * Option (`--get-api`) to query Android API level of a Vdex file (mostly useful when scripting
+    around the tool)
 * __0.5.0__ - 30 August 2018
   * Vdex 019 support for Android Pie (verifier dependencies, decompiler & disassembler)
   * Extended Dex file parsing library to support CompactDex files

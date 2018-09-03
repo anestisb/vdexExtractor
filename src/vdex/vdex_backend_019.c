@@ -20,10 +20,10 @@
 
 */
 
+#include "vdex_backend_019.h"
 #include "../hashset/hashset.h"
 #include "../out_writer.h"
 #include "../utils.h"
-#include "vdex_backend_019.h"
 #include "vdex_decompiler_019.h"
 
 const u4 *pCompactOffsetTable;

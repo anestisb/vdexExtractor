@@ -109,3 +109,33 @@ fini:
   close(srcfd);
   return ret;
 }
+
+bool vdexApi_printApiLevel(const char *inVdexFileName) {
+  bool ret = false;
+  off_t fileSz = 0;
+  int srcfd = -1;
+  u1 *buf = NULL;
+
+  buf = utils_mapFileToRead(inVdexFileName, &fileSz, &srcfd);
+  if (buf == NULL) {
+    LOGMSG(l_ERROR, "'%s' open & map failed", inVdexFileName);
+    return ret;
+  }
+
+  if (vdex_006_isValidVdex(buf)) {
+    log_raw("API-26\n");
+  } else if (vdex_010_isValidVdex(buf)) {
+    log_raw("API-27\n");
+  } else if (vdex_019_isValidVdex(buf)) {
+    log_raw("API-28\n");
+  } else {
+    goto fini;
+  }
+
+  ret = true;
+
+fini:
+  munmap(buf, fileSz);
+  close(srcfd);
+  return ret;
+}

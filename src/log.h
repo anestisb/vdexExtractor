@@ -35,6 +35,7 @@ void log_closeLogFile();
 
 void log_msg(log_level_t, bool, bool, bool, const char *, const char *, int, const char *, ...);
 void log_dis(const char *fmt, ...);
+void log_raw(const char *fmt, ...);
 
 #define LOGMSG(ll, ...) \
   log_msg(ll, false, false, false, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);

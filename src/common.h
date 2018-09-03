@@ -90,6 +90,7 @@ typedef struct {
   bool ignoreCrc;
   bool dumpDeps;
   char *newCrcFile;
+  bool getApi;
 } runArgs_t;
 
 extern void exitWrapper(int);

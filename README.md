@@ -276,6 +276,28 @@ file #0: classDefsSize=8840
         -h|--help         : This help message
   ```
 
+* **tools/deodex/run.sh**
+
+  Helper tool to decompile (deodex) Vdex resources back to standard Dex files in a bulk manner. The
+  tool is automatically handling the case of CompactDex files (as introduced in Android Pie) and
+  uses the compact_dex_converter tool (more info
+  [here](https://github.com/anestisb/vdexExtractor/issues/23)) to convert back to StandardDex. Since
+  the converter is compiled as part of the AOSP sources, a set of binaries for Linux & maacOS is
+  maintained from the developer for convenience.
+
+  ```text
+  $ tools/deodex/run.sh -h
+    Usage: run.sh [options]
+      options:
+        -i|--input <path> : Directory with Vdex files or single file
+        -o|--output <dir> : Directory to save deodex'ed resources (default is '.')
+        -k|--keep         : Keep intermediate files (default 'false')
+        -h|--help         : This help message
+
+  $ tools/deodex/run.sh -i /tmp/vdex_samples -o /tmp/deodexed_samples
+  [INFO]: Processing 140 input Vdex files
+  [INFO]: 140 binaries have been successfully deodexed
+  ```
 
 ## Changelog
 
@@ -286,6 +308,7 @@ file #0: classDefsSize=8840
   * Fix Dex output header formatting glitch due to different magic size of CompactDex & StandardDex
   * Option (`--get-api`) to query Android API level of a Vdex file (mostly useful when scripting
     around the tool)
+  * deodex helper tool and URLs for compact_dex_converter binaries for Linux & macOS
 * __0.5.0__ - 30 August 2018
   * Vdex 019 support for Android Pie (verifier dependencies, decompiler & disassembler)
   * Extended Dex file parsing library to support CompactDex files

@@ -27,6 +27,27 @@ static bool enableDisassembler = false;
 
 static inline u2 get2LE(unsigned char const *pSrc) { return pSrc[0] | (pSrc[1] << 8); }
 
+static inline bool IsLeb128Terminator(const u1 *ptr) { return *ptr <= 0x7f; }
+
+// Returns the number of bytes needed to encode the value in unsigned LEB128.
+static inline u4 ULeb128Size(u4 data) {
+  // bits_to_encode = (data != 0) ? 32 - CLZ(x) : 1  // 32 - CLZ(data | 1)
+  // bytes = ceil(bits_to_encode / 7.0);             // (6 + bits_to_encode) / 7
+  u4 x = 6 + 32 - __builtin_clz(data | 1U);
+
+  // Division by 7 is done by (x * 37) >> 8 where 37 = ceil(256 / 7).
+  // This works for 0 <= x < 256 / (7 * 37 - 256), i.e. 0 <= x <= 85.
+  return (x * 37) >> 8;
+}
+
+static inline bool IsPowerOfTwo(u4 x) { return (x & (x - 1)) == 0; }
+
+static inline bool IsFirstBitSet(u4 value) { return !IsPowerOfTwo(value & kAccVisibilityFlags); }
+
+static inline u4 GetSecondFlag(u4 value) {
+  return ((value & kAccNative) != 0) ? kAccDexHiddenBitNative : kAccDexHiddenBit;
+}
+
 // Helper for dex_dumpInstruction(), which builds the string representation
 // for the index in the given instruction.
 static char *indexString(const u1 *dexFileBuf, u2 *codePtr, u4 bufSize) {
@@ -717,6 +738,47 @@ u4 dex_readULeb128(const u1 **pStream) {
   return (u4)result;
 }
 
+u1 *dex_writeULeb128(u1 *dest, u4 value) {
+  u1 out = value & 0x7f;
+  value >>= 7;
+  while (value != 0) {
+    *dest++ = out | 0x80;
+    out = value & 0x7f;
+    value >>= 7;
+  }
+  *dest++ = out;
+  return dest;
+}
+
+u1 *dex_reverseSearchULeb128(u1 *end_ptr) {
+  u1 *ptr = end_ptr;
+
+  // Move one byte back, check that this is the terminating byte.
+  ptr--;
+  CHECK(IsLeb128Terminator(ptr));
+
+  // Keep moving back while the previous byte is not a terminating byte.
+  // Fail after reading five bytes in case there isn't another Leb128 value
+  // before this one.
+  while (!IsLeb128Terminator(ptr - 1)) {
+    ptr--;
+    CHECK_LE(end_ptr - ptr, 5);
+  }
+
+  return ptr;
+}
+
+void dex_updateULeb128(u1 *dest, u4 value) {
+  const u1 *old_end = dest;
+  u4 old_value = dex_readULeb128(&old_end);
+  CHECK_LE(ULeb128Size(value), ULeb128Size(old_value));
+  for (u1 *end = dex_writeULeb128(dest, value); end < old_end; end++) {
+    // Use longer encoding than necessary to fill the allocated space.
+    end[-1] |= 0x80;
+    end[0] = 0;
+  }
+}
+
 s4 dex_readSLeb128(const u1 **data) {
   const u1 *ptr = *data;
   s4 result = *(ptr++);
@@ -1296,6 +1358,25 @@ void dex_getCodeItemInfo(const u1 *dexFileBuf, dexMethod *pDexMethod, u2 **pCode
     *pCode = pCdexCode->insns;
     dex_DecodeCDexFields(pCdexCode, codeSize, NULL, NULL, NULL, NULL, true);
   }
+}
+
+u4 dex_decodeAccessFlagsFromDex(u4 dex_access_flags) {
+  u4 new_access_flags = dex_access_flags;
+  if (IsFirstBitSet(new_access_flags) != false) {
+    new_access_flags ^= kAccVisibilityFlags;
+  }
+  new_access_flags &= ~GetSecondFlag(new_access_flags);
+  return new_access_flags;
+}
+
+void dex_unhideAccessFlags(u1 *data_ptr, u4 new_access_flags, bool is_method) {
+  // Go back 1 uleb to start.
+  data_ptr = dex_reverseSearchULeb128(data_ptr);
+  if (is_method) {
+    // Methods have another uleb field before the access flags
+    data_ptr = dex_reverseSearchULeb128(data_ptr);
+  }
+  dex_updateULeb128(data_ptr, new_access_flags);
 }
 
 void dex_setDisassemblerStatus(bool status) { enableDisassembler = status; }

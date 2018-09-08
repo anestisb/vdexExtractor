@@ -428,7 +428,6 @@ int vdex_backend_019_process(const char *VdexFileName,
     for (u4 i = 0; i < dex_getClassDefsSize(dexFileBuf); ++i) {
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
 
-      // TODO: Unhide APIs if we're unquickening
       dex_dumpClassInfo(dexFileBuf, i);
 
       // Last read field or method index to apply delta to
@@ -451,6 +450,10 @@ int vdex_backend_019_process(const char *VdexFileName,
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(&curClassDataCursor, &pDexField);
+
+        // APIs are unhidden regardless if we're decompiling or not
+        dex_unhideAccessFlags((u1 *)curClassDataCursor,
+                              dex_decodeAccessFlagsFromDex(pDexField.accessFlags), false);
       }
 
       // Skip instance fields
@@ -458,6 +461,10 @@ int vdex_backend_019_process(const char *VdexFileName,
         dexField pDexField;
         memset(&pDexField, 0, sizeof(dexField));
         dex_readClassDataField(&curClassDataCursor, &pDexField);
+
+        // APIs are unhidden regardless if we're decompiling or not
+        dex_unhideAccessFlags((u1 *)curClassDataCursor,
+                              dex_decodeAccessFlagsFromDex(pDexField.accessFlags), false);
       }
 
       // For each direct method
@@ -467,6 +474,10 @@ int vdex_backend_019_process(const char *VdexFileName,
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
         dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "direct");
+
+        // APIs are unhidden regardless if we're decompiling or not
+        dex_unhideAccessFlags((u1 *)curClassDataCursor,
+                              dex_decodeAccessFlagsFromDex(curDexMethod.accessFlags), true);
 
         // Skip empty methods
         if (curDexMethod.codeOff == 0) {
@@ -517,6 +528,10 @@ int vdex_backend_019_process(const char *VdexFileName,
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
         dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "virtual");
+
+        // APIs are unhidden regardless if we're decompiling or not
+        dex_unhideAccessFlags((u1 *)curClassDataCursor,
+                              dex_decodeAccessFlagsFromDex(curDexMethod.accessFlags), true);
 
         // Skip native or abstract methods
         if (curDexMethod.codeOff == 0) {

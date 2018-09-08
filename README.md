@@ -301,6 +301,8 @@ file #0: classDefsSize=8840
 
 ## Changelog
 
+* __0.5.2__ - TBC
+  * Fix an issue when decompiling framework bytecode the APIs of which have been hidden
 * __0.5.1__ - 3 September 2018
   * Improve handling of deduplicated shared data section when exporting CompactDex files after
     decompilation

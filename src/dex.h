@@ -26,6 +26,7 @@
 #include <zlib.h>
 #include "common.h"
 #include "dex_instruction.h"
+#include "dex_modifiers.h"
 
 // CompactDex helper constants for CodeItem decoding
 #define kRegistersSizeShift ((size_t)12)
@@ -321,6 +322,19 @@ void dex_repairDexCRC(const u1 *, off_t);
 // tolerates non-zero high-order bits in the fifth encoded byte.
 u4 dex_readULeb128(const u1 **);
 
+// Writes an unsigned LEB128 (Little-Endian Base 128) value, updating the
+// given pointer to point just past the end of the written value.
+u1 *dex_writeULeb128(u1 *dest, u4 value);
+
+// Returns the first byte of a Leb128 value assuming that:
+// (1) `end_ptr` points to the first byte after the Leb128 value, and
+// (2) there is another Leb128 value before this one.
+u1 *dex_reverseSearchULeb128(u1 *);
+
+// Overwrite encoded Leb128 with a new value. The new value must be less than
+// or equal to the old value to ensure that it fits the allocated space.
+void dex_updateULeb128(u1 *, u4);
+
 // Reads a signed LEB128 value, updating the given pointer to point
 // just past the end of the read value. This function tolerates
 // non-zero high-order bits in the fifth encoded byte.
@@ -390,5 +404,10 @@ void dex_DecodeCDexFields(cdexCode *, u4 *, u2 *, u2 *, u2 *, u2 *, bool);
 
 // Get CodeItem information from a DexMethod
 void dex_getCodeItemInfo(const u1 *, dexMethod *, u2 **, u4 *);
+
+u4 dex_decodeAccessFlagsFromDex(u4);
+
+// Changes the dex class data pointed to by data_ptr it to not have any hiddenapi flags.
+void dex_unhideAccessFlags(u1 *, u4, bool);
 
 #endif

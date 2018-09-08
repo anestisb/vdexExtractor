@@ -113,34 +113,34 @@ static const u4 kAccClassIsFinalizable = 0x80000000;
 
 // Continuous sequence of bits used to hold the ordinal of an intrinsic method. Flags
 // which overlap are not valid when kAccIntrinsic is set.
-static const u4 kAccIntrinsicBits =
-    kAccMayBeUnusedBits | kAccHiddenApiBits | kAccSingleImplementation | kAccMustCountLocks |
-    kAccCompileDontBother | kAccDefaultConflict | kAccPreviouslyWarm;
+#define kAccIntrinsicBits                                                                    \
+  (kAccMayBeUnusedBits | kAccHiddenApiBits | kAccSingleImplementation | kAccMustCountLocks | \
+   kAccCompileDontBother | kAccDefaultConflict | kAccPreviouslyWarm)
 
 // Valid (meaningful) bits for a field.
-static const u4 kAccValidFieldFlags = kAccPublic | kAccPrivate | kAccProtected | kAccStatic |
-                                      kAccFinal | kAccVolatile | kAccTransient | kAccSynthetic |
-                                      kAccEnum;
+#define kAccValidFieldFlags                                                           \
+  (kAccPublic | kAccPrivate | kAccProtected | kAccStatic | kAccFinal | kAccVolatile | \
+   kAccTransient | kAccSynthetic | kAccEnum)
 
 // Valid (meaningful) bits for a method.
-static const u4 kAccValidMethodFlags = kAccPublic | kAccPrivate | kAccProtected | kAccStatic |
-                                       kAccFinal | kAccSynchronized | kAccBridge | kAccVarargs |
-                                       kAccNative | kAccAbstract | kAccStrict | kAccSynthetic |
-                                       kAccConstructor | kAccDeclaredSynchronized;
+#define kAccValidMethodFlags                                                              \
+  (kAccPublic | kAccPrivate | kAccProtected | kAccStatic | kAccFinal | kAccSynchronized | \
+   kAccBridge | kAccVarargs | kAccNative | kAccAbstract | kAccStrict | kAccSynthetic |    \
+   kAccConstructor | kAccDeclaredSynchronized)
 
 // Valid (meaningful) bits for a class (not interface).
 // Note 1. These are positive bits. Other bits may have to be zero.
 // Note 2. Inner classes can expose more access flags to Java programs. That is handled by libcore.
-static const u4 kAccValidClassFlags =
-    kAccPublic | kAccFinal | kAccSuper | kAccAbstract | kAccSynthetic | kAccEnum;
+#define kAccValidClassFlags \
+  (kAccPublic | kAccFinal | kAccSuper | kAccAbstract | kAccSynthetic | kAccEnum)
 
 // Valid (meaningful) bits for an interface.
 // Note 1. Annotations are interfaces.
 // Note 2. These are positive bits. Other bits may have to be zero.
 // Note 3. Inner classes can expose more access flags to Java programs. That is handled by libcore.
-static const u4 kAccValidInterfaceFlags =
-    kAccPublic | kAccInterface | kAccAbstract | kAccSynthetic | kAccAnnotation;
+#define kAccValidInterfaceFlags \
+  (kAccPublic | kAccInterface | kAccAbstract | kAccSynthetic | kAccAnnotation)
 
-static const u4 kAccVisibilityFlags = kAccPublic | kAccPrivate | kAccProtected;
+#define kAccVisibilityFlags (kAccPublic | kAccPrivate | kAccProtected)
 
 #endif

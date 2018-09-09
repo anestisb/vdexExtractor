@@ -41,6 +41,9 @@ ifneq (,$(findstring -m32,$(CFLAGS)))
 endif
 endif
 
+GIT_VERSION := $(shell git rev-parse --short HEAD | tr -d "\n")
+CFLAGS += -DVERSION=\"dev-$(GIT_VERSION)\"
+
 .PHONY: default all clean
 
 default: $(TARGET)

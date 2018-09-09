@@ -70,8 +70,13 @@ typedef __attribute__((__aligned__(1))) int32_t unaligned_s4;
 #define CHECK_GT(a, b) CHECK_IMPL((a), >, (b))
 #define CHECK_GE(a, b) CHECK_IMPL((a), >=, (b))
 
+#define IS_DEV_VER  // Comment when release build
 #define PROG_NAME "vdexExtractor"
-#define PROG_VERSION "0.5.2"
+#ifdef IS_DEV_VER
+#define PROG_VERSION VERSION
+#else
+#define PROG_VERSION "0.5.1"
+#endif
 #define PROG_AUTHORS                                    \
   "    Anestis Bechtsoudis <anestis@census-labs.com>\n" \
   "  Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved."

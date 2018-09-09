@@ -384,9 +384,12 @@ char *utils_fileBasename(char const *path) {
   }
 }
 
-bool utils_isDir(const char *path) {
+bool utils_isValidDir(const char *path) {
   struct stat buf;
-  stat(path, &buf);
+  if (stat(path, &buf) != 0) {
+    LOGMSG(l_ERROR, "stat() failed: %s", strerror(errno));
+    return false;
+  }
   return S_ISDIR(buf.st_mode);
 }
 

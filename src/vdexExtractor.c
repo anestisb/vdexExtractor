@@ -160,6 +160,12 @@ int main(int argc, char **argv) {
     exitWrapper(EXIT_FAILURE);
   }
 
+  // Check output directory
+  if (!utils_isValidDir(pRunArgs.outputDir)) {
+    LOGMSG(l_FATAL, "'%s' output directory is not valid", pRunArgs.outputDir);
+    exitWrapper(EXIT_FAILURE);
+  }
+
   int mainRet = EXIT_FAILURE;
 
   if (pRunArgs.getApi) {
@@ -264,9 +270,9 @@ int main(int argc, char **argv) {
   DISPLAY(l_INFO, "%zu out of %u Vdex files have been processed", processedVdexCnt, vdexCnt);
   DISPLAY(l_INFO, "%u Dex files have been extracted in total", processedDexCnt);
   DISPLAY(l_INFO, "Extracted Dex files are available in '%s'",
-          pRunArgs.outputDir
-              ? pRunArgs.outputDir
-              : (utils_isDir(pFiles.inputFile) ? pFiles.inputFile : dirname(pFiles.inputFile)));
+          pRunArgs.outputDir ? pRunArgs.outputDir
+                             : (utils_isValidDir(pFiles.inputFile) ? pFiles.inputFile
+                                                                   : dirname(pFiles.inputFile)));
   mainRet = EXIT_SUCCESS;
 
 complete:

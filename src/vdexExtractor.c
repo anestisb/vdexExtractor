@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
   }
 
   // Check output directory
-  if (!utils_isValidDir(pRunArgs.outputDir)) {
+  if (pRunArgs.outputDir && !utils_isValidDir(pRunArgs.outputDir)) {
     LOGMSG(l_FATAL, "'%s' output directory is not valid", pRunArgs.outputDir);
     exitWrapper(EXIT_FAILURE);
   }

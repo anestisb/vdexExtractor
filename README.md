@@ -37,7 +37,7 @@ The following external libraries should be installed the in the host system:
 
 ```
 $ bin/vdexExtractor -h
-              vdexExtractor ver. 0.5.1
+              vdexExtractor ver. 0.5.2
     Anestis Bechtsoudis <anestis@census-labs.com>
   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
 
@@ -344,7 +344,7 @@ update.
 
 ## Changelog
 
-* __0.5.2__ - TBC
+* __0.5.2__ - 22 September 2018
   * Fix an issue when decompiling framework bytecode the APIs of which have been hidden
 * __0.5.1__ - 3 September 2018
   * Improve handling of deduplicated shared data section when exporting CompactDex files after

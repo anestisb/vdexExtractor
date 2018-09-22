@@ -265,7 +265,9 @@ addition the "compact_dex_converter" binaries can be downloaded from the followi
   * With shared libraries (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhEnU9Ei_3MeQipGr
   * Statically compiled: NOT SUPPORTED
 * macOS
-  * COMING SOON
+  * With shared libraries: https://1drv.ms/u/s!ArDC4mvMyPrRhE45gEUNolEiZ50u
+  * With shared libraries (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhFG5WH_zNz0jNarZ
+  * Statically compiled: NOT SUPPORTED
 
 The 's' suffix in binary names stands for "statically compiled" and the 'd' for "debug" build. They
 can be also combined (e.g. 'ds' - statically compiled debug build).

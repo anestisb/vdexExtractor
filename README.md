@@ -257,16 +257,21 @@ addition the "compact_dex_converter" binaries can be downloaded from the followi
 
 * Linux x86-64
   * With shared libraries: https://1drv.ms/u/s!ArDC4mvMyPrRhEsiuPjOF_ssIfOe
-  * With shared libraries (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhE3Z2jdBXJIhazjc
+  * With shared libraries **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhE3Z2jdBXJIhazjc
   * Statically compiled: https://1drv.ms/u/s!ArDC4mvMyPrRhEq96XX-LsCACF2s
-  * Statically compiled (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhEwmwM8--zdhoCB2
+  * Statically compiled **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhEwmwM8--zdhoCB2
+* Linux x86-64 old CPUs (no SSE4.2 & no POPCNT [#29](https://github.com/anestisb/vdexExtractor/issues/29))
+  * With shared libraries: https://1drv.ms/u/s!ArDC4mvMyPrRhFP46IyBqOtihS9s
+  * With shared libraries **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhFXEGW9vrlMlTKDJ
+  * Statically compiled: https://1drv.ms/u/s!ArDC4mvMyPrRhFIFZCF9TtEHVooc
+  * Statically compiled **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhFSMELB_H3w5Cdfe
 * ARM64 (aarch64)
   * With shared libraries: https://1drv.ms/u/s!ArDC4mvMyPrRhEindMOf3aWCbQRr
-  * With shared libraries (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhEnU9Ei_3MeQipGr
+  * With shared libraries **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhEnU9Ei_3MeQipGr
   * Statically compiled: NOT SUPPORTED
 * macOS
   * With shared libraries: https://1drv.ms/u/s!ArDC4mvMyPrRhE45gEUNolEiZ50u
-  * With shared libraries (debug): https://1drv.ms/u/s!ArDC4mvMyPrRhFG5WH_zNz0jNarZ
+  * With shared libraries **debug**: https://1drv.ms/u/s!ArDC4mvMyPrRhFG5WH_zNz0jNarZ
   * Statically compiled: NOT SUPPORTED
 
 The 's' suffix in binary names stands for "statically compiled" and the 'd' for "debug" build. They

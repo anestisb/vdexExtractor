@@ -162,7 +162,7 @@ bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
   // byte (the number of entries) per struct.
   vdex_data_array_t vDeps;
   vdex_006_GetVerifierDeps(cursor, &vDeps);
-  if (vDeps.offset && ((vDeps.offset + 9) > bufSz)) {
+  if (vDeps.offset && vDeps.size && ((vDeps.offset + 9) > bufSz)) {
     LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32
                     " + %" PRIx32 " > %" PRIx32 ")",
            vDeps.offset, vDeps.size, bufSz);

@@ -158,10 +158,11 @@ void vdex_006_dumpHeaderInfo(const u1 *cursor) {
 }
 
 bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
-  // Check that verifier deps section doesn't point past the end of file
+  // Check that verifier deps section doesn't point past the end of file. We expect at least one
+  // byte (the number of entries) per struct.
   vdex_data_array_t vDeps;
   vdex_006_GetVerifierDeps(cursor, &vDeps);
-  if (vDeps.offset + vDeps.size > bufSz) {
+  if (vDeps.offset && ((vDeps.offset + 9) > bufSz)) {
     LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32
                     " + %" PRIx32 " > %" PRIx32 ")",
            vDeps.offset, vDeps.size, bufSz);
@@ -171,7 +172,7 @@ bool vdex_006_SanityCheck(const u1 *cursor, size_t bufSz) {
   // Check that quickening info section doesn't point past the end of file
   vdex_data_array_t quickInfo;
   vdex_006_GetQuickeningInfo(cursor, &quickInfo);
-  if (quickInfo.offset + quickInfo.size > bufSz) {
+  if (quickInfo.size && ((quickInfo.offset + quickInfo.size) > bufSz)) {
     LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32
                     " > %" PRIx32 ")",
            quickInfo.offset, quickInfo.size, bufSz);

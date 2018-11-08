@@ -369,6 +369,7 @@ int vdex_backend_006_process(const char *VdexFileName,
     log_dis("file #%zu: classDefsSize=%" PRIu32 "\n", dex_file_idx,
             dex_getClassDefsSize(dexFileBuf));
     for (u4 i = 0; i < dex_getClassDefsSize(dexFileBuf); ++i) {
+      u4 lastIdx = 0;
       const dexClassDef *pDexClassDef = dex_getClassDef(dexFileBuf, i);
       dex_dumpClassInfo(dexFileBuf, i);
 
@@ -399,11 +400,13 @@ int vdex_backend_006_process(const char *VdexFileName,
       }
 
       // For each direct method
+      lastIdx = 0;  // transition to next array, reset last index
       for (u4 j = 0; j < pDexClassDataHeader.directMethodsSize; ++j) {
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "direct");
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "direct");
+        lastIdx += curDexMethod.methodIdx;
 
         // Skip empty methods
         if (curDexMethod.codeOff == 0) {
@@ -426,11 +429,13 @@ int vdex_backend_006_process(const char *VdexFileName,
       }
 
       // For each virtual method
+      lastIdx = 0;  // transition to next array, reset last index
       for (u4 j = 0; j < pDexClassDataHeader.virtualMethodsSize; ++j) {
         dexMethod curDexMethod;
         memset(&curDexMethod, 0, sizeof(dexMethod));
         dex_readClassDataMethod(&curClassDataCursor, &curDexMethod);
-        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, j, "virtual");
+        dex_dumpMethodInfo(dexFileBuf, &curDexMethod, lastIdx, "virtual");
+        lastIdx += curDexMethod.methodIdx;
 
         // Skip native or abstract methods
         if (curDexMethod.codeOff == 0) {

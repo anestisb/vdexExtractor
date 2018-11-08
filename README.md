@@ -349,6 +349,8 @@ update.
 
 ## Changelog
 
+* __0.5.3__ - TBC
+  * Fix an issue in the method iterator of the Vdex 006 & 010 backends
 * __0.5.2__ - 22 September 2018
   * Fix an issue when decompiling framework bytecode the APIs of which have been hidden
 * __0.5.1__ - 3 September 2018

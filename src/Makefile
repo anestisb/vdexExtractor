@@ -22,7 +22,7 @@ DEBUG ?= false
 
 TARGET  = vdexExtractor
 CFLAGS  += -c -std=c11 -D_GNU_SOURCE \
-           -Wall -Wextra -Werror
+           -Wall -Wextra -Werror -Wno-address-of-packed-member
 LDFLAGS += -lm -lz
 
 ifeq ($(DEBUG),true)

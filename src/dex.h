@@ -188,7 +188,7 @@ typedef struct __attribute__((packed)) {
   dexMapItem list[1];
 } dexMapList;
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(4))) {
   // the number of registers used by this code (locals + parameters)
   u2 registersSize;
   // the number of words of incoming arguments to the method  that this code is for
@@ -210,7 +210,7 @@ typedef struct __attribute__((packed)) {
   // followed by catch_handler_item[handlersSize]
 } dexCode;
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(2))) {
   // Packed code item data, 4 bits each: [registers_size, ins_size, outs_size, tries_size]
   u2 fields;
   // 5 bits for if either of the fields required preheader extension, 11 bits for the number of
@@ -221,7 +221,7 @@ typedef struct __attribute__((packed)) {
   // followed by try_item[triesSize]
   // followed by uleb128 handlersSize
   // followed by catch_handler_item[handlersSize]
-} cdexCode;
+  } cdexCode;
 
 typedef struct __attribute__((packed)) {
   u4 start_addr_;

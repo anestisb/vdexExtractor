@@ -4,7 +4,7 @@
    -----------------------------------------
 
    Anestis Bechtsoudis <anestis@census-labs.com>
-   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
+   Copyright 2017 - 2020 by CENSUS S.A. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -149,6 +149,8 @@ u4 vdex_021_GetLocationChecksum(const u1 *, u4);
 void vdex_021_SetLocationChecksum(const u1 *, u4, u4);
 void vdex_021_GetVerifierDeps(const u1 *, vdex_data_array_t *);
 void vdex_021_GetQuickeningInfo(const u1 *, vdex_data_array_t *);
+void vdex_021_GetBootClassPathChecksumData(const u1 *, vdex_data_array_t *);
+void vdex_021_GetClassLoaderContextData(const u1 *, vdex_data_array_t *);
 
 u4 vdex_021_GetDexSectionHeaderOffset(const u1 *);
 const vdexDexSectHeader_021 *vdex_021_GetDexSectionHeader(const u1 *);

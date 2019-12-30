@@ -4,7 +4,7 @@
    -----------------------------------------
 
    Anestis Bechtsoudis <anestis@census-labs.com>
-   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
+   Copyright 2017 - 2020 by CENSUS S.A. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -141,6 +141,33 @@ void vdex_021_GetQuickeningInfo(const u1 *cursor, vdex_data_array_t *pQuickInfo)
   }
 }
 
+void vdex_021_GetBootClassPathChecksumData(const u1 *cursor, vdex_data_array_t *pBootClsPathCsums) {
+  const vdexHeader_021 *pVdexHeader = (const vdexHeader_021 *)cursor;
+  vdex_data_array_t vQuickInfo;
+  vdex_021_GetVerifierDeps(cursor, &vQuickInfo);
+  if (vQuickInfo.size) {
+    // if QuickInfo present BootClassPathChecksumData are following
+    pBootClsPathCsums->data = vQuickInfo.data + vQuickInfo.size;
+    pBootClsPathCsums->offset = vQuickInfo.offset + vQuickInfo.size;
+  } else {
+    // Otherwise the are under VerifierDependencies
+    vdex_data_array_t vDeps;
+    vdex_021_GetVerifierDeps(cursor, &vDeps);
+    pBootClsPathCsums->data = vDeps.data + vDeps.size;
+    pBootClsPathCsums->offset = vDeps.offset + vDeps.size;
+  }
+  pBootClsPathCsums->size = pVdexHeader->bootclasspathChecksumsSize;
+}
+
+void vdex_021_GetClassLoaderContextData(const u1 *cursor, vdex_data_array_t *pClsLoaderCtx) {
+  const vdexHeader_021 *pVdexHeader = (const vdexHeader_021 *)cursor;
+  vdex_data_array_t bootClsPathCsums;
+  vdex_021_GetBootClassPathChecksumData(cursor, &bootClsPathCsums);
+  pClsLoaderCtx->data = bootClsPathCsums.data + bootClsPathCsums.size;
+  pClsLoaderCtx->offset = bootClsPathCsums.offset + bootClsPathCsums.size;
+  pClsLoaderCtx->size = pVdexHeader->bootclasspathChecksumsSize;
+}
+
 void vdex_021_GetQuickenInfoOffsetTable(const u1 *dexBuf,
                                         const vdex_data_array_t *pQuickInfo,
                                         vdex_data_array_t *pOffTable) {
@@ -159,6 +186,10 @@ void vdex_021_dumpHeaderInfo(const u1 *cursor) {
   vdex_021_GetVerifierDeps(cursor, &vDeps);
   vdex_data_array_t quickInfo;
   vdex_021_GetQuickeningInfo(cursor, &quickInfo);
+  vdex_data_array_t bootClsPathCsums;
+  vdex_021_GetBootClassPathChecksumData(cursor, &bootClsPathCsums);
+  vdex_data_array_t clsLoaderCtx;
+  vdex_021_GetClassLoaderContextData(cursor, &clsLoaderCtx);
 
   LOGMSG_RAW(l_DEBUG, "------ Vdex Header Info -------\n");
   LOGMSG_RAW(l_DEBUG, "magic header                  : %.4s\n", pVdexHeader->magic);
@@ -174,6 +205,14 @@ void vdex_021_dumpHeaderInfo(const u1 *cursor) {
              quickInfo.size);
   LOGMSG_RAW(l_DEBUG, "quickening info offset        : %" PRIx32 " (%" PRIu32 ")\n",
              quickInfo.offset, quickInfo.offset);
+  LOGMSG_RAW(l_DEBUG, "boot clspath checksums size   : %" PRIx32 " (%" PRIu32 ")\n",
+             bootClsPathCsums.size, bootClsPathCsums.size);
+  LOGMSG_RAW(l_DEBUG, "boot clspath checksums offset : %" PRIx32 " (%" PRIu32 ")\n",
+             bootClsPathCsums.offset, bootClsPathCsums.offset);
+  LOGMSG_RAW(l_DEBUG, "class loader context size     : %" PRIx32 " (%" PRIu32 ")\n",
+             clsLoaderCtx.size, clsLoaderCtx.size);
+  LOGMSG_RAW(l_DEBUG, "class loader context offset   : %" PRIx32 " (%" PRIu32 ")\n",
+             clsLoaderCtx.offset, clsLoaderCtx.offset);
   if (vdex_021_hasDexSection(cursor)) {
     const vdexDexSectHeader_021 *pDexSectHeader = vdex_021_GetDexSectionHeader(cursor);
     LOGMSG_RAW(l_DEBUG, "dex section header offset     : %" PRIx32 " (%" PRIu32 ")\n",
@@ -263,6 +302,29 @@ bool vdex_021_SanityCheck(const u1 *cursor, size_t bufSz) {
            quickInfo.offset, quickInfo.size, bufSz);
     return false;
   }
+
+  // Check that BootClassPathChecksum doesn't point past the end of file
+  vdex_data_array_t bootClsPathCsums;
+  vdex_021_GetBootClassPathChecksumData(cursor, &bootClsPathCsums);
+  if (bootClsPathCsums.size && ((bootClsPathCsums.offset + bootClsPathCsums.size) > bufSz)) {
+    LOGMSG(l_ERROR,
+           "BootClassPathChecksum section points past the end of file (%" PRIx32 " + %" PRIx32
+           " > %" PRIx32 ")",
+           bootClsPathCsums.offset, bootClsPathCsums.size, bufSz);
+    return false;
+  }
+
+  // Check that ClassLoaderContextData doesn't point past the end of file
+  vdex_data_array_t clsLoaderCtx;
+  vdex_021_GetClassLoaderContextData(cursor, &clsLoaderCtx);
+  if (clsLoaderCtx.size && ((clsLoaderCtx.offset + clsLoaderCtx.size) > bufSz)) {
+    LOGMSG(l_ERROR,
+           "ClassLoaderContext section points past the end of file (%" PRIx32 " + %" PRIx32
+           " > %" PRIx32 ")",
+           clsLoaderCtx.offset, clsLoaderCtx.size, bufSz);
+    return false;
+  }
+
   return true;
 }
 

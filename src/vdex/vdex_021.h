@@ -20,16 +20,16 @@
 
 */
 
-#ifndef _VDEX_019_H_
-#define _VDEX_019_H_
+#ifndef _VDEX_021_H_
+#define _VDEX_021_H_
 
 #include "../common.h"
 #include "../dex.h"
 #include "vdex_common.h"
 
-static const u1 kVdexDepsVer_019[] = { '0', '1', '9', '\0' };
-static const u1 kVdexDexSectVer_019[] = { '0', '0', '2', '\0' };
-static const u1 kDexSectVerEmpty_019[] = { '0', '0', '0', '\0' };
+static const u1 kVdexDepsVer_021[] = { '0', '2', '1', '\0' };
+static const u1 kVdexDexSectVer_021[] = { '0', '0', '2', '\0' };
+static const u1 kDexSectVerEmpty_021[] = { '0', '0', '0', '\0' };
 
 typedef struct __attribute__((packed)) {
   u1 magic[4];
@@ -37,13 +37,15 @@ typedef struct __attribute__((packed)) {
   u1 dexSectionVersion[4];
   u4 numberOfDexFiles;
   u4 verifierDepsSize;
-} vdexHeader_019;
+  u4 bootclasspathChecksumsSize;
+  u4 classLoaderContextSize;
+} vdexHeader_021;
 
 typedef struct __attribute__((packed)) {
   u4 dexSize;
   u4 dexSharedDataSize;
   u4 quickeningInfoSize;
-} vdexDexSectHeader_019;
+} vdexDexSectHeader_021;
 
 // VDEX files contain extracted DEX files. The VdexFile class maps the file to
 // memory and provides tools for accessing its individual sections.
@@ -71,91 +73,91 @@ typedef struct __attribute__((packed)) {
 //        uint32[D][]                 quickening data offset tables
 
 typedef struct __attribute__((packed)) {
-  vdexHeader_019 *pVdexHeader;
+  vdexHeader_021 *pVdexHeader;
   dexHeader *pDexFiles;
-} vdexFile_019;
+} vdexFile_021;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfStrings;
   const char **strings;
-} vdexDepStrings_019;
+} vdexDepStrings_021;
 
 typedef struct __attribute__((packed)) {
   u4 dstIndex;
   u4 srcIndex;
-} vdexDepSet_019;
+} vdexDepSet_021;
 
 typedef struct __attribute__((packed)) {
   u2 typeIdx;
   u2 accessFlags;
-} vdexDepClassRes_019;
+} vdexDepClassRes_021;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfEntries;
-  vdexDepSet_019 *pVdexDepSets;
-} vdexDepTypeSet_019;
+  vdexDepSet_021 *pVdexDepSets;
+} vdexDepTypeSet_021;
 
 typedef struct __attribute__((packed)) {
   u4 fieldIdx;
   u2 accessFlags;
   u4 declaringClassIdx;
-} vdexDepFieldRes_019;
+} vdexDepFieldRes_021;
 
 typedef struct __attribute__((packed)) {
   u4 methodIdx;
   u2 accessFlags;
   u4 declaringClassIdx;
-} vdexDepMethodRes_019;
+} vdexDepMethodRes_021;
 
-typedef struct __attribute__((packed)) { u2 typeIdx; } vdexDepUnvfyClass_019;
-
-typedef struct __attribute__((packed)) {
-  u4 numberOfEntries;
-  vdexDepClassRes_019 *pVdexDepClasses;
-} vdexDepClassResSet_019;
+typedef struct __attribute__((packed)) { u2 typeIdx; } vdexDepUnvfyClass_021;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfEntries;
-  vdexDepFieldRes_019 *pVdexDepFields;
-} vdexDepFieldResSet_019;
+  vdexDepClassRes_021 *pVdexDepClasses;
+} vdexDepClassResSet_021;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfEntries;
-  vdexDepMethodRes_019 *pVdexDepMethods;
-} vdexDepMethodResSet_019;
+  vdexDepFieldRes_021 *pVdexDepFields;
+} vdexDepFieldResSet_021;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfEntries;
-  vdexDepUnvfyClass_019 *pVdexDepUnvfyClasses;
-} vdexDepUnvfyClassesSet_019;
+  vdexDepMethodRes_021 *pVdexDepMethods;
+} vdexDepMethodResSet_021;
+
+typedef struct __attribute__((packed)) {
+  u4 numberOfEntries;
+  vdexDepUnvfyClass_021 *pVdexDepUnvfyClasses;
+} vdexDepUnvfyClassesSet_021;
 
 // Verify if valid Vdex file
-bool vdex_019_isValidVdex(const u1 *);
-bool vdex_019_isMagicValid(const u1 *);
-bool vdex_019_isVersionValid(const u1 *);
+bool vdex_021_isValidVdex(const u1 *);
+bool vdex_021_isMagicValid(const u1 *);
+bool vdex_021_isVersionValid(const u1 *);
 
-bool vdex_019_hasDexSection(const u1 *);
-u4 vdex_019_GetSizeOfChecksumsSection(const u1 *);
-const u1 *vdex_019_DexBegin(const u1 *);
-u4 vdex_019_DexBeginOffset(const u1 *);
-const u1 *vdex_019_DexEnd(const u1 *);
-u4 vdex_019_DexEndOffset(const u1 *);
-const u1 *vdex_019_GetNextDexFileData(const u1 *, u4 *);
-u4 vdex_019_GetLocationChecksum(const u1 *, u4);
-void vdex_019_SetLocationChecksum(const u1 *, u4, u4);
-void vdex_019_GetVerifierDeps(const u1 *, vdex_data_array_t *);
-void vdex_019_GetQuickeningInfo(const u1 *, vdex_data_array_t *);
+bool vdex_021_hasDexSection(const u1 *);
+u4 vdex_021_GetSizeOfChecksumsSection(const u1 *);
+const u1 *vdex_021_DexBegin(const u1 *);
+u4 vdex_021_DexBeginOffset(const u1 *);
+const u1 *vdex_021_DexEnd(const u1 *);
+u4 vdex_021_DexEndOffset(const u1 *);
+const u1 *vdex_021_GetNextDexFileData(const u1 *, u4 *);
+u4 vdex_021_GetLocationChecksum(const u1 *, u4);
+void vdex_021_SetLocationChecksum(const u1 *, u4, u4);
+void vdex_021_GetVerifierDeps(const u1 *, vdex_data_array_t *);
+void vdex_021_GetQuickeningInfo(const u1 *, vdex_data_array_t *);
 
-u4 vdex_019_GetDexSectionHeaderOffset(const u1 *);
-const vdexDexSectHeader_019 *vdex_019_GetDexSectionHeader(const u1 *);
+u4 vdex_021_GetDexSectionHeaderOffset(const u1 *);
+const vdexDexSectHeader_021 *vdex_021_GetDexSectionHeader(const u1 *);
 
-// Vdex 019 introduces an intermediate set of tables that contain the QuickeningInfo offsets for
+// Vdex 021 introduces an intermediate set of tables that contain the QuickeningInfo offsets for
 // each Dex file in the container
-void vdex_019_GetQuickenInfoOffsetTable(const u1 *, const vdex_data_array_t *, vdex_data_array_t *);
+void vdex_021_GetQuickenInfoOffsetTable(const u1 *, const vdex_data_array_t *, vdex_data_array_t *);
 
-void vdex_019_dumpHeaderInfo(const u1 *);
-void vdex_019_dumpDepsInfo(const u1 *);
-bool vdex_019_SanityCheck(const u1 *, size_t);
-int vdex_019_process(const char *, const u1 *, size_t, const runArgs_t *);
+void vdex_021_dumpHeaderInfo(const u1 *);
+void vdex_021_dumpDepsInfo(const u1 *);
+bool vdex_021_SanityCheck(const u1 *, size_t);
+int vdex_021_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

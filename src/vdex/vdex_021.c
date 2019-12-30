@@ -143,6 +143,15 @@ void vdex_021_GetQuickeningInfo(const u1 *cursor, vdex_data_array_t *pQuickInfo)
 
 void vdex_021_GetBootClassPathChecksumData(const u1 *cursor, vdex_data_array_t *pBootClsPathCsums) {
   const vdexHeader_021 *pVdexHeader = (const vdexHeader_021 *)cursor;
+  pBootClsPathCsums->size = pVdexHeader->bootclasspathChecksumsSize;
+
+  // If not present don't bother process offsets
+  if (pBootClsPathCsums->size == 0) {
+    pBootClsPathCsums->data = NULL;
+    pBootClsPathCsums->offset = -1;
+    return;
+  }
+
   vdex_data_array_t vQuickInfo;
   vdex_021_GetVerifierDeps(cursor, &vQuickInfo);
   if (vQuickInfo.size) {
@@ -156,16 +165,23 @@ void vdex_021_GetBootClassPathChecksumData(const u1 *cursor, vdex_data_array_t *
     pBootClsPathCsums->data = vDeps.data + vDeps.size;
     pBootClsPathCsums->offset = vDeps.offset + vDeps.size;
   }
-  pBootClsPathCsums->size = pVdexHeader->bootclasspathChecksumsSize;
 }
 
 void vdex_021_GetClassLoaderContextData(const u1 *cursor, vdex_data_array_t *pClsLoaderCtx) {
   const vdexHeader_021 *pVdexHeader = (const vdexHeader_021 *)cursor;
+  pClsLoaderCtx->size = pVdexHeader->bootclasspathChecksumsSize;
+
+  // If not present don't bother process offsets
+  if (pClsLoaderCtx->size == 0) {
+    pClsLoaderCtx->data = NULL;
+    pClsLoaderCtx->offset = -1;
+    return;
+  }
+
   vdex_data_array_t bootClsPathCsums;
   vdex_021_GetBootClassPathChecksumData(cursor, &bootClsPathCsums);
   pClsLoaderCtx->data = bootClsPathCsums.data + bootClsPathCsums.size;
   pClsLoaderCtx->offset = bootClsPathCsums.offset + bootClsPathCsums.size;
-  pClsLoaderCtx->size = pVdexHeader->bootclasspathChecksumsSize;
 }
 
 void vdex_021_GetQuickenInfoOffsetTable(const u1 *dexBuf,

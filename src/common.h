@@ -34,6 +34,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+
 #include "log.h"
 
 #ifndef LIKELY

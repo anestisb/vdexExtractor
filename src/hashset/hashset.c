@@ -15,6 +15,7 @@
  */
 
 #include "hashset.h"
+
 #include <assert.h>
 
 static const unsigned int prime_1 = 73;

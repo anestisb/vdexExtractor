@@ -21,6 +21,7 @@
 */
 
 #include "vdex_decompiler_006.h"
+
 #include "../utils.h"
 
 static const u1 *quickening_info_ptr;

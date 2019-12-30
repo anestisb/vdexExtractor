@@ -20,11 +20,11 @@
 
 */
 
+#include "utils.h"
+
 #include <dirent.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-
-#include "utils.h"
 
 static bool utils_readdir(infiles_t *pFiles, const char *basePath) {
   DIR *dir = opendir(basePath);

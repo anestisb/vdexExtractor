@@ -21,6 +21,7 @@
 */
 
 #include "dex.h"
+
 #include "utils.h"
 
 static bool enableDisassembler = false;

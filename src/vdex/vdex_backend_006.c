@@ -21,6 +21,7 @@
 */
 
 #include "vdex_backend_006.h"
+
 #include "../out_writer.h"
 #include "../utils.h"
 #include "vdex_decompiler_006.h"

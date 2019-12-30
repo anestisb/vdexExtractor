@@ -20,12 +20,13 @@
 
 */
 
+#include "log.h"
+
 #include <stdarg.h>
 #include <sys/time.h>
 #include <time.h>
 
 #include "common.h"
-#include "log.h"
 
 static unsigned int log_minLevel;
 static bool log_isTTY;

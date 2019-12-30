@@ -24,6 +24,7 @@
 #define _UTILS_H_
 
 #include <stdint.h>
+
 #include "common.h"
 
 bool utils_init(infiles_t *);

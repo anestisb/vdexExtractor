@@ -21,6 +21,7 @@
 */
 
 #include "vdex_backend_019.h"
+
 #include "../hashset/hashset.h"
 #include "../out_writer.h"
 #include "../utils.h"
@@ -642,8 +643,9 @@ int vdex_backend_019_process(const char *VdexFileName,
           if (pRunArgs->ignoreCrc) {
             dex_repairDexCRC(dataBuf, dataSize);
           } else {
-            LOGMSG(l_ERROR, "Unexpected checksum (%" PRIx32 " vs %" PRIx32
-                            ") - failed to unquicken Dex file",
+            LOGMSG(l_ERROR,
+                   "Unexpected checksum (%" PRIx32 " vs %" PRIx32
+                   ") - failed to unquicken Dex file",
                    curChecksum, dex_getChecksum(dataBuf));
             ret = -1;
             goto loop_end;

@@ -76,7 +76,9 @@ int main(int argc, char **argv) {
     .getApi = false,
   };
   infiles_t pFiles = {
-    .inputFile = NULL, .files = NULL, .fileCnt = 0,
+    .inputFile = NULL,
+    .files = NULL,
+    .fileCnt = 0,
   };
   vdex_api_env_t vdex_api_env;
   vdex_api_env_t *pVdex = &vdex_api_env;

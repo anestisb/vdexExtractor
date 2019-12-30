@@ -94,7 +94,9 @@ typedef struct __attribute__((packed)) {
   u4 declaringClassIdx;
 } vdexDepMethodRes_010;
 
-typedef struct __attribute__((packed)) { u2 typeIdx; } vdexDepUnvfyClass_010;
+typedef struct __attribute__((packed)) {
+  u2 typeIdx;
+} vdexDepUnvfyClass_010;
 
 typedef struct __attribute__((packed)) {
   u4 numberOfEntries;

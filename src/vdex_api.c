@@ -20,6 +20,8 @@
 
 */
 
+#include "vdex_api.h"
+
 #include <sys/mman.h>
 
 #include "log.h"
@@ -29,7 +31,6 @@
 #include "vdex/vdex_010.h"
 #include "vdex/vdex_019.h"
 #include "vdex/vdex_021.h"
-#include "vdex_api.h"
 
 bool vdexApi_initEnv(const u1 *cursor, vdex_api_env_t *env) {
   // Check if a supported Vdex version is found

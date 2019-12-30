@@ -21,6 +21,7 @@
 */
 
 #include "vdex_019.h"
+
 #include "../out_writer.h"
 #include "../utils.h"
 #include "vdex_backend_019.h"
@@ -32,13 +33,16 @@ bool vdex_019_isMagicValid(const u1 *cursor) {
 
 bool vdex_019_IsVerifierDepsVersionValid(const u1 *cursor) {
   const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)cursor;
-  return (memcmp(pVdexHeader->verifierDepsVersion, kVdexDepsVer_019, sizeof(kVdexDepsVer_019)) == 0);
+  return (memcmp(pVdexHeader->verifierDepsVersion, kVdexDepsVer_019, sizeof(kVdexDepsVer_019)) ==
+          0);
 }
 
 bool vdex_019_IsDexSectionVersionValid(const u1 *cursor) {
   const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)cursor;
-  return (memcmp(pVdexHeader->dexSectionVersion, kVdexDexSectVer_019, sizeof(kVdexDexSectVer_019)) == 0) ||
-         (memcmp(pVdexHeader->dexSectionVersion, kDexSectVerEmpty_019, sizeof(kDexSectVerEmpty_019)) == 0);
+  return (memcmp(pVdexHeader->dexSectionVersion, kVdexDexSectVer_019,
+                 sizeof(kVdexDexSectVer_019)) == 0) ||
+         (memcmp(pVdexHeader->dexSectionVersion, kDexSectVerEmpty_019,
+                 sizeof(kDexSectVerEmpty_019)) == 0);
 }
 
 bool vdex_019_isValidVdex(const u1 *cursor) {
@@ -48,7 +52,8 @@ bool vdex_019_isValidVdex(const u1 *cursor) {
 
 bool vdex_019_hasDexSection(const u1 *cursor) {
   const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)cursor;
-  return (memcmp(pVdexHeader->dexSectionVersion, kVdexDexSectVer_019, sizeof(kVdexDexSectVer_019)) == 0);
+  return (memcmp(pVdexHeader->dexSectionVersion, kVdexDexSectVer_019,
+                 sizeof(kVdexDexSectVer_019)) == 0);
 }
 
 u4 vdex_019_GetSizeOfChecksumsSection(const u1 *cursor) {
@@ -241,8 +246,9 @@ bool vdex_019_SanityCheck(const u1 *cursor, size_t bufSz) {
   vdex_data_array_t vDeps;
   vdex_019_GetVerifierDeps(cursor, &vDeps);
   if (vDeps.offset && vDeps.size && ((vDeps.offset + 7) > bufSz)) {
-    LOGMSG(l_ERROR, "Verifier dependencies section points past the end of file (%" PRIx32
-                    " + %" PRIx32 " > %" PRIx32 ")",
+    LOGMSG(l_ERROR,
+           "Verifier dependencies section points past the end of file (%" PRIx32 " + %" PRIx32
+           " > %" PRIx32 ")",
            vDeps.offset, vDeps.size, bufSz);
     return false;
   }
@@ -251,8 +257,9 @@ bool vdex_019_SanityCheck(const u1 *cursor, size_t bufSz) {
   vdex_data_array_t quickInfo;
   vdex_019_GetQuickeningInfo(cursor, &quickInfo);
   if (quickInfo.size && ((quickInfo.offset + quickInfo.size) > bufSz)) {
-    LOGMSG(l_ERROR, "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32
-                    " > %" PRIx32 ")",
+    LOGMSG(l_ERROR,
+           "Quickening info section points past the end of file (%" PRIx32 " + %" PRIx32
+           " > %" PRIx32 ")",
            quickInfo.offset, quickInfo.size, bufSz);
     return false;
   }

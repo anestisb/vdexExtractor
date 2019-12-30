@@ -349,7 +349,8 @@ update.
 
 ## Changelog
 
-* __0.5.3__ - TBC
+* __0.6.0__ - 30 December 2019
+  * Vdex 021 support for Android Q (appreciate IgorEisberg contribution)
   * Fix an issue in the method iterator of the Vdex 006 & 010 backends
   * Fix GCC 9 compilation issue
 * __0.5.2__ - 22 September 2018
@@ -428,7 +429,7 @@ update.
 
 ```
    Anestis Bechtsoudis <anestis@census-labs.com>
-   Copyright 2017 - 2018 by CENSUS S.A. All Rights Reserved.
+   Copyright 2017 - 2020 by CENSUS S.A. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

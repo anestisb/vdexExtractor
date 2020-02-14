@@ -99,6 +99,28 @@ bool vdexApi_updateChecksums(const char *inVdexFileName,
     for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
       vdex_010_SetLocationChecksum(buf, i, checksums[i]);
     }
+  } else if (vdex_019_isValidVdex(buf)) {
+    const vdexHeader_019 *pVdexHeader = (const vdexHeader_019 *)buf;
+    if ((u4)nCsums != pVdexHeader->numberOfDexFiles) {
+      LOGMSG(l_ERROR, "%d checksums loaded from file, although Vdex has %" PRIu32 " Dex entries",
+             nCsums, pVdexHeader->numberOfDexFiles)
+      goto fini;
+    }
+
+    for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
+      vdex_019_SetLocationChecksum(buf, i, checksums[i]);
+    }
+  } else if (vdex_021_isValidVdex(buf)) {
+    const vdexHeader_021 *pVdexHeader = (const vdexHeader_021 *)buf;
+    if ((u4)nCsums != pVdexHeader->numberOfDexFiles) {
+      LOGMSG(l_ERROR, "%d checksums loaded from file, although Vdex has %" PRIu32 " Dex entries",
+             nCsums, pVdexHeader->numberOfDexFiles)
+      goto fini;
+    }
+
+    for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
+      vdex_021_SetLocationChecksum(buf, i, checksums[i]);
+    }
   } else {
     LOGMSG(l_ERROR, "Unsupported Vdex version - updateChecksums failed");
     goto fini;

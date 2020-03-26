@@ -832,7 +832,7 @@ void dex_readClassDataMethod(const u1 **cursor, dexMethod *pDexMethod) {
 }
 
 // Returns the StringId at the specified index.
-const dexStringId *dex_getStringId(const u1 *dexFileBuf, u2 idx) {
+const dexStringId *dex_getStringId(const u1 *dexFileBuf, u4 idx) {
   CHECK_LT(idx, dex_getStringIdsSize(dexFileBuf));
   dexStringId *dexStringIds = (dexStringId *)(dexFileBuf + dex_getStringIdsOff(dexFileBuf));
   return &dexStringIds[idx];
@@ -882,12 +882,12 @@ const char *dex_getStringDataAndUtf16Length(const u1 *dexFileBuf,
   return (const char *)ptr;
 }
 
-const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf, u2 idx, u4 *utf16_length) {
+const char *dex_getStringDataAndUtf16LengthByIdx(const u1 *dexFileBuf, u4 idx, u4 *utf16_length) {
   const dexStringId *pDexStringId = dex_getStringId(dexFileBuf, idx);
   return dex_getStringDataAndUtf16Length(dexFileBuf, pDexStringId, utf16_length);
 }
 
-const char *dex_getStringDataByIdx(const u1 *dexFileBuf, u2 idx) {
+const char *dex_getStringDataByIdx(const u1 *dexFileBuf, u4 idx) {
   u4 unicode_length;
   return dex_getStringDataAndUtf16LengthByIdx(dexFileBuf, idx, &unicode_length);
 }
@@ -1009,7 +1009,7 @@ void dex_dumpMethodInfo(const u1 *dexFileBuf,
   const char *typeDesc = dex_getMethodSignature(dexFileBuf, pDexMethodId);
   const char *methodAccessStr = createAccessFlagStr(pDexMethod->accessFlags, kDexAccessForMethod);
 
-  log_dis("   %s_method #%" PRIu32 ": %s %s\n", type, localIdx, methodName, typeDesc);
+  log_dis("   %s_method #%" PRIu32 ": %s %s\n", type, localIdx + pDexMethod->methodIdx, methodName, typeDesc);
   log_dis("    access=%04" PRIx32 " (%s)\n", pDexMethod->accessFlags, methodAccessStr);
   log_dis("    codeOff=%" PRIx32 " (%" PRIu32 ")\n", pDexMethod->codeOff, pDexMethod->codeOff);
 

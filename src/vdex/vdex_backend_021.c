@@ -27,19 +27,19 @@
 #include "../utils.h"
 #include "vdex_decompiler_021.h"
 
-const u4 *pCompactOffsetTable;
-u4 compactOffsetMinOffset;
-const u1 *pCompactOffsetDataBegin;
+const u4 *pCompactOffsetTable_21;
+u4 compactOffsetMinOffset_21;
+const u1 *pCompactOffsetDataBegin_21;
 
 static inline int POPCOUNT(uintptr_t x) {
   return (sizeof(uintptr_t) == sizeof(u4)) ? __builtin_popcount(x) : __builtin_popcountll(x);
 }
 
 static void initCompactOffset(const u1 *cursor) {
-  pCompactOffsetDataBegin = cursor + (2 * sizeof(u4));
-  compactOffsetMinOffset = ((u4 *)cursor)[0];  // First 4 bytes are are the minimum offset
+  pCompactOffsetDataBegin_21 = cursor + (2 * sizeof(u4));
+  compactOffsetMinOffset_21 = ((u4 *)cursor)[0];  // First 4 bytes are are the minimum offset
   u4 tableOffset = ((u4 *)cursor)[1];          // Next 4 bytes are the table offset
-  pCompactOffsetTable = (u4 *)(pCompactOffsetDataBegin + tableOffset);
+  pCompactOffsetTable_21 = (u4 *)(pCompactOffsetDataBegin_21 + tableOffset);
 }
 
 // This value is coupled with the leb chunk bitmask. That logic must also be adjusted when the
@@ -51,10 +51,10 @@ static const size_t kElementsPerIndex = 16;
 // [lebs] Up to 16 lebs encoded using leb128, one leb bit. The leb specifies how the offset
 // changes compared to the previous index.
 static u4 getOffset(u4 index) {
-  const u4 offset = pCompactOffsetTable[index / kElementsPerIndex];
+  const u4 offset = pCompactOffsetTable_21[index / kElementsPerIndex];
   const size_t bit_index = index % kElementsPerIndex;
 
-  const u1 *block = pCompactOffsetDataBegin + offset;
+  const u1 *block = pCompactOffsetDataBegin_21 + offset;
   u2 bit_mask = *block;
   ++block;
   bit_mask = (bit_mask << kBitsPerByte) | *block;
@@ -67,7 +67,7 @@ static u4 getOffset(u4 index) {
   // lebs we need to decode.
   size_t count = POPCOUNT((uintptr_t)(bit_mask) << (kBitsPerIntPtrT - 1 - bit_index));
   CHECK_GT(count, 0u);
-  u4 current_offset = compactOffsetMinOffset;
+  u4 current_offset = compactOffsetMinOffset_21;
   do {
     current_offset += dex_readULeb128(&block);
     --count;

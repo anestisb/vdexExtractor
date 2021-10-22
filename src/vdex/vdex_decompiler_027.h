@@ -20,27 +20,15 @@
 
 */
 
-#ifndef _VDEX_COMMON_H_
-#define _VDEX_COMMON_H_
+#ifndef _VDEX_DECOMPILER_027_H_
+#define _VDEX_DECOMPILER_027_H_
 
 #include "../common.h"
+#include "../dex.h"
+#include "../dex_instruction.h"
+#include "vdex_common.h"
 
-#define kUnresolvedMarker (u2)(-1)
-
-static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
-
-static const u4 kChecksumSection = 0;
-static const u4 kDexFileSection = 1;
-static const u4 kVerifierDepsSection = 2;
-static const u4 kTypeLookupTableSection = 3;
-
-typedef u4 VdexChecksum;
-typedef u4 QuickeningTableOffsetType;
-
-typedef struct {
-  const u1 *data;  // Pointer to data begin
-  u4 size;         // Size of data (in bytes)
-  u4 offset;       // Offset from Vdex begin
-} vdex_data_array_t;
+// Dex decompiler walk method that simply disassembles code blocks
+void vdex_decompiler_027_walk(const u1 *, dexMethod *);
 
 #endif

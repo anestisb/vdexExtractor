@@ -31,6 +31,7 @@
 #include "vdex/vdex_010.h"
 #include "vdex/vdex_019.h"
 #include "vdex/vdex_021.h"
+#include "vdex/vdex_027.h"
 
 bool vdexApi_initEnv(const u1 *cursor, vdex_api_env_t *env) {
   // Check if a supported Vdex version is found
@@ -54,6 +55,11 @@ bool vdexApi_initEnv(const u1 *cursor, vdex_api_env_t *env) {
     env->dumpHeaderInfo = vdex_021_dumpHeaderInfo;
     env->dumpDepsInfo = vdex_021_dumpDepsInfo;
     env->process = vdex_021_process;
+  } else if (vdex_027_isValidVdex(cursor)) {
+    LOGMSG(l_DEBUG, "Initializing environment for Vdex version '027'");
+    env->dumpHeaderInfo = vdex_027_dumpHeaderInfo;
+    env->dumpDepsInfo = vdex_027_dumpDepsInfo;
+    env->process = vdex_027_process;
   } else {
     LOGMSG(l_ERROR, "Unsupported Vdex version");
     return false;
@@ -121,6 +127,17 @@ bool vdexApi_updateChecksums(const char *inVdexFileName,
     for (u4 i = 0; i < pVdexHeader->numberOfDexFiles; ++i) {
       vdex_021_SetLocationChecksum(buf, i, checksums[i]);
     }
+  } else if (vdex_027_isValidVdex(buf)) {
+    u4 numberOfDexFiles = vdex_027_GetNumberOfDexFiles(buf);
+    if ((u4)nCsums != numberOfDexFiles) {
+      LOGMSG(l_ERROR, "%d checksums loaded from file, although Vdex has %" PRIu32 " Dex entries",
+             nCsums, numberOfDexFiles)
+      goto fini;
+    }
+
+    for (u4 i = 0; i < numberOfDexFiles; ++i) {
+      vdex_027_SetLocationChecksum(buf, i, checksums[i]);
+    }
   } else {
     LOGMSG(l_ERROR, "Unsupported Vdex version - updateChecksums failed");
     goto fini;
@@ -159,6 +176,8 @@ bool vdexApi_printApiLevel(const char *inVdexFileName) {
     log_raw("API-28\n");
   } else if (vdex_021_isValidVdex(buf)) {
     log_raw("API-29\n");
+  } else if (vdex_027_isValidVdex(buf)) {
+    log_raw("API-31\n");
   } else {
     goto fini;
   }

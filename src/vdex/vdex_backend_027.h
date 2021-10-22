@@ -20,27 +20,29 @@
 
 */
 
-#ifndef _VDEX_COMMON_H_
-#define _VDEX_COMMON_H_
+#ifndef _VDEX_BACKEND_027_H_
+#define _VDEX_BACKEND_027_H_
 
 #include "../common.h"
+#include "../dex.h"
+#include "vdex_027.h"
 
-#define kUnresolvedMarker (u2)(-1)
+typedef struct __attribute__((packed)) {
+  vdexDepStrings_027 extraStrings;
+  vdexDepTypeSet_027 assignTypeSets;
+  vdexDepTypeSet_027 unassignTypeSets;
+  vdexDepClassResSet_027 classes;
+  vdexDepFieldResSet_027 fields;
+  vdexDepMethodResSet_027 methods;
+  vdexDepUnvfyClassesSet_027 unvfyClasses;
+} vdexDepData_027;
 
-static const u1 kVdexMagic[] = { 'v', 'd', 'e', 'x' };
+typedef struct __attribute__((packed)) {
+  u4 numberOfDexFiles;
+  vdexDepData_027 *pVdexDepData;
+} vdexDeps_027;
 
-static const u4 kChecksumSection = 0;
-static const u4 kDexFileSection = 1;
-static const u4 kVerifierDepsSection = 2;
-static const u4 kTypeLookupTableSection = 3;
-
-typedef u4 VdexChecksum;
-typedef u4 QuickeningTableOffsetType;
-
-typedef struct {
-  const u1 *data;  // Pointer to data begin
-  u4 size;         // Size of data (in bytes)
-  u4 offset;       // Offset from Vdex begin
-} vdex_data_array_t;
+void vdex_backend_027_dumpDepsInfo(const u1 *);
+int vdex_backend_027_process(const char *, const u1 *, size_t, const runArgs_t *);
 
 #endif

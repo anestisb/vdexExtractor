@@ -275,7 +275,7 @@ s4 dexInstr_getVRegH(u2 *);
 u2 dexInstr_getVRegH_45cc(u2 *);
 u2 dexInstr_getVRegH_4rcc(u2 *);
 bool dexInstr_hasVarArgs(u2 *);
-void dexInstr_getVarArgs(u2 *, u4[]);
+void dexInstr_getVarArgs(u2 *, u4 arg[kMaxVarArgRegs]);
 
 // Set register functions
 void dexInstr_SetVRegA_10x(u2 *, u1);

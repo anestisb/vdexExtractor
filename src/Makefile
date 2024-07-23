@@ -21,8 +21,7 @@ CC ?= gcc
 DEBUG ?= false
 
 TARGET  = vdexExtractor
-CFLAGS  += -c -std=c11 -D_GNU_SOURCE \
-           -Wall -Wextra -Werror
+CFLAGS  += -c -std=c11 -D_GNU_SOURCE
 LDFLAGS += -lm -lz
 
 ifeq ($(DEBUG),true)
